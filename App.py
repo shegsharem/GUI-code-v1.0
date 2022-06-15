@@ -20,10 +20,10 @@ f = open('theme.json', 'r')
 data = json.load(f)
 f.close()
 
-width = 1000
-height = 108
+width = 278
+height = 78
 
-window_surface = pygame.display.set_mode((width, height),pygame.RESIZABLE) # Set Resolution
+window_surface = pygame.display.set_mode((width, height)) # Set Resolution
 pygame.display.set_caption('Game')
 
 background = pygame.Surface((width, height))
