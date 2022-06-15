@@ -73,18 +73,6 @@ while running:
         # Read theme file
         run('normal_text')
 
-
-
-        
-
-          
-          #data["default":"colours"]
-            
-            #json.dump(colorChoice[1], f)
-        
-
-        #print(colorChoice)
-
     
 
   manager.update(time_delta)
