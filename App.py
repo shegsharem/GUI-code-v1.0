@@ -55,7 +55,12 @@ def getcolor():
 
 font = pygame.font.Font('C:\Windows\Fonts\Consolab.ttf', 24)
 
-text = font.render('Settings', True, white)
+class Game():
+  def openjson():
+    # Read json
+    f = open('theme.json', 'r')
+    data = json.load(f)
+    f.close()
 
 textRect = text.get_rect()
 
