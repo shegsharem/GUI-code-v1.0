@@ -15,6 +15,8 @@ or a Terminal Window
 
 3. `pip install json`
 
+4. `pip install tkinter`
+
 
 <h3> Info </h3>
 pygame_gui uses a json file for theming.
