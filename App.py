@@ -39,8 +39,9 @@ blue = (0, 0, 128)
 
 default_background_color = ('#252525')
 window_surface = pygame.display.set_mode((width, height), pygame.RESIZABLE) # Set Resolution, is resizeable
-menufont = pygame.freetype.SysFont('Consolas', 24)
+menufont = pygame.freetype.SysFont('Consolas', 24, True)
 # ------------------------------------------------------------
+
 
 pygame.display.set_caption('Game')
 
