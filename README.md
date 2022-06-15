@@ -3,7 +3,11 @@
 
 
 <h3> Getting the necessary Python modules: </h3>
-Open Command Prompt or a Terminal Window
+Open Command Prompt
+or a Terminal Window
+
+
+<h4> Run </h4>
 
 1. `pip install pygame`
 
