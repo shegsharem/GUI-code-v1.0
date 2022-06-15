@@ -1,13 +1,13 @@
 {
     "default": {
         "colours": {
-            "normal_bg": "#612761",
+            "normal_bg": "#3e3e3e",
             "hovered_bg": "#45494e",
             "disabled_bg": "#25292e",
             "selected_bg": "#193754",
             "dark_bg": "#15191e",
             "active_bg": "#313131",
-            "normal_text": "#aaf7a6",
+            "normal_text": "#c0c0c0",
             "hovered_text": "#FFFFFF",
             "selected_text": "#FFFFFF",
             "disabled_text": "#6d736f",

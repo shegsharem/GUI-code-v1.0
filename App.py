@@ -1,3 +1,4 @@
+from multiprocessing import Event
 from matplotlib.font_manager import json_dump
 import pygame
 from tkinter.colorchooser import askcolor # used for color chooser
@@ -19,31 +20,35 @@ f = open('theme.json', 'r')
 data = json.load(f)
 f.close()
 
+width = 1000
+height = 108
 
-(width, height) = (800, 600)
-
-window_surface = pygame.display.set_mode((width, height)) # Set Resolution
+window_surface = pygame.display.set_mode((width, height),pygame.RESIZABLE) # Set Resolution
 pygame.display.set_caption('Game')
 
 background = pygame.Surface((width, height))
-background.fill(pygame.Color("#DDDDDD"))
+background.fill(pygame.Color("#252525"))
 
 manager = pygame_gui.UIManager((width, height), 'theme.json')
 
-chooseColor_button = UIButton(relative_rect=pygame.Rect((350, 280), (-1, -1)), text='Choose Color',
+chooseButtonBackgroundColor_button = UIButton(relative_rect=pygame.Rect((5, 40), (-1, -1)), text='Choose Button Background Color',
+  manager=manager, object_id=ObjectID(class_id='default'))
+
+chooseTextColor_button = UIButton(relative_rect=pygame.Rect((5, 5), (-1, -1)), text='Choose Text Color',
   manager=manager, object_id=ObjectID(class_id='default'))
 
 
 clock = pygame.time.Clock()
 
-def run(yes):
+def colorprompt(yes):
   f = open('theme.json', 'r')
   data = json.load(f)
   f.close()
+  originalcolor = data['default']['colours'][yes]
 
   colorChoice = askcolor(color=(data['default']['colours'][yes]), title="Choose Color")
   if colorChoice[1] == None:
-    data['default']['colours'][yes] = default_background_color
+    data['default']['colours'][yes] = originalcolor
   else:
     data['default']['colours'][yes] = colorChoice[1]
 
@@ -69,9 +74,12 @@ while running:
     # If any pygame gui button is pressed
     if event.type == pygame_gui.UI_BUTTON_PRESSED:
 
-      if event.ui_element == chooseColor_button:
+      if event.ui_element == chooseButtonBackgroundColor_button:
         # Read theme file
-        run('normal_text')
+        colorprompt('normal_bg')
+      
+      if event.ui_element == chooseTextColor_button:
+        colorprompt('normal_text')
 
     
 
