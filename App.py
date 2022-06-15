@@ -14,6 +14,11 @@ global default_background_color
 
 default_background_color = ('#444444')
 
+# Read json
+f = open('theme.json', 'r')
+data = json.load(f)
+f.close()
+
 
 (width, height) = (800, 600)
 
@@ -30,6 +35,23 @@ chooseColor_button = UIButton(relative_rect=pygame.Rect((350, 280), (-1, -1)), t
 
 
 clock = pygame.time.Clock()
+
+def run(yes):
+  f = open('theme.json', 'r')
+  data = json.load(f)
+  f.close()
+
+  colorChoice = askcolor(color=(data['default']['colours'][yes]), title="Choose Color")
+  if colorChoice[1] == None:
+    data['default']['colours'][yes] = default_background_color
+  else:
+    data['default']['colours'][yes] = colorChoice[1]
+
+  f = open('theme.json', 'w')
+  print(data['default']['colours'][yes])
+  json.dump(data, f, indent=4)
+  f.close()
+
 
 
 running = True # Our main program state variable
@@ -49,22 +71,8 @@ while running:
 
       if event.ui_element == chooseColor_button:
         # Read theme file
-          f = open('theme.json', 'r')
-          data = json.load(f)
-          f.close()
+        run('normal_text')
 
-          
-          colorChoice = askcolor(color=(data['default']['colours']['normal_bg']), title="Choose Color")
-          print(colorChoice)
-          if colorChoice[1] == None:
-            data['default']['colours']['normal_bg'] = default_background_color
-          else:
-            data['default']['colours']['normal_bg'] = colorChoice[1]
-
-          f = open('theme.json', 'w')
-          print(data['default']['colours']['normal_bg'])
-          json.dump(data, f, indent=4)
-          f.close()
 
 
         
