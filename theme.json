@@ -1,7 +1,7 @@
 {
     "default": {
         "colours": {
-            "normal_bg": "#333333",
+            "normal_bg": "#494949",
             "hovered_bg": "#45494e",
             "disabled_bg": "#25292e",
             "selected_bg": "#193754",

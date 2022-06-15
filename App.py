@@ -1,6 +1,4 @@
 from multiprocessing import Event
-from types import NoneType
-from matplotlib.font_manager import json_dump
 import pygame
 import pygame.freetype
 from tkinter.colorchooser import askcolor # used for color chooser
