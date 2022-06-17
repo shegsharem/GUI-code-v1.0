@@ -1,5 +1,5 @@
 import pygame
-from App import Game as Menu
+from archive.App import Game as Menu
 import pygame.freetype
 
 class Game():
