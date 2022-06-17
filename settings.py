@@ -134,6 +134,9 @@ class GUI:
 
         GUI.background = pygame.Surface((1920, 1080)) # Set to maximum possible resolution
         GUI.background.fill(pygame.Color("#252525"))
+
+        GUI.chooseButtonBackgroundColor_button = UIButton(relative_rect=pygame.Rect((10, 50), (-1,-1)), text='Button Background Color',
+                manager=GUI.manager, object_id=ObjectID(class_id='default'), anchors={'left': 'left','right': 'right','top': 'top','bottom': 'bottom'})
         
         print (data)
         GUI.running = True
@@ -163,8 +166,7 @@ class GUI:
     
     def run(self):
         while GUI.running:
-            chooseButtonBackgroundColor_button = UIButton(relative_rect=pygame.Rect((10, 50), (-1,-1)), text='Button Background Color',
-                manager=GUI.manager, object_id=ObjectID(class_id='default'), anchors={'left': 'left','right': 'right','top': 'top','bottom': 'bottom'})
+            
             
             clock = pygame.time.Clock()
             time_delta = clock.tick(60)/1000.0 # Frame Cap at 60 FPS
@@ -174,12 +176,13 @@ class GUI:
 
                 if event.type == pygame.QUIT:
                     GUI.running = False
+                    Settings().run()
 
                 if event.type == pygame_gui.UI_BUTTON_PRESSED:
 
-                    if event.ui_element == chooseButtonBackgroundColor_button:
+                    if event.ui_element == GUI.chooseButtonBackgroundColor_button:
                         # Read theme file
-                        GUI.colorprompt('normal_bg')
+                        GUI.colorprompt(self,'normal_bg')
                 
 
             GUI.manager.update(time_delta)
@@ -198,5 +201,6 @@ class GUI:
         
 # Only run if the program is run directly, not when imported as a module somewhere else
 if __name__ == '__main__':
+    #Settings().run()
     GUI().run()
-    Settings().run()
+    
