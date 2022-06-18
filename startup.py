@@ -11,7 +11,7 @@ import pygame_gui
 from pygame_gui.core import ObjectID
 from pygame_gui.core.drawable_shapes import DrawableShape
 from pygame_gui.elements import UIButton
-from pygame_gui.windows import UIColourPickerDialog, UIConfirmationDialog
+from pygame_gui.windows import UIConfirmationDialog
 from pygame_gui.elements.ui_text_box import UITextBox
 from pygame_gui import UI_TEXT_BOX_LINK_CLICKED, UI_TEXT_EFFECT_FINISHED
 import pygame_gui.data
@@ -20,16 +20,15 @@ from pygame_gui.elements.ui_text_box import UITextBox
 import json
 
 
-global width
-global height
+
 global data
 global manager
 
-width = 400
-height = 200
+
 data = None
 
-
+width = 400
+height = 500
 
 
 class Text:
@@ -38,6 +37,8 @@ class Text:
         self.text = text
         self.pos = pos
 
+        global width
+        global height
         self.fontname = fontname
         self.fontsize = fontsize
         self.fontcolor = fontcolor
@@ -68,13 +69,13 @@ class Text:
     def render(self):
         # Render the text into an image
         self.rect = self.font.get_rect(self.text) # Get the image for the string of text
-        self.rect.topleft = self.pos
+        self.rect.center = self.pos
         
     
-    def draw(self):
+    def draw(self, screen):
         # Draw the text image to the screen
-        self.font.render_to(Settings.screen, self.rect.center, self.text, self.fontcolor)
-        Settings.screen.blit(Settings.screen, self.rect)
+        self.font.render_to(screen, self.rect.center, self.text, self.fontcolor)
+        #screen.blit(screen, (width/2,height/2))
 
 class Settings:
     # Create a single window app
@@ -82,6 +83,8 @@ class Settings:
     def __init__(self):
         # Initialize pygame and the application
         pygame.init()
+        global width
+        global height
         
         flags = RESIZABLE # Window is resizeable
         # Resolution -----
@@ -90,10 +93,10 @@ class Settings:
         # ----------------
         Settings.windowTitle = pygame.display.set_caption('Settings') # Window Title
         #GUI.manager = pygame_gui.UIManager((self.width, self.height), 'theme.json')
-        Settings.screen = pygame.display.set_mode((self.width, self.height), flags) # Set Resolution, set whatever flags is set to
+        Settings.screen = pygame.display.set_mode((width, height))#, #flags) # Set Resolution, set whatever flags is set to
         # For whatever reason, you must write text to the screen in order of position bottom right to top left
-        Settings.t = Text("Settings", 'Consolas', pos=(20, 20))
-        Settings.t1 = Text("Hello World", pos=(0,10))
+        Settings.t = Text("Settings", 'Consolas', pos=(0, 0), fontsize=24)
+        Settings.t1 = Text("Hello World", pos=(40,10), fontsize=24, fontcolor=Color('red'))
 
         Settings.running = True
 
@@ -104,13 +107,22 @@ class Settings:
             for event in pygame.event.get():
                 if event.type == QUIT:
                     Settings.running = False
-                    #GUI.running = True
+
+                '''
+                if event.type == pygame.VIDEORESIZE:
+                    # Make sure that if user resizes another screen, that we maintain the change when switching
+                    
+                    width = event.w
+                    height = event.h
+                    Settings.screen = pygame.display.set_mode(event.size, pygame.RESIZABLE)
+                    ''' # Set the window size to new resized resolution
+
             Settings.screen.fill(Color('gray'))
             
-            Settings.t.draw()
-            Settings.t1.draw()
+            Settings.t.draw(Settings.screen)
+            Settings.t1.draw(Settings.screen)
             
-            pygame.display.flip()
+            #pygame.display.flip()
             pygame.display.update()
            
 
@@ -120,25 +132,45 @@ class Settings:
 class GUI:
     def __init__(self):
         pygame.init()
+        pygame.freetype.init()
+        pygame.freetype.set_default_resolution(72)
+
+        global width
+        global height
 
 
-        self.width = width
-        self.height = height
+        #self.width = width
+        #self.height = height
         self.data = data
         
-        flags = RESIZABLE
+        flags = NOFRAME
 
-        GUI.windowTitle = pygame.display.set_caption('GUI') # Window Title
-        GUI.screen = pygame.display.set_mode((self.width, self.height), flags)
-        GUI.manager = pygame_gui.UIManager((self.width, self.height), 'theme.json')
 
-        GUI.background = pygame.Surface((1920, 1080)) # Set to maximum possible resolution
-        GUI.background.fill(pygame.Color("#252525"))
 
-        GUI.chooseButtonBackgroundColor_button = UIButton(relative_rect=pygame.Rect((10, 50), (-1,-1)), text='Button Background Color',
-                manager=GUI.manager, object_id=ObjectID(class_id='default'), anchors={'left': 'left','right': 'right','top': 'top','bottom': 'bottom'})
+
+        GUI.windowTitle = pygame.display.set_caption('game') # Window Title
+        GUI.screen = pygame.display.set_mode((width, height), flags, vsync=1)
+        GUI.manager = pygame_gui.UIManager((width, height), 'theme.json',)
+
+        GUI.background = pygame.Surface((width, height)) # Set to maximum possible resolution
+
+        GUI.title = Text("game", fontcolor=Color('white'), pos=(30,30), fontsize=48, fontname="Consolas")
+
+        GUI.settings_button = UIButton(relative_rect=pygame.Rect(((width/2)-100, 430), (100,50)), text='settings',
+                manager=GUI.manager, object_id=ObjectID(class_id='default'), 
+                anchors={'left': 'left','right': 'right','top': 'top','bottom': 'bottom'})
+        
+        GUI.settings_button = UIButton(relative_rect=pygame.Rect((215, 380), (160,100)), text='play',
+                manager=GUI.manager, object_id=ObjectID(class_id='buttons'), 
+                anchors={'left': 'left','right': 'right','top': 'top','bottom': 'bottom'})
+
+
+        GUI.exit_button = UIButton(relative_rect=pygame.Rect((30, 450), (60,30)), text='exit',
+                manager=GUI.manager, object_id=ObjectID(class_id='default'), 
+                anchors={'left': 'left','right': 'right','top': 'top','bottom': 'bottom'})
         
         print (data)
+
         GUI.running = True
 
     def openjson(self):
@@ -168,36 +200,65 @@ class GUI:
         while GUI.running:
             
             
+            
             clock = pygame.time.Clock()
             time_delta = clock.tick(60)/1000.0 # Frame Cap at 60 FPS
             
             for event in pygame.event.get():
                 GUI.manager.process_events(event)
+                print(event)
 
                 if event.type == pygame.QUIT:
                     GUI.running = False
-                    Settings().run()
+                    #Settings.running = True
+                    #Settings().run()
 
                 if event.type == pygame_gui.UI_BUTTON_PRESSED:
-
-                    if event.ui_element == GUI.chooseButtonBackgroundColor_button:
+                    
+                    if event.ui_element == GUI.exit_button:
+                        GUI.running = False
+                        #GUI.quitConfirm_dialog.visible = 1
+                        
+                        
+                        
                         # Read theme file
-                        GUI.colorprompt(self,'normal_bg')
-                
+                        #GUI.colorprompt(self,'normal_bg')
+                        #GUI.running = False
+
+                '''''
+                if event.type == pygame.VIDEORESIZE:
+                    print(event.size)
+                    width = event.w
+                    height = event.h
+                    GUI.screen = pygame.display.set_mode(event.size, pygame.RESIZABLE) # Set the window size to new resized resolution
+                    print(height)
+                    print(width)
+                    GUI.title.draw(GUI.screen)
+                    pygame.display.update()
+                '''
+
+            
+        
 
             GUI.manager.update(time_delta)
-            GUI.screen.blit(GUI.background, (0,0))
-            GUI.manager.draw_ui(GUI.screen)
-            pygame.display.update()
+
 
                 
+             
+            
+            
+            GUI.screen.fill(Color("#252525"))
+            GUI.manager.draw_ui(GUI.screen)
+            GUI.title.draw(GUI.screen)
+            pygame.display.update()
+     
         pygame.quit()
 
     
 
 
 
-        
+
         
 # Only run if the program is run directly, not when imported as a module somewhere else
 if __name__ == '__main__':

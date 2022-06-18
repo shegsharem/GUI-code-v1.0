@@ -1,5 +1,5 @@
 #from game import Game
-from settings import Settings, GUI
+from startup import Settings, GUI
 
 #g = Game()
 s = Settings()
