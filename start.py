@@ -9,17 +9,18 @@ from pygame_gui.core import ObjectID
 from pygame_gui.elements import UIButton
 
 import pygame_gui.data
+import tkinter as tk
 
 # Modules I wrote
 from theme_edit import editThemeFile
-from settings import Settings
+import settings
 
 
 
 
 
 editTheme = editThemeFile()
-s = Settings()
+
 
 global data
 global manager
@@ -152,8 +153,7 @@ class Start:
                         
                         
                     if event.ui_element == Start.settings_button:
-                        if s.running:
-                            s.run()
+                        settings.main()
 
                     if event.ui_element == Start.play_button:
                         print("PLAYYYYY")
