@@ -1,13 +1,12 @@
-#from game import Game
-from startup import Settings, GUI
+from settings import Settings
+from start import Start
 
 #g = Game()
-s = Settings()
-gui = GUI()
+gui = Start()
 
-while s.running:
+while gui.running:
     #g.playing = True
     #g.game_loop()
     gui.run()
-    s.run()
+
 

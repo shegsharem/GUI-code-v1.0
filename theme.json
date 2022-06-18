@@ -1,7 +1,7 @@
 {
     "default": {
         "colours": {
-            "normal_bg": "#3f3f3f",
+            "normal_bg": "#303030",
             "hovered_bg": "#45494e",
             "disabled_bg": "#25292e",
             "selected_bg": "#193754",
@@ -26,41 +26,39 @@
     },
     "buttons": {
         "colours": {
-            "normal_bg":"#3f3f3f",
-            "normal_border":"#444444",
-            "active_bg":"#313131",
-            "active_border":"#666666",
-            "hovered_border":"#444444",
-            "selected_bg":"#193754",
-            "hovered_bg":"#45494e"
+            "normal_bg": "#3f3f3f",
+            "normal_border": "#444444",
+            "active_bg": "#313131",
+            "active_border": "#666666",
+            "hovered_border": "#444444",
+            "selected_bg": "#193754",
+            "hovered_bg": "#45494e"
         },
-
         "font": {
             "name": "Consolas",
             "size": "48",
             "regular_path": "data/fonts/consolab.ttf"
-            
         },
         "misc": {
             "shape": "rounded_rectangle",
             "shape_corner_radius": "5",
-            "text_size":"45"
+            "text_size": "45"
         }
     },
     "button": {
         "colours": {
-            "normal_bg":"#3f3f3f",
-            "normal_border":"#444444",
-            "active_bg":"#313131",
-            "active_border":"#666666",
-            "hovered_border":"#444444",
-            "selected_bg":"#193754",
-            "hovered_bg":"#45494e"
+            "normal_bg": "#3f3f3f",
+            "normal_border": "#444444",
+            "active_bg": "#313131",
+            "active_border": "#666666",
+            "hovered_border": "#444444",
+            "selected_bg": "#193754",
+            "hovered_bg": "#45494e"
         },
         "misc": {
             "shape": "rounded_rectangle",
             "shape_corner_radius": "5",
-            "text_size":"45"
+            "text_size": "45"
         }
     },
     "@white_text_box": {
