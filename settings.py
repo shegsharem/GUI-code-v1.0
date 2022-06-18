@@ -1,6 +1,11 @@
 import tkinter as tk
 from tkinter import messagebox
+from tkinter import simpledialog
 from tkinter import ttk
+from tkinter.ttk import Style
+
+
+from numpy import pad
 from theme_edit import editThemeFile
 
 
@@ -14,6 +19,8 @@ class Settings(tk.Frame):
         tk.Frame.__init__(self, parent, *args, **kwargs)
         self.root = parent
         
+
+
 
         # Define Window Stuff
         self.root.title('Settings') # Set window title
@@ -39,14 +46,30 @@ class Settings(tk.Frame):
 
         # ---------------------------------------- GUI OBJECTS -----------------------------------------------------------------
         self.Title = ttk.Label(self.root, text='Settings',font=('', 24),background="#303030",foreground="#FFFFFF")
-        self.B = ttk.Button(self.root, text='Change Resolution', command=Settings.settingChange)
+        self.B = tk.Button(self.root, text='Change Resolution', bg="#333333", fg='#FFFFFF', activebackground="#313131",
+            command=Settings.settingChange)
 
+        self.menuRibbon = ttk.Notebook(parent, style='TNotebook')
 
-
+        
+        
+        self.menuRibbon.pack(pady=10, expand=True)
         self.Title.pack(ipadx=10,ipady=10)
+
         self.B.pack(ipadx=10,ipady=10)
-        self.B.place(relx=0.2,rely=0.1,anchor='center')
+        self.B.place(relx=0.1,rely=0.12,anchor='center')
         self.Title.place(relx=0.1,rely=0.05, anchor='center')
+
+        self.frame1 = ttk.Frame(self.menuRibbon, width=550, height=450)
+        self.frame2 = ttk.Frame(self.menuRibbon, width=550, height=450)
+
+        self.frame1.pack(fill='both', expand=True)
+
+        self.menuRibbon.add(self.frame1, text="General")
+        self.menuRibbon.add(self.frame2, text="Graphics")
+
+        self.style = Style()
+        self.style.configure('TNotebook',font=('',24), background='#333333')
         
 
     def on_closing(self):
@@ -60,6 +83,7 @@ class Settings(tk.Frame):
         print(editTheme.loadedFile)
         editTheme.path = 'default,colours,normal_bg'
         editTheme.colorprompt()
+    
             
             
         
