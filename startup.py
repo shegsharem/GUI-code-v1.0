@@ -134,6 +134,7 @@ class GUI:
         pygame.init()
         pygame.freetype.init()
         pygame.freetype.set_default_resolution(72)
+        GUI.titleImage = pygame.image.load('image.png')
 
         global width
         global height
@@ -172,6 +173,9 @@ class GUI:
         print (data)
 
         GUI.running = True
+    
+    def titlePicture():
+        GUI.screen.blit(GUI.titleImage, (50,125))
 
     def openjson(self):
     # Read json
@@ -244,12 +248,14 @@ class GUI:
 
 
                 
-             
+            
+            
             
             
             GUI.screen.fill(Color("#252525"))
             GUI.manager.draw_ui(GUI.screen)
             GUI.title.draw(GUI.screen)
+            GUI.titlePicture()
             pygame.display.update()
      
         pygame.quit()
