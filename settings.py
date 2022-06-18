@@ -45,7 +45,7 @@ class Settings:
             
 
     def run(self):
-        self.root.protocol("WM_DELETE_WINDOW", Settings.on_closing)
+        #self.root.protocol("WM_DELETE_WINDOW", Settings.on_closing)
         self.root.mainloop()
 
         

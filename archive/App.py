@@ -137,8 +137,9 @@ class Game():
 
 clock = pygame.time.Clock()
 
-Game.openjson()
-Game.SettingsMenu()
+if __name__ == '__main__':
+  Game.openjson()
+  Game.SettingsMenu()
 
 
 

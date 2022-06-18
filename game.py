@@ -30,7 +30,7 @@ class Game():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 self.running, self.playing = False, False
-                Menu.SettingsMenu()
+                #Menu.SettingsMenu()
             if event.type ==  pygame.KEYDOWN:
                 if event.key == pygame.K_RETURN:
                     self.START_KEY = True

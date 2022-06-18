@@ -17,6 +17,7 @@ from settings import Settings
 
 
 
+
 editTheme = editThemeFile()
 s = Settings()
 
@@ -84,7 +85,7 @@ class Start:
         pygame.init()
         pygame.freetype.init()
         pygame.freetype.set_default_resolution(72)
-        Start.titleImage = pygame.image.load('image.png')
+        
 
         global width
         global height
@@ -100,6 +101,7 @@ class Start:
         Start.windowTitle = pygame.display.set_caption('game') # Window Title
         Start.screen = pygame.display.set_mode((width, height), flags, vsync=1)
         Start.manager = pygame_gui.UIManager((width, height), 'theme.json',)
+        Start.titleImage = pygame.image.load('image.png').convert()
 
         Start.background = pygame.Surface((width, height)) # Set to maximum possible resolution
 
@@ -152,6 +154,9 @@ class Start:
                     if event.ui_element == Start.settings_button:
                         if s.running:
                             s.run()
+
+                    if event.ui_element == Start.play_button:
+                        print("PLAYYYYY")
                         
             Start.manager.update(time_delta)
 
