@@ -1,17 +1,12 @@
-from re import S
-from telnetlib import SE
 import tkinter as tk
-from tkinter import NS, RAISED, messagebox
+from tkinter import RAISED, SUNKEN, FLAT, RIDGE, GROOVE, SOLID
 from tkinter import simpledialog
 from tkinter import ttk, OptionMenu
 
-from tkinter.font import BOLD
-from tkinter.ttk import Style
+
 
 import json
-from turtle import bgcolor, update
 
-from numpy import pad
 
 
 
@@ -63,7 +58,7 @@ class Settings(tk.Frame):
 
         # Define window dimensions
         self.window_width = 300
-        self.window_height = 300
+        self.window_height = 110
 
         # Get centered coordinates of the display
 
@@ -75,8 +70,8 @@ class Settings(tk.Frame):
 
         self.root.attributes('-top') # Launch on top layer
 
-        self.frame1 = ttk.Frame(self.root, relief=RAISED, borderwidth=2,)
-        self.frame1.pack(fill='x', expand=True, padx=5,pady=5)
+        self.frame1 = ttk.Frame(self.root, relief=GROOVE, borderwidth=2)
+        self.frame1.pack(fill='x', expand=True,padx=3,pady=3)
         self.frame2 = ttk.Frame(self.frame1)
         self.frame2.pack(fill='x',expand=True)
         
@@ -86,35 +81,29 @@ class Settings(tk.Frame):
     def create_widgets(self):
         parent = self.root
 
-        self.fullscreen_checkbutton = ttk.Checkbutton(self.frame2, variable=self.GAME_SET_FULLSCREEN,
+        self.fullscreen_checkbutton = tk.Checkbutton(self.frame2, variable=self.GAME_SET_FULLSCREEN,
             onvalue="1",offvalue="0")
-        self.fullscreen_label_checkbutton = ttk.Label(self.frame2, text="Fullscreen")
+        self.fullscreen_label_checkbutton = tk.Label(self.frame2, text="Fullscreen")
         
 
-        self.resolution = ttk.Combobox(self.frame1, values=self.resolutionlist, textvariable=self.GAME_RESOLUTION)  
-        self.ResolutionLabel = ttk.Label(self.frame1, text=('Game Resolution'))
+        self.resolution = ttk.Combobox(self.frame1, values=self.resolutionlist, textvariable=self.GAME_RESOLUTION, state='readonly')  
+        self.ResolutionLabel = tk.Label(self.frame1, text=('Game Resolution'))
 
-        self.ok_button = ttk.Button(self.root, text='Save',command=self.on_closing)
-        self.cancel_button = ttk.Button(self.root, text='Cancel', command=self.root.destroy)
+        self.ok_button = tk.Button(self.root, text='Save',command=self.on_closing, relief=RAISED,borderwidth=2)
+        self.cancel_button = tk.Button(self.root, text='Cancel', command=self.root.destroy, relief=RAISED, borderwidth=2)
 
         # ----------------------------- PACKING ----------------------------------------------
         self.fullscreen_checkbutton.pack(side='right')
-        self.fullscreen_label_checkbutton.pack(side='left', padx=5,pady=5)
+        self.fullscreen_label_checkbutton.pack(side='left',padx=5,pady=5)
 
         self.resolution.pack(side='right',padx=5,pady=5)
         self.ResolutionLabel.pack(side='left',padx=5,pady=5)
 
-        self.cancel_button.pack(side='right',padx=5,pady=5)
-        self.ok_button.pack(side='right')
+        self.cancel_button.pack(side='right',padx=5,pady=5,ipadx=15)
+        self.ok_button.pack(side='right',ipadx=30,pady=5)
 
         # -------------------------------------------------------------------------------------
-    
-        
-        
-
         self.resolution.bind('<<ComboboxSelected>>',lambda event: self.changeResolutionSetting())
-
-        
 
         
     def on_closing(self):
