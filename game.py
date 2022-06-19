@@ -7,6 +7,7 @@ class Game():
         self.settingsFile = 'data/settings/gamesettings.json'
         self.loadedFile = {}
         Game.openSettingsFile(self)
+        
 
         
         pygame.init()
@@ -14,8 +15,14 @@ class Game():
         self.UP_KEY, self.DOWN_KEY, self.START_KEY, self.BACK_KEY = False, False, False, False
         self.DISPLAY_W = int(self.loadedFile['settings']['window_w'])
         self.DISPLAY_H = int(self.loadedFile['settings']['window_h'])
+        self.FULLSCREEN = int(self.loadedFile['settings']['fullscreen'])
+
+
         self.display = pygame.Surface((self.DISPLAY_W, self.DISPLAY_H))
-        self.window = pygame.display.set_mode(((self.DISPLAY_W, self.DISPLAY_H)))
+        if self.FULLSCREEN == 1:
+            self.window = pygame.display.set_mode(((self.DISPLAY_W, self.DISPLAY_H)), pygame.FULLSCREEN)
+        else:
+            self.window = pygame.display.set_mode(((self.DISPLAY_W, self.DISPLAY_H)))
         self.font_name = ("Consolas")
         self.BLACK, self.WHITE = (0,0,0), (255,255,255)
     

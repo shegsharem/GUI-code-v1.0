@@ -1,6 +1,7 @@
 {
     "settings": {
         "window_w": "840",
-        "window_h": "680"
+        "window_h": "680",
+        "fullscreen": "0"
     }
 }
