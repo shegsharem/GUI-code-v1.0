@@ -15,7 +15,7 @@ or a Terminal Window
 
 3. `pip install pypi-json`
 
-4. `pip install tkinter`
+4. `pip install tk`
 
 
 <h3> Info </h3>
