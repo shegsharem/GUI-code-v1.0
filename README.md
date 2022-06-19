@@ -20,3 +20,5 @@ or a Terminal Window
 
 <h3> Info </h3>
 pygame_gui uses a json file for theming.
+
+run main.py
