@@ -29,6 +29,7 @@ class Game():
 
 
     def check_events(self):
+        clock = pygame.time.Clock()
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 self.running, self.playing = False, False
@@ -42,6 +43,9 @@ class Game():
                     self.DOWN_KEY == True
                 if event.key == pygame.K_UP or pygame.K_w:
                     self.UP_KEY == True
+            clock.tick()
+            fps = clock.get_fps()
+            print (fps)
             
     
     def reset_keys(self):
