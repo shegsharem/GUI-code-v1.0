@@ -14,13 +14,14 @@ import tkinter as tk
 # Modules I wrote
 from theme_edit import editThemeFile
 import settings
+import game
 
 
 
 
 
 editTheme = editThemeFile()
-
+g = game
 
 global data
 global manager
@@ -91,7 +92,7 @@ class Start:
         global width
         global height
 
-        editTheme.themeFile = 'theme.json'
+        editTheme.themeFile = 'data/settings/theme.json'
         editTheme.openjson()
 
         self.data = data
@@ -101,8 +102,8 @@ class Start:
 
         Start.windowTitle = pygame.display.set_caption('game') # Window Title
         Start.screen = pygame.display.set_mode((width, height), flags, vsync=1)
-        Start.manager = pygame_gui.UIManager((width, height), 'theme.json',)
-        Start.titleImage = pygame.image.load('image.png').convert()
+        Start.manager = pygame_gui.UIManager((width, height), 'data/settings/theme.json',)
+        Start.titleImage = pygame.image.load('data/images/image.png').convert()
 
         Start.background = pygame.Surface((width, height)) # Set to maximum possible resolution
 
@@ -156,7 +157,8 @@ class Start:
                         settings.main()
 
                     if event.ui_element == Start.play_button:
-                        print("PLAYYYYY")
+                        game.main()
+                        Start.running = False
                         
             Start.manager.update(time_delta)
 

@@ -44,7 +44,7 @@ class editThemeFile:
 editTheme = editThemeFile()
 
 def run():
-    editTheme.themeFile = 'theme.json'
+    editTheme.themeFile = 'data/settings/theme.json'
     editTheme.openjson()
     print(editTheme.loadedFile)
     # List layers of json to be changed seperated by a comma
