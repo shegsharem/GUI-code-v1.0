@@ -1,22 +1,26 @@
-import pygame
+import pygame, os 
+
+
+
 import pygame.freetype
-import json
+from fileget import Files
+
+f = Files('data/settings/gamesettings.json')
+loadedFile = f.readSettingsFile()
+print("Successfully loaded settings.")
+
+
 
 class Game():
     def __init__(self) -> None:
-        self.settingsFile = 'data/settings/gamesettings.json'
-        self.loadedFile = {}
-        Game.openSettingsFile(self)
-        
-
-        
+        os.environ['SDL_VIDEO_CENTERED'] = '1'
         pygame.init()
+
         self.running, self.playing = True, True
         self.UP_KEY, self.DOWN_KEY, self.START_KEY, self.BACK_KEY = False, False, False, False
-        self.DISPLAY_W = int(self.loadedFile['settings']['window_w'])
-        self.DISPLAY_H = int(self.loadedFile['settings']['window_h'])
-        self.FULLSCREEN = int(self.loadedFile['settings']['fullscreen'])
-
+        self.DISPLAY_W = int(loadedFile['settings']['window_w'])
+        self.DISPLAY_H = int(loadedFile['settings']['window_h'])
+        self.FULLSCREEN = int(loadedFile['settings']['fullscreen'])
 
         self.display = pygame.Surface((self.DISPLAY_W, self.DISPLAY_H))
         if self.FULLSCREEN == 1:
@@ -25,13 +29,6 @@ class Game():
             self.window = pygame.display.set_mode(((self.DISPLAY_W, self.DISPLAY_H)))
         self.font_name = ("Consolas")
         self.BLACK, self.WHITE = (0,0,0), (255,255,255)
-    
-    def openSettingsFile(self):
-        # Read json
-        settingsFile = open(self.settingsFile, 'r')
-        self.loadedFile = json.load(settingsFile)
-        settingsFile.close()
-        print(self.loadedFile)
 
 
 
@@ -78,12 +75,10 @@ class Game():
             self.window.blit(self.display, (0,0))
             #pygame.display.update() # render image
             self.reset_keys()
-        #pygame.quit()
+        pygame.quit()
 
 def main():
     g = Game()
-    g.settingsFile = 'data/settings/gamesettings.json'
-    g.openSettingsFile
     g.game_loop()
 
 if __name__ == "__main__":

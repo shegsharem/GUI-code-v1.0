@@ -1,5 +1,3 @@
-
-
 import pygame
 from pygame.locals import *
 import pygame.freetype
@@ -12,26 +10,18 @@ import pygame_gui.data
 import tkinter as tk
 
 # Modules I wrote
-from theme_edit import editThemeFile
 import settings
 import game
+from fileget import Files
+
 import sys
+import os
+
+f = Files('data/settings/gamesettings.json')
+loadedFile = f.readSettingsFile()
 
 
-
-
-
-editTheme = editThemeFile()
 g = game
-
-global data
-global manager
-
-
-data = None
-
-width = 400
-height = 500
 
 
 class Text:
@@ -40,8 +30,6 @@ class Text:
         self.text = text
         self.pos = pos
 
-        global width
-        global height
         self.fontname = fontname
         self.fontsize = fontsize
         self.fontcolor = fontcolor
@@ -90,52 +78,43 @@ class Start:
         pygame.freetype.set_default_resolution(72)
         
 
-        global width
-        global height
+        self.width = 400
+        self.height = 500
 
-        editTheme.themeFile = 'data/settings/theme.json'
-        editTheme.openjson()
-
-        self.data = data
-        
         flags = NOFRAME
 
 
         Start.windowTitle = pygame.display.set_caption('game') # Window Title
-        Start.screen = pygame.display.set_mode((width, height), flags, vsync=1)
-        Start.manager = pygame_gui.UIManager((width, height), 'data/settings/theme.json',)
+        Start.screen = pygame.display.set_mode((self.width, self.height), flags, vsync=1)
+        Start.manager = pygame_gui.UIManager((self.width, self.height), 'data/settings/theme.json',)
         Start.titleImage = pygame.image.load('data/images/image.png').convert()
 
-        Start.background = pygame.Surface((width, height)) # Set to maximum possible resolution
+        Start.background = pygame.Surface((self.width, self.height)) # Set to maximum possible resolution
 
         Start.title = Text("game", fontcolor=Color('white'), pos=(30,30), fontsize=48, fontname="Consolas")
 
-        Start.settings_button = UIButton(relative_rect=pygame.Rect(((width/2)-100, 430), (100,50)), text='settings',
+        Start.settings_button = UIButton(relative_rect=pygame.Rect(((self.width/2)+50, 400), (125,75)), text='settings',
                 manager=Start.manager, object_id=ObjectID(class_id='default'), 
                 anchors={'left': 'left','right': 'right','top': 'top','bottom': 'bottom'})
         
-        Start.play_button = UIButton(relative_rect=pygame.Rect((215, 380), (160,100)), text='play',
+        Start.play_button = UIButton(relative_rect=pygame.Rect((25, 380), (200,100)), text='play',
                 manager=Start.manager, object_id=ObjectID(class_id='buttons'), 
                 anchors={'left': 'left','right': 'right','top': 'top','bottom': 'bottom'})
 
 
-        Start.exit_button = UIButton(relative_rect=pygame.Rect((30, 450), (60,30)), text='exit',
+        Start.exit_button = UIButton(relative_rect=pygame.Rect((350, 10), (40,40)), text='X',
                 manager=Start.manager, object_id=ObjectID(class_id='default'), 
                 anchors={'left': 'left','right': 'right','top': 'top','bottom': 'bottom'})
         
-        print (data)
 
         Start.running = True
     
     def titlePicture():
         Start.screen.blit(Start.titleImage, (50,125))
 
-
     
     def run(self):
         while Start.running:
-            
-            
             
             clock = pygame.time.Clock()
             time_delta = clock.tick(60)/1000.0 # Frame Cap at 60 FPS
@@ -159,6 +138,7 @@ class Start:
                         settings.main()
 
                     if event.ui_element == Start.play_button:
+                        pygame.quit()
                         game.main()
                         Start.running = False
                         

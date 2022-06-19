@@ -1,7 +1,9 @@
 {
     "settings": {
-        "window_w": "1493",
-        "window_h": "933",
-        "fullscreen": "1"
+        "window_w": "1280",
+        "window_h": "720",
+        "max_window_w": "400",
+        "max_window_h": "500",
+        "fullscreen": "0"
     }
 }
