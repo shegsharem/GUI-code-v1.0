@@ -15,6 +15,7 @@ import tkinter as tk
 from theme_edit import editThemeFile
 import settings
 import game
+import sys
 
 
 
@@ -151,6 +152,7 @@ class Start:
                     if event.ui_element == Start.exit_button:
                         Start.running = False
                         #GUI.quitConfirm_dialog.visible = 1
+                        sys.exit()
                         
                         
                     if event.ui_element == Start.settings_button:

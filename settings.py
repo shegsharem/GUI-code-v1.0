@@ -105,6 +105,7 @@ class Settings(tk.Frame):
         # -------------------------------------------------------------------------------------
         self.resolution.bind('<<ComboboxSelected>>',lambda event: self.changeResolutionSetting())
 
+        self.root.focus()
         
     def on_closing(self):
         Settings.changeFullScreenSetting(self)
