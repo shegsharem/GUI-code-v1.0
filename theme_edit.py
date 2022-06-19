@@ -1,8 +1,6 @@
 from tkinter.colorchooser import askcolor # used for color chooser
 import json
 
-from click import edit
-
 
 class editThemeFile:
     def __init__(self) -> None:
