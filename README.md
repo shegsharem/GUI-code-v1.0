@@ -13,10 +13,12 @@ or a Terminal Window
 
 2. `pip install pygame_gui`
 
-3. `pip install json`
+3. `pip install pypi-json`
 
-4. `pip install tkinter`
+4. `pip install tk`
 
 
 <h3> Info </h3>
 pygame_gui uses a json file for theming.
+
+run main.py
