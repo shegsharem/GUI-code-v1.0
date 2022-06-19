@@ -1,8 +1,7 @@
 import tkinter as tk
-from tkinter import RAISED, SUNKEN, FLAT, RIDGE, GROOVE, SOLID
-from tkinter import simpledialog
-from tkinter import ttk, OptionMenu
-import pygame, os
+from tkinter import RAISED, GROOVE
+from tkinter import ttk
+import pygame
 
 from fileget import Files
 
@@ -14,9 +13,6 @@ class Settings(tk.Frame):
     def __init__(self, parent=None, *args, **kwargs):
         tk.Frame.__init__(self, parent, *args, **kwargs)
         self.root = parent
-        os.environ['SDL_VIDEO_CENTERED'] = '1'
-        pygame.init()
-
         self.max_res = Settings.getScreenData(self)
 
         self.lastgamewidth = f.readEntryFromSettingsFile(loadedFile,'settings','window_w')
@@ -116,6 +112,7 @@ class Settings(tk.Frame):
         
 
     def getScreenData(self):
+        pygame.init()
         screendata = pygame.display.Info()
         loadedFile['settings']['max_window_w'] = str(screendata.current_w)
         loadedFile['settings']['max_window_h'] = str(screendata.current_h)

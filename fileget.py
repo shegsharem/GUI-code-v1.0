@@ -23,13 +23,6 @@ class Files():
         result =  reduce(lambda d, key: d.get(key) if d else None, entries, dict)
         return result
 
-        
-    
-
-    
-    
-    
-
 if __name__ == '__main__':
     getFile = Files("data/settings/gamesettings.json")
     yett = getFile.readSettingsFile()
