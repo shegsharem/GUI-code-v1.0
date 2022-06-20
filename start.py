@@ -11,7 +11,7 @@ import tkinter as tk
 
 # Modules I wrote
 import settings
-import game
+from game import Game
 from fileget import Files
 
 import sys
@@ -19,9 +19,8 @@ import os
 
 f = Files('data/settings/gamesettings.json')
 loadedFile = f.readSettingsFile()
+settings.getScreenData()
 
-
-g = game
 
 
 class Text:
@@ -73,10 +72,11 @@ class Text:
 
 class Start:
     def __init__(self):
+        pygame.quit()
+        #settings.getScreenData()
         pygame.init()
         pygame.freetype.init()
         pygame.freetype.set_default_resolution(72)
-        
 
         self.width = 400
         self.height = 500
@@ -106,8 +106,8 @@ class Start:
                 manager=Start.manager, object_id=ObjectID(class_id='default'), 
                 anchors={'left': 'left','right': 'right','top': 'top','bottom': 'bottom'})
         
-
         Start.running = True
+
     
     def titlePicture():
         Start.screen.blit(Start.titleImage, (50,125))
@@ -138,9 +138,11 @@ class Start:
                         settings.main()
 
                     if event.ui_element == Start.play_button:
-                        pygame.quit()
-                        game.main()
                         Start.running = False
+                        pygame.quit()
+                        g = Game()
+                        g.main_menu()
+                        
                         
             Start.manager.update(time_delta)
 

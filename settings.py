@@ -9,6 +9,13 @@ from fileget import Files
 f = Files('data/settings/gamesettings.json')
 loadedFile = f.readSettingsFile()
 
+def getScreenData():
+        pygame.init()
+        screendata = pygame.display.Info()
+        loadedFile['settings']['max_window_w'] = str(screendata.current_w)
+        loadedFile['settings']['max_window_h'] = str(screendata.current_h)
+        f.writeSettingsFile(loadedFile)
+        return (str(screendata.current_w)+'x'+str(screendata.current_h))
 
 
 class Settings(tk.Frame):
@@ -16,7 +23,6 @@ class Settings(tk.Frame):
     def __init__(self, parent=None, *args, **kwargs):
         tk.Frame.__init__(self, parent, *args, **kwargs)
         self.root = parent
-        self.max_res = Settings.getScreenData(self)
 
         self.lastgamewidth = f.readEntryFromSettingsFile(loadedFile,'settings','window_w')
         self.lastgameheight = f.readEntryFromSettingsFile(loadedFile,'settings','window_h')
@@ -170,18 +176,11 @@ class Settings(tk.Frame):
         self.selected = self.GAME_SET_FULLSCREEN.get()
         loadedFile['settings']['fullscreen'] = self.selected
         
-
-    def getScreenData(self):
-        pygame.init()
-        screendata = pygame.display.Info()
-        loadedFile['settings']['max_window_w'] = str(screendata.current_w)
-        loadedFile['settings']['max_window_h'] = str(screendata.current_h)
-        f.writeSettingsFile(loadedFile)
-        return (str(screendata.current_w)+'x'+str(screendata.current_h))
             
 
 def main():
     root = tk.Tk()
+    
     
     root.protocol("WM_DELETE_WINDOW", Settings(root).on_closing)
     root.mainloop()
