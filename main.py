@@ -9,7 +9,7 @@ while gui.running:
     #g.game_loop()
     
     gui.run()
-    gui.running = True
+    #gui.running = True
 
 
 

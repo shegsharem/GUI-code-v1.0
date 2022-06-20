@@ -2,11 +2,14 @@ import tkinter as tk
 from tkinter import RAISED, GROOVE, SINGLE
 from tkinter import ttk
 import pygame
+from tkinter.messagebox import showinfo
 
 from fileget import Files
 
 f = Files('data/settings/gamesettings.json')
 loadedFile = f.readSettingsFile()
+
+
 
 class Settings(tk.Frame):
     # Create a single window app
@@ -83,7 +86,14 @@ class Settings(tk.Frame):
         self.ok_button = tk.Button(self.root, text='Save',command=self.on_closing, relief=RAISED,borderwidth=2)
         self.cancel_button = tk.Button(self.root, text='Cancel', command=self.root.destroy, relief=RAISED, borderwidth=2)
 
-        self.controls = tk.Listbox(self.frame3,selectmode= SINGLE)
+        self.changecontrol_button = tk.Button(self.frame3, text='Change Control',relief=RAISED, borderwidth=2)
+        self.changecontrol_button['command'] = lambda: items_selected() #change control button command
+
+        self.ListboxScrollbar = tk.Scrollbar(self.frame3, orient=tk.VERTICAL)
+        self.controlsListbox = tk.Listbox(self.frame3,selectmode= tk.SINGLE, yscrollcommand=self.ListboxScrollbar.set)
+
+        self.ListboxScrollbar.config(command=self.controlsListbox.yview)
+        
 
         # ----------------------------- PACKING ----------------------------------------------
         self.ResolutionLabel.pack(side='left',padx=5,pady=5)
@@ -92,16 +102,47 @@ class Settings(tk.Frame):
         self.fullscreen_label_checkbutton.pack(side='left',padx=5,pady=5)
         self.fullscreen_checkbutton.pack(side='left')
         
-        
-        
         self.cancel_button.pack(side='right',padx=5,pady=5,ipadx=15, expand=False, fill='x')
         self.ok_button.pack(side='right',ipadx=30,pady=5,expand=False, fill='x')
 
-        self.controls.pack(side='left',padx=5,pady=5,expand=True, fill='both')
+        self.changecontrol_button.pack(side='right',padx=5,pady=5)
+        self.controlsListbox.pack(side='left',padx=5,pady=5, expand=True, fill='both')
+        self.ListboxScrollbar.pack(side='left',fill='both',)
+        
 
         
         self.controlsList = loadedFile['settings']
-        controls_list =  [value for key, value in self.controlsList.items() if 'button' in key.lower()]
+        # Filter out keys in self.controlsList that contain 'button' and write to new dictionary, self.customControlsList
+        self.customControlsList =  f.newDictFromKeySearch(self.controlsList,'button')
+        
+        for key in sorted(self.customControlsList):
+            self.controlsListbox.insert(tk.END, '{}: {}'.format(key, self.customControlsList[key]))
+            print(self.customControlsList)
+
+        
+        
+        
+
+
+        f.updateDictWithNewValues(self.controlsList,self.customControlsList)
+
+        def items_selected(event=None):
+            #handle item selected event
+        
+            # get selected indices
+            selected_indices = self.controlsListbox.curselection()
+            # get selected items
+            selected_control = ",".join([self.controlsListbox.get(i) for i in selected_indices])
+            msg = (f'You selected: {selected_control}')
+            showinfo(title='Information',message=msg)
+            for event in pygame.event.get():
+                if event.type ==pygame.KEYDOWN:
+                    print (event.key)
+                    return event.key
+                    
+
+
+
         
 
 

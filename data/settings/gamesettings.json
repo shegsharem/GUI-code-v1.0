@@ -4,7 +4,7 @@
         "window_h": "576",
         "max_window_w": "1493",
         "max_window_h": "933",
-        "fullscreen": "0",
+        "fullscreen": "1",
         "button_up": "pygame.K_w",
         "button_left": "pygame.K_a",
         "button_down": "pygame.K_s",
