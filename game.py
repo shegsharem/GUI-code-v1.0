@@ -1,4 +1,4 @@
-import pygame, os 
+import pygame, os
 
 
 
@@ -9,79 +9,65 @@ f = Files('data/settings/gamesettings.json')
 loadedFile = f.readSettingsFile()
 print("Successfully loaded settings.")
 
+os.environ['SDL_VIDEO_CENTERED'] = '1' # Center the window on the display
+pygame.init()
+
+mainClock =  pygame.time.Clock()
+UP_KEY, DOWN_KEY, START_KEY, BACK_KEY = False, False, False, False
+DISPLAY_W = int(loadedFile['settings']['window_w'])
+DISPLAY_H = int(loadedFile['settings']['window_h'])
+FULLSCREEN = int(loadedFile['settings']['fullscreen'])
+
+user_ESCAPEKEY = loadedFile['settings']['button_esc']
+user_UPKEY = loadedFile['settings']['button_up']
+user_DOWNKEY = loadedFile['settings']['button_down']
+user_LEFTKEY = loadedFile['settings']['button_left']
+user_RIGHTKEY = loadedFile['settings']['button_right']
+user_SELECTKEY = loadedFile['settings']['button_select']
 
 
-class Game():
-    def __init__(self) -> None:
-        os.environ['SDL_VIDEO_CENTERED'] = '1'
-        pygame.init()
+# Go through this initial logic to set window up
+if FULLSCREEN == 1:
+    screen = pygame.display.set_mode(((DISPLAY_W, DISPLAY_H)), pygame.FULLSCREEN)
+else:
+    screen = pygame.display.set_mode(((DISPLAY_W, DISPLAY_H)))
 
-        self.running, self.playing = True, True
-        self.UP_KEY, self.DOWN_KEY, self.START_KEY, self.BACK_KEY = False, False, False, False
-        self.DISPLAY_W = int(loadedFile['settings']['window_w'])
-        self.DISPLAY_H = int(loadedFile['settings']['window_h'])
-        self.FULLSCREEN = int(loadedFile['settings']['fullscreen'])
+running, playing = True, True
+font = pygame.font.SysFont(None, 20)
+BLACK, WHITE = (0,0,0), (255,255,255)
+#pygame.K_ESCAPE = loadedFile['settings']['button_esc']
 
-        self.display = pygame.Surface((self.DISPLAY_W, self.DISPLAY_H))
-        if self.FULLSCREEN == 1:
-            self.window = pygame.display.set_mode(((self.DISPLAY_W, self.DISPLAY_H)), pygame.FULLSCREEN)
-        else:
-            self.window = pygame.display.set_mode(((self.DISPLAY_W, self.DISPLAY_H)))
-        self.font_name = ("Consolas")
-        self.BLACK, self.WHITE = (0,0,0), (255,255,255)
+def draw_text(text, font, color, surface, x, y):
+    textObj = font.render(text, True, color)# Set boolean (True/False) for antialiasing
+    textRect = textObj.get_rect()
+    textRect.topleft = (x,y)
+    surface.blit(textObj, textRect)
+
+def main_menu():
+    while True:
+
+        screen.fill(BLACK)
+        draw_text('Hello there',font,WHITE,screen, 20,20)
+
+        controlBinding()
+        
+        pygame.display.update()
+        mainClock.tick(60)
+
+
+def controlBinding():
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            pygame.quit()
+        
+        if event.type == pygame.KEYDOWN:
+            #bind custom key assignments according to gamesettings.json
+            user_ESCAPEKEY,user_DOWNKEY,user_LEFTKEY,user_RIGHTKEY,user_UPKEY,user_SELECTKEY = event.key 
+            if event.key == pygame.K_ESCAPE:
+                pygame.quit()
 
 
 
-    def check_events(self):
-        clock = pygame.time.Clock()
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                self.running, self.playing = False, False
-                #Menu.SettingsMenu()
-            if event.type ==  pygame.KEYDOWN:
-                if event.key == pygame.K_RETURN:
-                    self.START_KEY = True
-                if event.key == pygame.K_BACKSPACE:
-                    self.BACK_KEY == True
-                if event.key == pygame.K_DOWN or pygame.K_s:
-                    self.DOWN_KEY == True
-                if event.key == pygame.K_UP or pygame.K_w:
-                    self.UP_KEY == True
-            clock.tick()
-            fps = clock.get_fps()
-            print (fps)
-            
-    
-    def reset_keys(self):
-        self.UP_KEY, self.DOWN_KEY, self.START_KEY, self.BACK_KEY = False, False, False, False
-
-    def draw_text(self, text, size, x, y, color=None):
-        if color == None:
-            color = self.WHITE
-        font = pygame.freetype.SysFont(self.font_name, size, True) # Set boolean (True/False) for antialiasing
-        textRect = font.get_rect(text).width
-        textRect = (x,y)
-
-        font.render_to(self.window, textRect, text, color)
-        pygame.display.flip()
-
-    def game_loop(self):
-        while self.playing:
-            self.check_events()
-
-            self.display.fill(self.BLACK)
-            self.draw_text("Hello There", 24, 0, 0, self.WHITE)
-            pygame.display.flip()
-            self.window.blit(self.display, (0,0))
-            #pygame.display.update() # render image
-            self.reset_keys()
-        pygame.quit()
-
-def main():
-    g = Game()
-    g.game_loop()
-
-if __name__ == "__main__":
-    main()
+main_menu()
 
 
