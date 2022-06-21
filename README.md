@@ -1,5 +1,14 @@
 # GUI-code-v1.0
 
+
+Ensure you have Python 3 installed.\
+You can get it [_*here.*_](https://www.python.org/downloads/)
+
+
+<href>
+
+---
+
 <h4> Thonny Users </h4>
 
 1. Open Thonny and go to Tools>Start System Shell
@@ -8,6 +17,8 @@
 tk, pynput`, then press the enter key.
 
 3. Open _main.py_ and run it.
+
+---
 
 <h4> VS Code, Python IDLE Users </h4>
 
