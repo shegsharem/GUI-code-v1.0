@@ -2,23 +2,18 @@
 
 
 
-<h3> Getting the necessary Python modules: </h3>
-Open Command Prompt
-or a Terminal Window
+<h2> Required Python modules: </h2>
+Open Command Prompt or a Terminal Window
 
 
 <h4> Run </h4>
 
-1. `pip install pygame`
+1. `pip install pygame, pygame_gui, pypi-json,
+tk, pynput`
 
-2. `pip install pygame_gui`
-
-3. `pip install pypi-json`
-
-4. `pip install tk`
+Then, open _main.py_ and run it.
 
 
-<h3> Info </h3>
-pygame_gui uses a json file for theming.
+<h5> Written by Logan Amos </h5>
 
-run main.py
+
