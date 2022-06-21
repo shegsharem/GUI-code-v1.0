@@ -1,8 +1,9 @@
 import tkinter as tk
 from tkinter import RAISED, GROOVE, SINGLE
 from tkinter import ttk
-import pygame
+
 from tkinter.messagebox import showinfo
+from pynput import keyboard
 
 from fileget import Files
 
@@ -57,12 +58,12 @@ class Settings(tk.Frame):
         self.window_height = 400
 
         # Get centered coordinates of the display
-
+        self.root.eval('tk::PlaceWindow . center')
         # Set resolution
         self.root.geometry((str(self.window_width)+"x"+str(self.window_height)))
 
         self.root.attributes('-top') # Launch on top layer
-        self.root.eval('tk::PlaceWindow . center')
+        
 
         self.notebook = ttk.Notebook(self.root)
 
@@ -111,7 +112,7 @@ class Settings(tk.Frame):
         self.fullscreen_label_checkbutton.pack(side='left',padx=5,pady=5)
         self.fullscreen_checkbutton.pack(side='left')
         
-        self.cancel_button.pack(side='right',padx=5,pady=5,ipadx=15, expand=False, fill='x')
+        self.cancel_button.pack(side='right',padx=5,pady=5,ipadx=22, expand=False, fill='x')
         self.ok_button.pack(side='right',ipadx=30,pady=5,expand=False, fill='x')
 
         self.changecontrol_button.pack(side='right',padx=5,pady=5)
@@ -139,9 +140,12 @@ class Settings(tk.Frame):
             #handle item selected event
             # get selected indices
             selected_indices = self.controlsListbox.focus()
-            
+            # Collect events until released
+            with keyboard.Listener(on_press=on_press,on_release=on_release) as listener:
+                listener.join() 
+
             self.controlsListbox.insert(text=(self.controlsListbox.item(selected_indices)['text']),
-                parent='',index=selected_indices[3],values='yourmom')
+                parent='',index=selected_indices[3],values=str(self.keyPressed))
             self.controlsListbox.delete(selected_indices)
 
         
@@ -149,6 +153,7 @@ class Settings(tk.Frame):
 
         # -------------------------------------------------------------------------------------
         self.resolution.bind('<<ComboboxSelected>>',lambda event: self.changeResolutionSetting())
+        self.changecontrol_button.bind('<Return>', lambda event: items_selected())
 
 
         self.root.focus()
@@ -159,8 +164,9 @@ class Settings(tk.Frame):
         f.writeSettingsFile(loadedFile)
         print("Saved Changes")
         self.root.destroy()
-    
-    
+
+
+
     def changeResolutionSetting(self, event=None):
         self.selected = self.GAME_RESOLUTION.get()
         print(self.selected)
@@ -187,7 +193,15 @@ class Settings(tk.Frame):
         loadedFile['settings'] = f.updateDictWithNewValues(loadedFile['settings'],newList)
         print(loadedFile)
 
-        
+def on_press(key):
+    try:
+        Settings.keyPressed = key.char
+    except AttributeError:
+        Settings.keyPressed = key
+
+def on_release(key):
+    return False
+    
 
 def main():
     root = tk.Tk()
@@ -195,6 +209,7 @@ def main():
     
     root.protocol("WM_DELETE_WINDOW", Settings(root).on_closing)
     root.mainloop()
+
 
 
 

@@ -5,11 +5,11 @@
         "max_window_w": "1493",
         "max_window_h": "933",
         "fullscreen": "0",
-        "button_up": "pygame.K_w",
-        "button_left": "pygame.K_a",
-        "button_down": "pygame.K_s",
-        "button_right": "pygame.K_d",
-        "button_select": "pygame.K_ENTER",
-        "button_esc": "yourmom"
+        "button_up": "a",
+        "button_left": "s",
+        "button_down": "s",
+        "button_right": "d",
+        "button_select": "a",
+        "button_esc": "d"
     }
 }
