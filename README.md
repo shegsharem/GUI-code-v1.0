@@ -1,7 +1,5 @@
 # GUI-code-v1.0
 
-<h2> Required Python modules: </h2>
-
 <h4> Thonny Users </h4>
 
 1. Open Thonny and go to Tools>Start System Shell
