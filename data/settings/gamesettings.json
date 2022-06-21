@@ -9,7 +9,7 @@
         "button_left": "s",
         "button_down": "s",
         "button_right": "d",
-        "button_select": "a",
+        "button_select": "K_RETURN",
         "button_esc": "d"
     }
 }

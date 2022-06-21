@@ -1,7 +1,7 @@
 import tkinter as tk
 from tkinter import RAISED, GROOVE, SINGLE
 from tkinter import ttk
-
+import pygame
 from tkinter.messagebox import showinfo
 from pynput import keyboard
 
