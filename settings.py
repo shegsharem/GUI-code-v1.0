@@ -132,8 +132,6 @@ class Settings(tk.Frame):
 
         
         
-        
-
 
         f.updateDictWithNewValues(self.controlsList,self.customControlsList)
 
@@ -152,10 +150,6 @@ class Settings(tk.Frame):
 
             self.controlsListbox.delete(selected_indices)
             
-
-        
-
-
         # -------------------------------------------------------------------------------------
         self.resolution.bind('<<ComboboxSelected>>',lambda event: self.changeResolutionSetting())
         #self.changecontrol_button.bind('<Return>', lambda event: items_selected())
@@ -201,18 +195,21 @@ class Settings(tk.Frame):
 
 def on_press(key):
     try:
-        Settings.keyPressed = ("K_"+str(key.char))
+        Settings.keyPressed = (str(key.char))
         print (key.char)
     except AttributeError:
         ch = '.'
-        key = str(key).upper()
+        key = str(key).lower()
         # Remove all characters before the character '-' from string
         before, sep, after = key.partition('.')
         if len(after) > 0:
             key = after
         print (key)
-        
-        Settings.keyPressed = "K_"+str(key)
+        if key == 'esc':
+            key = 'escape'
+        if key == 'enter':
+            key = 'return'
+        Settings.keyPressed = (str(key))
         
 
 def on_release(key):

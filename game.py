@@ -2,6 +2,7 @@ import pygame, os
 import pygame.freetype
 from fileget import Files
 from time import sleep
+from random import randint
 
 f = Files('data/settings/gamesettings.json')
 
@@ -18,6 +19,10 @@ class Game():
         self.DISPLAY_H = int(loadedFile['settings']['window_h'])
         self.FULLSCREEN = int(loadedFile['settings']['fullscreen'])
 
+        self.controlsList = loadedFile['settings']
+        self.customControlsList =  f.newDictFromKeySearch(self.controlsList,'button')
+
+
         self.user_ESCAPEKEY = loadedFile['settings']['button_esc']
         self.user_UPKEY = loadedFile['settings']['button_up']
         self.user_DOWNKEY = loadedFile['settings']['button_down']
@@ -25,12 +30,19 @@ class Game():
         self.user_RIGHTKEY = loadedFile['settings']['button_right']
         self.user_SELECTKEY = loadedFile['settings']['button_select']
 
+        print(self.user_ESCAPEKEY)
+
         self.screen = pygame.display.set_mode(((self.DISPLAY_W, self.DISPLAY_H)))
         
 
         self.running, self.playing = True, True
         self.font = pygame.font.SysFont(None, 50)
         self.BLACK, self.WHITE = (0,0,0), (255,255,255)
+
+        self.redSquarePosX = 10
+        self.redSquarePosY = 10
+
+        
         
         
         #pygame.K_ESCAPE = loadedFile['settings']['button_esc']
@@ -42,13 +54,14 @@ class Game():
         surface.blit(textObj, textRect)
 
     def main_menu(self):
-                # Go through this initial logic to set window up
+        # Go through this initial logic to set window up
+        Game.checkFullscreen(self)
+        self.screen.fill(self.BLACK)
         
         self.running = True
         while self.running:
-            Game.checkFullscreen(self)
-            self.screen.fill(self.BLACK)
-            Game.draw_text(self,text='Press Enter to Exit',font=self.font,color=self.WHITE, surface=self.screen, x=5,y=5)
+            pygame.draw.rect(self.screen, (randint(0,255),randint(0,255),randint(0,255)), 
+                (self.redSquarePosX, self.redSquarePosY, self.DISPLAY_W/40, self.DISPLAY_H/22.5))
 
             Game.controlBinding(self)
             
@@ -62,22 +75,39 @@ class Game():
         else:
             self.screen = pygame.display.set_mode(((self.DISPLAY_W, self.DISPLAY_H)))
 
+    def writeKEYSTRING(self):
+        Game.draw_text(self,text='Select Key Pressed',font=self.font,color=self.WHITE, surface=self.screen, x=5,y=5)
+
     def controlBinding(self):
-
-
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
-            
+            #print(event)
             if event.type == pygame.KEYDOWN:
-                #bind custom key assignments according to gamesettings.json
-                self.user_ESCAPEKEY,self.user_DOWNKEY,
-                self.user_LEFTKEY,self.user_RIGHTKEY,
-                self.user_UPKEY,self.user_SELECTKEY = event.key 
 
-                if event.key == pygame.K_ESCAPE:
-                    Game.running = False
+                if event.key == pygame.key.key_code(str(self.user_ESCAPEKEY)):
                     pygame.quit()
+                
+                if event.key == pygame.key.key_code(str(self.user_SELECTKEY)):
+                    Game.writeKEYSTRING(self)
+
+                if event.key == pygame.key.key_code(str(self.user_RIGHTKEY)):
+                    self.redSquarePosX += self.DISPLAY_H*0.1
+                
+                if event.key == pygame.key.key_code(str(self.user_LEFTKEY)):
+                    self.redSquarePosX -= self.DISPLAY_H*0.1
+                
+                if event.key == pygame.key.key_code(str(self.user_DOWNKEY)):
+                    self.redSquarePosY += self.DISPLAY_H*0.1
+
+                if event.key == pygame.key.key_code(str(self.user_UPKEY)):
+                    self.redSquarePosY -= self.DISPLAY_H*0.1
+                    
+            
+            #if event.type == pygame.KEYUP:
+                #self.screen.fill(self.WHITE)
+
+
 
 
 
