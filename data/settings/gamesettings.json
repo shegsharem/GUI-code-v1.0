@@ -10,6 +10,6 @@
         "button_down": "pygame.K_s",
         "button_right": "pygame.K_d",
         "button_select": "pygame.K_ENTER",
-        "button_esc": "pygame.K_ESC"
+        "button_esc": "yourmom"
     }
 }

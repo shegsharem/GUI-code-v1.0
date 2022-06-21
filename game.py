@@ -48,7 +48,7 @@ class Game():
         while self.running:
             Game.checkFullscreen(self)
             self.screen.fill(self.BLACK)
-            Game.draw_text(self,text='Press Enter to Exit',font=self.font,color=self.WHITE, surface=self.screen, x=500,y=500)
+            Game.draw_text(self,text='Press Enter to Exit',font=self.font,color=self.WHITE, surface=self.screen, x=5,y=5)
 
             Game.controlBinding(self)
             

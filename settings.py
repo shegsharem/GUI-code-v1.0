@@ -96,7 +96,10 @@ class Settings(tk.Frame):
         self.changecontrol_button['command'] = lambda: items_selected() #change control button command
 
         self.ListboxScrollbar = tk.Scrollbar(self.frame3, orient=tk.VERTICAL)
-        self.controlsListbox = tk.Listbox(self.frame3,selectmode= tk.SINGLE, yscrollcommand=self.ListboxScrollbar.set)
+
+        self.controlsListbox = ttk.Treeview(self.frame3,column=("Control", 'Key'),
+            selectmode= tk.BROWSE, yscrollcommand=self.ListboxScrollbar.set,show='tree',cursor='')
+        
 
         self.ListboxScrollbar.config(command=self.controlsListbox.yview)
         
@@ -122,7 +125,7 @@ class Settings(tk.Frame):
         self.customControlsList =  f.newDictFromKeySearch(self.controlsList,'button')
         
         for key in sorted(self.customControlsList):
-            self.controlsListbox.insert(tk.END, '{}: {}'.format(key, self.customControlsList[key]))
+            self.controlsListbox.insert('',tk.END, text=key,values=self.customControlsList[key])
             print(self.customControlsList)
 
         
@@ -134,20 +137,12 @@ class Settings(tk.Frame):
 
         def items_selected(event=None):
             #handle item selected event
-        
             # get selected indices
-            selected_indices = self.controlsListbox.curselection()
-            # get selected items
-            selected_control = ",".join([self.controlsListbox.get(i) for i in selected_indices])
-            msg = (f'You selected: {selected_control}')
-            showinfo(title='Information',message=msg)
-            for event in pygame.event.get():
-                if event.type ==pygame.KEYDOWN:
-                    print (event.key)
-                    return event.key
-                    
-
-
+            selected_indices = self.controlsListbox.focus()
+            
+            self.controlsListbox.insert(text=(self.controlsListbox.item(selected_indices)['text']),
+                parent='',index=selected_indices[3],values='yourmom')
+            self.controlsListbox.delete(selected_indices)
 
         
 
@@ -160,6 +155,7 @@ class Settings(tk.Frame):
         
     def on_closing(self):
         Settings.changeFullScreenSetting(self)
+        Settings.getCustomControls(self)
         f.writeSettingsFile(loadedFile)
         print("Saved Changes")
         self.root.destroy()
@@ -175,8 +171,23 @@ class Settings(tk.Frame):
     def changeFullScreenSetting(self):
         self.selected = self.GAME_SET_FULLSCREEN.get()
         loadedFile['settings']['fullscreen'] = self.selected
-        
+    
+    def getCustomControls(self):
+        self.value_dict = {}
+        for x in self.controlsListbox.get_children():
             
+            self.value_dict[str(self.controlsListbox.item(x)["text"])] = str(self.controlsListbox.item(x)["values"]).strip(' [\']')
+            #values.append(value_dict)
+        
+        print("New Controls")
+        print(self.value_dict)
+
+        newList = f.updateDictWithNewValues(self.customControlsList,self.value_dict)
+        print("NEW DICT")
+        loadedFile['settings'] = f.updateDictWithNewValues(loadedFile['settings'],newList)
+        print(loadedFile)
+
+        
 
 def main():
     root = tk.Tk()
