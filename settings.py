@@ -4,6 +4,7 @@ from tkinter import ttk
 import pygame
 from tkinter.messagebox import showinfo
 from pynput import keyboard
+import re
 
 from fileget import Files
 
@@ -139,21 +140,26 @@ class Settings(tk.Frame):
         def items_selected(event=None):
             #handle item selected event
             # get selected indices
+            selected_indices = {}
             selected_indices = self.controlsListbox.focus()
             # Collect events until released
             with keyboard.Listener(on_press=on_press,on_release=on_release) as listener:
                 listener.join() 
 
-            self.controlsListbox.insert(text=(self.controlsListbox.item(selected_indices)['text']),
-                parent='',index=selected_indices[3],values=str(self.keyPressed))
+
+            self.controlsListbox.insert(text=self.controlsListbox.item(selected_indices)['text'],parent='',
+                index=selected_indices[3],values=(self.keyPressed))
+
             self.controlsListbox.delete(selected_indices)
+            
 
         
 
 
         # -------------------------------------------------------------------------------------
         self.resolution.bind('<<ComboboxSelected>>',lambda event: self.changeResolutionSetting())
-        self.changecontrol_button.bind('<Return>', lambda event: items_selected())
+        #self.changecontrol_button.bind('<Return>', lambda event: items_selected())
+        #self.controlsListbox.bind('<<TreeviewSelect>>', lambda event: items_selected())
 
 
         self.root.focus()
@@ -195,9 +201,19 @@ class Settings(tk.Frame):
 
 def on_press(key):
     try:
-        Settings.keyPressed = key.char
+        Settings.keyPressed = ("K_"+str(key.char))
+        print (key.char)
     except AttributeError:
-        Settings.keyPressed = key
+        ch = '.'
+        key = str(key).upper()
+        # Remove all characters before the character '-' from string
+        before, sep, after = key.partition('.')
+        if len(after) > 0:
+            key = after
+        print (key)
+        
+        Settings.keyPressed = "K_"+str(key)
+        
 
 def on_release(key):
     return False

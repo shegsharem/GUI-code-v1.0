@@ -5,11 +5,11 @@
         "max_window_w": "1493",
         "max_window_h": "933",
         "fullscreen": "0",
-        "button_up": "a",
-        "button_left": "s",
-        "button_down": "s",
-        "button_right": "d",
+        "button_up": "K_SPACE",
+        "button_left": "K_ESC",
+        "button_down": "\"K_',\"",
+        "button_right": "sc",
         "button_select": "K_RETURN",
-        "button_esc": "d"
+        "button_esc": "K_SPACE"
     }
 }
