@@ -141,7 +141,7 @@ class Start:
                         Start.running = False
                         pygame.quit()
                         g = Game()
-                        g.main_menu()
+                        g.mainLoop()
                         
                         
             Start.manager.update(time_delta)
