@@ -171,13 +171,13 @@ class Game():
 
             # Delta t to be used for framerate independence
             # Wait for next frame render time
-            #self.delta_t = time.time() - self.last_time
-            #self.delta_t *= self.FPS
-            #self.last_time = time.time()
+            self.delta_t = time.time() - self.last_time
+            self.delta_t *= self.FPS
+            self.last_time = time.time()
 
             self.mainClock.tick(self.FPS)
 
-            self.averageFPS = int(self.FPS)
+            self.averageFPS = int(self.FPS/self.delta_t)
             # Update to next frame
             pygame.display.flip()
 
