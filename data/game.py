@@ -63,7 +63,7 @@ class Game():
         self.running, self.playing = True, True
 
         # Useful variables to be reused later 
-        self.font = pygame.font.Font('data/fonts/orange kid.ttf', 30)
+        self.font = pygame.font.Font('data/fonts/orange kid.ttf', 90)
         self.BLACK, self.WHITE = (0,0,0), (255,255,255)
         self.BLUE = '#4fadf5'
 
@@ -115,7 +115,7 @@ class Game():
             particle[1][1] += randint(0,10)/10
             pygame.draw.circle(self.screen, (color), [int(particle[0][0]), int(particle[0][1])], int(particle[2]))
         
-            radius = particle[2] * 2
+            radius = particle[2] * 8
             self.screen.blit(Game.circle_surf(self,radius, ('#222222')),
                 (int(particle[0][0] - radius), int(particle[0][1] - radius)), special_flags=pygame.BLEND_RGB_ADD)
 
@@ -168,7 +168,7 @@ class Game():
     def renderBackground(self):
         self.screen.fill(self.BLUE)
         # Show FPS count
-        Game.draw_text(self,text=str(self.averageFPS),font=self.font,color=self.WHITE, surface=self.screen, x=0,y=0),90
+        Game.draw_text(self,text=str(self.averageFPS),font=self.font,color=self.WHITE, surface=self.screen, x=0,y=0)
         #self.screen.blit(self.cloud1,self.cloud1rect)
 
 
@@ -179,7 +179,7 @@ class Game():
         pygame.mouse.set_visible(False)
         self.running = True # Set control logic variable to True
         # Loop to run while control logic variable is set to True
-        radius = 100
+        radius = 9
         while self.running:
             Game.renderBackground(self)
             # Get mouse coordinates
@@ -190,7 +190,7 @@ class Game():
             pygame.draw.rect(self.screen,('#9e482c'),(90,90,200,300))
             
             
-            Game.drawParticles(self,self.Mouse_x, self.Mouse_y,('#EEEEEE'), randint(-50,50)/10 - 1, randint(13,20), radius)
+            Game.drawParticles(self,self.redSquarePosX, self.redSquarePosY,('#EEEEEE'), randint(-50,50)/10 - 1, randint(13,20), radius)
 
             
             #pygame.draw.rect(self.screen, (randint(0,255),randint(0,255),randint(0,255)), 
@@ -208,7 +208,7 @@ class Game():
             self.mainClock.tick(self.FPS)
 
             
-
+            
             self.averageFPS = int(self.FPS/self.delta_t)
             # Update to next frame
             pygame.display.flip()
