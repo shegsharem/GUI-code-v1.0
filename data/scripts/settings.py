@@ -6,7 +6,7 @@ from tkinter.messagebox import showinfo
 from pynput import keyboard
 import re
 
-from fileget import Files
+from data.scripts.fileget import Files
 
 f = Files('data/settings/gamesettings.json')
 loadedFile = f.readSettingsFile()
@@ -55,8 +55,8 @@ class Settings(tk.Frame):
         self.root.configure(bg="#FFFFFF")
 
         # Define window dimensions
-        self.window_width = 500
-        self.window_height = 400
+        self.window_width = 400
+        self.window_height = 275
 
         # Get centered coordinates of the display
         self.root.eval('tk::PlaceWindow . center')
@@ -76,7 +76,7 @@ class Settings(tk.Frame):
         
         self.notebook.add(self.frame1, text="Graphics")
         self.notebook.add(self.frame3, text="Controls")
-        self.notebook.pack(expand=True,fill='both')
+        self.notebook.pack(expand=True,fill='x')
 
         self.create_widgets()
         # ---------------------------------------- GUI OBJECTS -----------------------------------------------------------------
@@ -86,6 +86,7 @@ class Settings(tk.Frame):
         self.fullscreen_checkbutton = tk.Checkbutton(self.frame1, variable=self.GAME_SET_FULLSCREEN,
             onvalue="1",offvalue="0")
         self.fullscreen_label_checkbutton = tk.Label(self.frame1, text="Fullscreen")
+        self.fullscreen_info = tk.Label(self.frame1, text="*Note, running in fullscreen \ngenerally has better performance")
         
 
         self.resolution = ttk.Combobox(self.frame2, values=self.resolutionlist, textvariable=self.GAME_RESOLUTION, state='readonly')  
@@ -107,11 +108,12 @@ class Settings(tk.Frame):
         
 
         # ----------------------------- PACKING ----------------------------------------------
-        self.ResolutionLabel.pack(side='left',padx=5,pady=5)
+        self.ResolutionLabel.pack(side='left',padx=5,pady=5,expand=False)
         self.resolution.pack(side='left',padx=5,pady=5)
 
         self.fullscreen_label_checkbutton.pack(side='left',padx=5,pady=5)
         self.fullscreen_checkbutton.pack(side='left')
+        self.fullscreen_info.pack(side='left',padx=10,pady=10)
         
         self.cancel_button.pack(side='right',padx=5,pady=5,ipadx=22, expand=False, fill='x')
         self.ok_button.pack(side='right',ipadx=30,pady=5,expand=False, fill='x')

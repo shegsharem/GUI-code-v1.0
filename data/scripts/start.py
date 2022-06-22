@@ -10,9 +10,9 @@ import pygame_gui.data
 import tkinter as tk
 
 # Modules I wrote
-import settings
-from game import Game
-from fileget import Files
+import data.scripts.settings as settings
+from data.scripts.game import Game
+from data.scripts.fileget import Files
 
 import sys
 import os
