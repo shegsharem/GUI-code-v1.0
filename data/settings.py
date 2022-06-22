@@ -1,12 +1,10 @@
 import tkinter as tk
-from tkinter import RAISED, GROOVE, SINGLE
+from tkinter import RAISED
 from tkinter import ttk
 import pygame
-from tkinter.messagebox import showinfo
 from pynput import keyboard
-import re
 
-from data.scripts.fileget import Files
+from fileget import Files
 
 f = Files('data/settings/gamesettings.json')
 loadedFile = f.readSettingsFile()

@@ -1,7 +1,5 @@
-
-
-import data.scripts.settings as settings
-from data.scripts.start import Start
+import settings as settings
+from start import Start
 
 #g = Game()
 gui = Start()

@@ -1,12 +1,26 @@
 import pygame, os
 import pygame.freetype
-from data.scripts.fileget import Files
+from fileget import Files
 from time import sleep
 from random import randint, random
 import time
 
+import pygame.gfxdraw
+
+
 # Game settings file(*.json) location
 f = Files('data/settings/gamesettings.json')
+
+class Player(pygame.sprite.Sprite):
+    def __init__(self):
+        pygame.sprite.Sprite.__init__(self)
+        self.img = pygame.Surface((50,50))
+        self.img.fill((255,0,0))
+        self.rect = self.img.get_rect()
+        self.rect.left = 0
+        self.rect.centery = g.DISPLAY_H / 2
+        self.vx = 2
+    
 
 
 class Game():
@@ -49,12 +63,13 @@ class Game():
         self.running, self.playing = True, True
 
         # Useful variables to be reused later 
-        self.font = pygame.font.SysFont(None, 20)
+        self.font = pygame.font.Font('data/fonts/orange kid.ttf', 30)
         self.BLACK, self.WHITE = (0,0,0), (255,255,255)
+        self.BLUE = '#4fadf5'
 
         # Sprite xy coordinate variables
-        self.redSquarePosX = 10
-        self.redSquarePosY = 10
+        self.redSquarePosX = 300
+        self.redSquarePosY = 300
 
         # [location, velocity, timer]
         self.particles = []
@@ -63,6 +78,10 @@ class Game():
         self.last_time = time.time()
         
         self.averageFPS = ''
+
+        self.cloud1 = pygame.image.load("data/images/cloud1.jpg").convert()
+        self.cloud1 = pygame.transform.scale(self.cloud1, (self.DISPLAY_W, self.DISPLAY_H))
+        self.cloud1rect = self.cloud1.get_rect()
         
 
 
@@ -83,19 +102,21 @@ class Game():
         return serf
 
     def drawParticles(self, posx, posy, color, initial_x_velocity, initial_y_velocity, radius):
+        
         self.particles.append([[posx, posy], [initial_x_velocity*-1, initial_y_velocity*-1], radius])
         # draw a circle where the mouse is
         #[0] = postition (x,y)
         #[1] = velocity (x,y)
         for particle in self.particles:
             particle[0][0] += particle[1][0]
+
             particle[0][1] += particle[1][1]
             particle[2] -= 0.2
             particle[1][1] += randint(0,10)/10
             pygame.draw.circle(self.screen, (color), [int(particle[0][0]), int(particle[0][1])], int(particle[2]))
         
             radius = particle[2] * 2
-            self.screen.blit(Game.circle_surf(self,radius, ('#333333')),
+            self.screen.blit(Game.circle_surf(self,radius, ('#222222')),
                 (int(particle[0][0] - radius), int(particle[0][1] - radius)), special_flags=pygame.BLEND_RGB_ADD)
 
             if particle[2] <= 0:
@@ -103,7 +124,7 @@ class Game():
 
     # Function to draw text on screen. 
     # Arguments: text, font, text color, surface to render on, x position, y position
-    def draw_text(self,text, font, color, surface, x, y):
+    def draw_text(self, text, font, color, surface, x, y):
         textObj = font.render(text, True, color) # Set boolean (True/False) for antialiasing
         textRect = textObj.get_rect() # Get text's occupied space size
         textRect.topleft = (x,y) # Set the text's position to the x and y position
@@ -125,45 +146,52 @@ class Game():
                     #pygame.quit()
                     self.running = False
                     
-                
                 if event.key == pygame.key.key_code(str(self.user_SELECTKEY)):
                     Game.writeKEYSTRING(self)
 
                 if event.key == pygame.key.key_code(str(self.user_RIGHTKEY)):
-                    self.redSquarePosX += self.DISPLAY_H*0.1
+                    for i in range(10):
+                        self.redSquarePosX += i
                 
                 if event.key == pygame.key.key_code(str(self.user_LEFTKEY)):
-                    self.redSquarePosX -= self.DISPLAY_H*0.1
+                    for i in range(10):
+                        self.redSquarePosX -= i
                 
                 if event.key == pygame.key.key_code(str(self.user_DOWNKEY)):
-                    self.redSquarePosY += self.DISPLAY_H*0.1
+                    for i in range(10):
+                        self.redSquarePosY += i
 
                 if event.key == pygame.key.key_code(str(self.user_UPKEY)):
-                    self.redSquarePosY -= self.DISPLAY_H*0.1
+                    for i in range(10):
+                        self.redSquarePosY -= i
                     
     def renderBackground(self):
-        self.screen.fill(self.BLACK)
+        self.screen.fill(self.BLUE)
         # Show FPS count
-        
         Game.draw_text(self,text=str(self.averageFPS),font=self.font,color=self.WHITE, surface=self.screen, x=0,y=0),90
+        #self.screen.blit(self.cloud1,self.cloud1rect)
+
+
 
     def mainLoop(self):
         # Go through this initial logic to set window up
         Game.checkFullscreen(self) # determine if window should be fullscreened or not, based on the loadedFile's parameters
-        #self.screen.fill(self.BLACK) # Fill the window with the color black
         pygame.mouse.set_visible(False)
         self.running = True # Set control logic variable to True
         # Loop to run while control logic variable is set to True
+        radius = 100
         while self.running:
             Game.renderBackground(self)
             # Get mouse coordinates
             self.Mouse_x, self.Mouse_y = pygame.mouse.get_pos()
+            
 
             
-            #pygame.draw.rect(self.screen,('#9e482c'),(90,90,200,300))
-            Game.drawParticles(self, 500,500,('#FFFFFF'), randint(0,5)/10 - 1, randint(13,20), randint(8,13))
+            pygame.draw.rect(self.screen,('#9e482c'),(90,90,200,300))
             
-            Game.drawParticles(self,self.DISPLAY_W/2, self.DISPLAY_H/2,('#FFFFFF'), randint(-50,50)/10 - 1, randint(13,20), randint(8,9))
+            
+            Game.drawParticles(self,self.Mouse_x, self.Mouse_y,('#EEEEEE'), randint(-50,50)/10 - 1, randint(13,20), radius)
+
             
             #pygame.draw.rect(self.screen, (randint(0,255),randint(0,255),randint(0,255)), 
                 #((self.Mouse_x - (self.DISPLAY_W/40)/2), (self.Mouse_y - (self.DISPLAY_H/22.5)/2), self.DISPLAY_W/40, self.DISPLAY_H/22.5))
@@ -178,6 +206,8 @@ class Game():
             self.last_time = time.time()
             pygame.display.flip()
             self.mainClock.tick(self.FPS)
+
+            
 
             self.averageFPS = int(self.FPS/self.delta_t)
             # Update to next frame
