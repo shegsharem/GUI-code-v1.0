@@ -1,24 +1,34 @@
 # GUI-code-v1.0
 
 
-
-<h3> Getting the necessary Python modules: </h3>
-Open Command Prompt
-or a Terminal Window
+Ensure you have Python 3 installed.\
+You can get it [_*here.*_](https://www.python.org/downloads/)
 
 
-<h4> Run </h4>
+<href>
 
-1. `pip install pygame`
+---
 
-2. `pip install pygame_gui`
+<h4> Thonny Users </h4>
 
-3. `pip install pypi-json`
+1. Open Thonny and go to Tools>Start System Shell
 
-4. `pip install tk`
+2. Paste `pip install pygame, pygame_gui, pypi-json,
+tk, pynput`, then press the enter key.
+
+3. Open _main.py_ and run it.
+
+---
+
+<h4> VS Code, Python IDLE Users </h4>
+
+1. Open Command Prompt or a Terminal Window
+
+2. Paste `pip install pygame, pygame_gui, pypi-json,
+tk, pynput`, then press the enter key.
+
+3. Then, open _main.py_ and run it.
+
+<h5> Written by Logan Amos </h5>
 
 
-<h3> Info </h3>
-pygame_gui uses a json file for theming.
-
-run main.py
