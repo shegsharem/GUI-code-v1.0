@@ -56,14 +56,22 @@ class Game():
         self.user_RIGHTKEY = loadedFile['settings']['button_right']
         self.user_SELECTKEY = loadedFile['settings']['button_select']
 
+        self.PRESSED_ESCAPEKEY = False  # Pressed key logic
+        self.PRESSED_UPKEY  = False# Pressed key logic
+        self.PRESSED_DOWNKEY  = False# Pressed key logic
+        self.PRESSED_RIGHTKEY  = False# Pressed key logic
+        self.PRESSED_LEFTKEY  = False# Pressed key logic
+        self.PRESSED_SELECTKEY = False# Pressed key logic
+
         # Set the window to window variables defined earlier
         self.screen = pygame.display.set_mode(((self.DISPLAY_W, self.DISPLAY_H)))
         
         # Event logic variables to control game loops
         self.running, self.playing = True, True
 
-        # Useful variables to be reused later 
-        self.font = pygame.font.Font('data/fonts/orange kid.ttf', 90)
+        # Useful variables to be reused later
+        self.font = 'data/fonts/orange kid.ttf'
+        
         self.BLACK, self.WHITE = (0,0,0), (255,255,255)
         self.BLUE = '#4fadf5'
 
@@ -79,11 +87,10 @@ class Game():
         
         self.averageFPS = ''
 
-        self.cloud1 = pygame.image.load("data/images/cloud1.jpg").convert()
-        self.cloud1 = pygame.transform.scale(self.cloud1, (self.DISPLAY_W, self.DISPLAY_H))
-        self.cloud1rect = self.cloud1.get_rect()
         
-
+        #self.square = pygame.transform.scale(self.square, (self.DISPLAY_W, self.DISPLAY_H))
+        #self.squarerect = self.square.get_rect()
+        
 
     def checkFullscreen(self): 
         if self.FULLSCREEN == 1:
@@ -91,8 +98,16 @@ class Game():
         else:
             self.screen = pygame.display.set_mode(((self.DISPLAY_W, self.DISPLAY_H)),pygame.NOFRAME | pygame.DOUBLEBUF | pygame.HWACCEL)
 
+    def fillRect(self, surface, color):
+    #Fill all pixels of the surface with color, preserve transparency.
+        w, h = surface.get_size()
+        for x in range(w):
+            for y in range(h):
+                a = surface.get_at((x, y))[3]
+                surface.set_at((x, y), color)
+
     def writeKEYSTRING(self):
-        Game.draw_text(self,text='Select Key Pressed',font=self.font,color=self.WHITE, surface=self.screen, x=5,y=5)
+        Game.draw_text(self,text='Select Key Pressed',font=pygame.font.Font(self.font, 500),color=self.WHITE, surface=self.screen, x=5,y=5)
         pygame.display.flip()
     
     def circle_surf(self, radius, color):
@@ -102,14 +117,12 @@ class Game():
         return serf
 
     def drawParticles(self, posx, posy, color, initial_x_velocity, initial_y_velocity, radius):
-        
         self.particles.append([[posx, posy], [initial_x_velocity*-1, initial_y_velocity*-1], radius])
         # draw a circle where the mouse is
         #[0] = postition (x,y)
         #[1] = velocity (x,y)
         for particle in self.particles:
             particle[0][0] += particle[1][0]
-
             particle[0][1] += particle[1][1]
             particle[2] -= 0.2
             particle[1][1] += randint(0,10)/10
@@ -127,7 +140,7 @@ class Game():
     def draw_text(self, text, font, color, surface, x, y):
         textObj = font.render(text, True, color) # Set boolean (True/False) for antialiasing
         textRect = textObj.get_rect() # Get text's occupied space size
-        textRect.topleft = (x,y) # Set the text's position to the x and y position
+        textRect.topleft = (x-1,y-8) # Set the text's position to the x and y position
         surface.blit(textObj, textRect) # Render the text to the surface
 
 
@@ -135,40 +148,47 @@ class Game():
         # end the program when running is = False
         if self.running == False:
             pygame.quit()
-
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
-            #print(event)
             if event.type == pygame.KEYDOWN:
-
+                # IF KEY IS PRESSED DOWN
                 if event.key == pygame.key.key_code(str(self.user_ESCAPEKEY)):
-                    #pygame.quit()
-                    self.running = False
-                    
+                    self.PRESSED_ESCAPEKEY = True
                 if event.key == pygame.key.key_code(str(self.user_SELECTKEY)):
-                    Game.writeKEYSTRING(self)
-
+                    self.PRESSED_SELECTKEY = True
                 if event.key == pygame.key.key_code(str(self.user_RIGHTKEY)):
-                    for i in range(10):
-                        self.redSquarePosX += i
-                
+                    self.PRESSED_RIGHTKEY = True
                 if event.key == pygame.key.key_code(str(self.user_LEFTKEY)):
-                    for i in range(10):
-                        self.redSquarePosX -= i
-                
+                    self.PRESSED_LEFTKEY = True
                 if event.key == pygame.key.key_code(str(self.user_DOWNKEY)):
-                    for i in range(10):
-                        self.redSquarePosY += i
-
+                    self.PRESSED_DOWNKEY = True
                 if event.key == pygame.key.key_code(str(self.user_UPKEY)):
-                    for i in range(10):
-                        self.redSquarePosY -= i
+                    self.PRESSED_UPKEY = True
+            if event.type == pygame.KEYUP:
+                # If key is released
+                if event.key == pygame.key.key_code(str(self.user_ESCAPEKEY)):
+                    self.PRESSED_ESCAPEKEY = False
+                    self.running = False
+                if event.key == pygame.key.key_code(str(self.user_SELECTKEY)):
+                    self.PRESSED_SELECTKEY = False
+                    self.particles.clear()
+                    self.redSquarePosX = 300
+                    self.redSquarePosY = 300
+                if event.key == pygame.key.key_code(str(self.user_RIGHTKEY)):
+                    self.PRESSED_RIGHTKEY = False
+                if event.key == pygame.key.key_code(str(self.user_LEFTKEY)):
+                    self.PRESSED_LEFTKEY = False
+                if event.key == pygame.key.key_code(str(self.user_DOWNKEY)):
+                    self.PRESSED_DOWNKEY = False
+                if event.key == pygame.key.key_code(str(self.user_UPKEY)):
+                    self.PRESSED_UPKEY = False
+
                     
     def renderBackground(self):
         self.screen.fill(self.BLUE)
         # Show FPS count
-        Game.draw_text(self,text=str(self.averageFPS),font=self.font,color=self.WHITE, surface=self.screen, x=0,y=0)
+        Game.draw_text(self,text=str(self.averageFPS),font=pygame.font.Font(self.font, 20),color=self.WHITE, surface=self.screen, x=0,y=0)
         #self.screen.blit(self.cloud1,self.cloud1rect)
 
 
@@ -179,25 +199,36 @@ class Game():
         pygame.mouse.set_visible(False)
         self.running = True # Set control logic variable to True
         # Loop to run while control logic variable is set to True
-        radius = 9
+        self.PRESSED_ESCAPEKEY = False  # Pressed key logic reset
+        self.PRESSED_UPKEY  = False# Pressed key logic reset
+        self.PRESSED_DOWNKEY  = False# Pressed key logic reset
+        self.PRESSED_RIGHTKEY  = False# Pressed key logic reset
+        self.PRESSED_LEFTKEY  = False# Pressed key logic reset
+        self.PRESSED_SELECTKEY = False# Pressed key logic reset
+
+        radius = 3
         while self.running:
             Game.renderBackground(self)
             # Get mouse coordinates
             self.Mouse_x, self.Mouse_y = pygame.mouse.get_pos()
             
-
-            
+            # Check for key input
+            Game.controlBinding(self)
+        
             pygame.draw.rect(self.screen,('#9e482c'),(90,90,200,300))
             
             
-            Game.drawParticles(self,self.redSquarePosX, self.redSquarePosY,('#EEEEEE'), randint(-50,50)/10 - 1, randint(13,20), radius)
+            if self.PRESSED_SELECTKEY:
+                Game.drawParticles(self,self.redSquarePosX, self.redSquarePosY,('#EEEEEE'), randint(-5,5), randint(-5,5), radius)
+                for i in range(3):
+                    self.redSquarePosX += i
+                    self.pixel = pygame.draw.rect(self.screen,"#000000", (self.redSquarePosX,self.redSquarePosY,5,5))
+                    pygame.display.update()
+           
 
-            
             #pygame.draw.rect(self.screen, (randint(0,255),randint(0,255),randint(0,255)), 
                 #((self.Mouse_x - (self.DISPLAY_W/40)/2), (self.Mouse_y - (self.DISPLAY_H/22.5)/2), self.DISPLAY_W/40, self.DISPLAY_H/22.5))
             
-            # Check for key input
-            Game.controlBinding(self)
             
             # Delta t to be used for framerate independence
             # Wait for next frame render time
@@ -207,8 +238,6 @@ class Game():
             pygame.display.flip()
             self.mainClock.tick(self.FPS)
 
-            
-            
             self.averageFPS = int(self.FPS/self.delta_t)
             # Update to next frame
             pygame.display.flip()
