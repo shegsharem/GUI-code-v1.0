@@ -129,7 +129,7 @@ class Game():
             pygame.draw.circle(self.screen, (color), [int(particle[0][0]), int(particle[0][1])], int(particle[2]))
         
             radius = particle[2] * 8
-            self.screen.blit(Game.circle_surf(self,radius, ('#222222')),
+            self.screen.blit(Game.circle_surf(self,radius, ('#0d0d0d')),
                 (int(particle[0][0] - radius), int(particle[0][1] - radius)), special_flags=pygame.BLEND_RGB_ADD)
 
             if particle[2] <= 0:
@@ -172,9 +172,7 @@ class Game():
                     self.running = False
                 if event.key == pygame.key.key_code(str(self.user_SELECTKEY)):
                     self.PRESSED_SELECTKEY = False
-                    self.particles.clear()
-                    self.redSquarePosX = 300
-                    self.redSquarePosY = 300
+                    
                 if event.key == pygame.key.key_code(str(self.user_RIGHTKEY)):
                     self.PRESSED_RIGHTKEY = False
                 if event.key == pygame.key.key_code(str(self.user_LEFTKEY)):
@@ -186,7 +184,7 @@ class Game():
 
                     
     def renderBackground(self):
-        self.screen.fill(self.BLUE)
+        self.screen.fill(self.BLACK)
         # Show FPS count
         Game.draw_text(self,text=str(self.averageFPS),font=pygame.font.Font(self.font, 20),color=self.WHITE, surface=self.screen, x=0,y=0)
         #self.screen.blit(self.cloud1,self.cloud1rect)
@@ -205,7 +203,7 @@ class Game():
         self.PRESSED_RIGHTKEY  = False# Pressed key logic reset
         self.PRESSED_LEFTKEY  = False# Pressed key logic reset
         self.PRESSED_SELECTKEY = False# Pressed key logic reset
-
+        self.x = 0
         radius = 3
         while self.running:
             Game.renderBackground(self)
@@ -216,14 +214,35 @@ class Game():
             Game.controlBinding(self)
         
             pygame.draw.rect(self.screen,('#9e482c'),(90,90,200,300))
-            
+
+            if 0 >= self.redSquarePosX:
+                self.redSquarePosX =0
+                self.x=0
+            if self.DISPLAY_W <= self.redSquarePosX:
+                self.redSquarePosX = self.DISPLAY_W -5
+                self.x=0
             
             if self.PRESSED_SELECTKEY:
-                Game.drawParticles(self,self.redSquarePosX, self.redSquarePosY,('#EEEEEE'), randint(-5,5), randint(-5,5), radius)
-                for i in range(3):
-                    self.redSquarePosX += i
-                    self.pixel = pygame.draw.rect(self.screen,"#000000", (self.redSquarePosX,self.redSquarePosY,5,5))
-                    pygame.display.update()
+                Game.drawParticles(self,self.redSquarePosX, self.redSquarePosY,('#111111'), randint(-5,5), randint(-5,5), radius)
+                self.x += 0.1
+                self.x*1.3
+                self.redSquarePosX += self.x
+                self.pixel = pygame.draw.rect(self.screen,"#FFFFFF", (self.redSquarePosX,self.redSquarePosY,5,5))
+                pygame.display.update()
+                self.x+=0.5
+
+            if not self.PRESSED_SELECTKEY:
+                #Game.drawParticles(self,self.redSquarePosX, self.redSquarePosY,('#111111'), randint(-5,5), randint(-5,5), 4)
+                self.particles.clear()
+                self.x*1.3
+                self.redSquarePosX += self.x
+                self.pixel = pygame.draw.rect(self.screen,"#FFFFFF", (self.redSquarePosX,self.redSquarePosY,5,5))
+                pygame.display.update()
+                self.x-=0.5     
+
+            
+            
+            
            
 
             #pygame.draw.rect(self.screen, (randint(0,255),randint(0,255),randint(0,255)), 
