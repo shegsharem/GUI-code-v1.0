@@ -84,7 +84,7 @@ class Game():
 
         # red square change in dx
         self.redSquareDX = 1
-        self.redSquareDY = 1
+        self.redSquareDY = 5
 
 
         # [location, velocity, timer]
@@ -95,11 +95,9 @@ class Game():
         self.last_time = time.time()
         
         self.averageFPS = ''
-        self.screenRect.clamp_ip(self.screenRect)
-
         
-        #self.square = pygame.transform.scale(self.square, (self.DISPLAY_W, self.DISPLAY_H))
-        #self.squarerect = self.square.get_rect()
+        self.red = pygame.image.load('data/images/red.png').convert()
+        self.redRect = self.red.get_rect()
         
 
     def checkFullscreen(self): 
@@ -107,14 +105,12 @@ class Game():
             self.screen = pygame.display.set_mode(((self.DISPLAY_W, self.DISPLAY_H)), pygame.FULLSCREEN | pygame.DOUBLEBUF | pygame.HWACCEL)
         else:
             self.screen = pygame.display.set_mode(((self.DISPLAY_W, self.DISPLAY_H)),pygame.NOFRAME | pygame.DOUBLEBUF | pygame.HWACCEL)
-
-    def fillRect(self, surface, color):
-    #Fill all pixels of the surface with color, preserve transparency.
-        w, h = surface.get_size()
-        for x in range(w):
-            for y in range(h):
-                a = surface.get_at((x, y))[3]
-                surface.set_at((x, y), color)
+    
+    def renderBackground(self):
+        self.screen.fill(self.BLUE)
+        # Show FPS count
+        Game.draw_text(self,text=str(self.averageFPS),font=pygame.font.Font(self.font, 20),color=self.WHITE, surface=self.screen, x=0,y=0)
+        #self.screen.blit(self.cloud1,self.cloud1rect)
 
     def writeKEYSTRING(self):
         Game.draw_text(self,text='Select Key Pressed',font=pygame.font.Font(self.font, 500),color=self.WHITE, surface=self.screen, x=5,y=5)
@@ -134,11 +130,11 @@ class Game():
         for particle in self.particles:
             particle[0][0] += particle[1][0]
             particle[0][1] += particle[1][1]
-            particle[2] -= 0.2
+            particle[2] -= 0.4
             particle[1][1] += randint(0,10)/10
             pygame.draw.circle(self.screen, (color), [int(particle[0][0]), int(particle[0][1])], int(particle[2]))
         
-            radius = particle[2] * 8
+            radius = particle[2] * 2
             self.screen.blit(Game.circle_surf(self,radius, ('#0d0d0d')),
                 (int(particle[0][0] - radius), int(particle[0][1] - radius)), special_flags=pygame.BLEND_RGB_ADD)
 
@@ -151,16 +147,9 @@ class Game():
         shapeH = self.pixels[1][1]
         xpos = self.pixels[0][0]
         ypos = self.pixels[0][1]
-
-        if ypos < 0:
-            self.pixels[0][1] = 0
         
-        #self.pixels.append([[posx,posy],[width,height]])
-                            #0[0] [1]     1[0]  [1]
         rect = [int(self.pixels[0][0]), int(self.pixels[0][1]), int(self.pixels[1][0]), int(self.pixels[1][1])]
         pygame.draw.rect(self.screen, color, rect)
-        
-        print(ypos)
         
         return rect
 
@@ -211,18 +200,43 @@ class Game():
                 if event.key == pygame.key.key_code(str(self.user_UPKEY)):
                     self.PRESSED_UPKEY = False
 
-                    
-    def renderBackground(self):
-        self.screen.fill(self.BLUE)
-        # Show FPS count
-        Game.draw_text(self,text=str(self.averageFPS),font=pygame.font.Font(self.font, 20),color=self.WHITE, surface=self.screen, x=0,y=0)
-        #self.screen.blit(self.cloud1,self.cloud1rect)
+    #def generalKeyPressHandle(self):
+        #None
+        #radius = 3
+        #if self.PRESSED_SELECTKEY:
+        #    # Draw pixel 
+        #    self.pixelRect = Game.drawPixels(self,(255,0,0),self.redSquarePosX,self.redSquarePosY,5,5)
+        #    # Draw particles
+        #    Game.drawParticles(self,self.redSquarePosX, self.redSquarePosY,('#FFFFFF'), 0, -2, radius)
+        #    # Check if touching border
+        #    if self.pixelRect[1] <= 0:
+        #        self.redSquarePosY = 0
+        #    if self.pixelRect[1] >= self.DISPLAY_H:
+        #        # Set to max height subtract the pixel height
+        #        self.redSquarePosY = self.DISPLAY_H - 5
+        #    # Move
+        #    self.redSquarePosY -= self.redSquareDY
+        #    # Update screen
+        #    pygame.display.update()
 
+        #else:
+        #    # Draw pixel
+        #    self.pixelRect = Game.drawPixels(self,(255,0,0),self.redSquarePosX,self.redSquarePosY,5,5)
+        #    # Draw particles
+        #    Game.drawParticles(self,self.redSquarePosX, self.redSquarePosY,('#111111'), 0, -2, 4)
+        #    # Check if touching border
+        #    if self.pixelRect[1] <= 0:
+        #        self.redSquarePosY = 0
+        #    if self.pixelRect[1] >= self.DISPLAY_H:
+        #        # Set to max height subtract the pixel height
+        #        self.redSquarePosY = self.DISPLAY_H - 5
+        #    self.particles.clear()
+        #    # Move
+        #    self.redSquarePosY += self.redSquareDY
+        #    # Update screen
+        #    pygame.display.update()
 
-            
         
-
-
     def mainLoop(self):
         # Go through this initial logic to set window up
         Game.checkFullscreen(self) # determine if window should be fullscreened or not, based on the loadedFile's parameters
@@ -236,7 +250,6 @@ class Game():
         self.PRESSED_LEFTKEY  = False# Pressed key logic reset
         self.PRESSED_SELECTKEY = False# Pressed key logic reset
         
-        radius = 3
         while self.running:
             # Draw background
             Game.renderBackground(self)
@@ -246,65 +259,10 @@ class Game():
             
             # Check for key input
             Game.controlBinding(self)
+            pygame.draw.rect(self.screen,('#9e482c'),(0,self.DISPLAY_H-self.DISPLAY_H/8,self.DISPLAY_W,self.DISPLAY_H/8))
+            #1Game.generalKeyPressHandle(self)
+            self.red.blit(self.screen,self.redRect.center)
 
-            pygame.draw.rect(self.screen,('#9e482c'),(90,90,200,300))
-
-            
-            
-            if self.PRESSED_SELECTKEY:
-                # Draw pixel 
-                self.pixelRect = Game.drawPixels(self,(255,0,0),self.redSquarePosX,self.redSquarePosY,5,5)
-                
-                # Draw particles
-                Game.drawParticles(self,self.redSquarePosX, self.redSquarePosY,('#FFFFFF'), 0, -10, radius)
-                # Check if touching border
-                if self.pixelRect[1] <= 0:
-                    self.redSquarePosY = 0
-                    self.redSquareDY = 5
-                if self.pixelRect[1] >= self.DISPLAY_H:
-                    # Set to max height subtract the pixel height
-                    self.redSquarePosY = self.DISPLAY_H
-                    self.redSquareDY = 5
-                # Move
-                self.redSquarePosY -= self.redSquareDY
-                self.redSquareDY += 1
-                # Update screen
-                pygame.display.update()
-
-            if not self.PRESSED_SELECTKEY:
-                # Draw pixel
-                self.pixelRect = Game.drawPixels(self,(255,0,0),self.redSquarePosX,self.redSquarePosY,5,5)
-                
-                print(self.pixelRect)
-                # Draw particles
-                Game.drawParticles(self,self.redSquarePosX, self.redSquarePosY,('#111111'), 0, -10, 4)
-                # Check if touching border
-                if self.pixelRect[1] <= 0:
-                    self.redSquarePosY = 0
-                    self.redSquareDY = 5
-                if self.pixelRect[1] >= self.DISPLAY_H:
-                    # Set to max height subtract the pixel height
-                    self.redSquarePosY = self.DISPLAY_H
-                    self.redSquareDY = 5
-                self.particles.clear()
-                
-                # Move
-                self.redSquarePosY += self.redSquareDY
-                self.redSquareDY += 1
-                
-                # Update screen
-               
-                pygame.display.update()
-
-            
-            
-            
-           
-
-            #pygame.draw.rect(self.screen, (randint(0,255),randint(0,255),randint(0,255)), 
-                #((self.Mouse_x - (self.DISPLAY_W/40)/2), (self.Mouse_y - (self.DISPLAY_H/22.5)/2), self.DISPLAY_W/40, self.DISPLAY_H/22.5))
-            
-            
             # Delta t to be used for framerate independence
             # Wait for next frame render time
             self.delta_t = time.time() - self.last_time
@@ -317,13 +275,6 @@ class Game():
             # Update to next frame
             pygame.display.flip()
 
-
-
-
-
-
 if __name__ == '__main__':
     g = Game()
     g.mainLoop()
-
-
