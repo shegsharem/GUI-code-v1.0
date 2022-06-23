@@ -65,6 +65,9 @@ class Game():
 
         # Set the window to window variables defined earlier
         self.screen = pygame.display.set_mode(((self.DISPLAY_W, self.DISPLAY_H)))
+        self.screenRect = self.screen.get_rect()
+        #print(self.screenRect)
+
         
         # Event logic variables to control game loops
         self.running, self.playing = True, True
@@ -79,13 +82,20 @@ class Game():
         self.redSquarePosX = 300
         self.redSquarePosY = 300
 
+        # red square change in dx
+        self.redSquareDX = 1
+        self.redSquareDY = 1
+
+
         # [location, velocity, timer]
         self.particles = []
+        self.pixels = []
 
         # get starting time
         self.last_time = time.time()
         
         self.averageFPS = ''
+        self.screenRect.clamp_ip(self.screenRect)
 
         
         #self.square = pygame.transform.scale(self.square, (self.DISPLAY_W, self.DISPLAY_H))
@@ -134,6 +144,25 @@ class Game():
 
             if particle[2] <= 0:
                 self.particles.remove(particle)
+    
+    def drawPixels(self, color, posx, posy, width, height):
+        self.pixels = [[posx,posy],[width,height]]
+        shapeW = self.pixels[1][0]
+        shapeH = self.pixels[1][1]
+        xpos = self.pixels[0][0]
+        ypos = self.pixels[0][1]
+
+        if ypos < 0:
+            self.pixels[0][1] = 0
+        
+        #self.pixels.append([[posx,posy],[width,height]])
+                            #0[0] [1]     1[0]  [1]
+        rect = [int(self.pixels[0][0]), int(self.pixels[0][1]), int(self.pixels[1][0]), int(self.pixels[1][1])]
+        pygame.draw.rect(self.screen, color, rect)
+        
+        print(ypos)
+        
+        return rect
 
     # Function to draw text on screen. 
     # Arguments: text, font, text color, surface to render on, x position, y position
@@ -184,11 +213,14 @@ class Game():
 
                     
     def renderBackground(self):
-        self.screen.fill(self.BLACK)
+        self.screen.fill(self.BLUE)
         # Show FPS count
         Game.draw_text(self,text=str(self.averageFPS),font=pygame.font.Font(self.font, 20),color=self.WHITE, surface=self.screen, x=0,y=0)
         #self.screen.blit(self.cloud1,self.cloud1rect)
 
+
+            
+        
 
 
     def mainLoop(self):
@@ -203,42 +235,66 @@ class Game():
         self.PRESSED_RIGHTKEY  = False# Pressed key logic reset
         self.PRESSED_LEFTKEY  = False# Pressed key logic reset
         self.PRESSED_SELECTKEY = False# Pressed key logic reset
-        self.x = 0
+        
         radius = 3
         while self.running:
+            # Draw background
             Game.renderBackground(self)
+
             # Get mouse coordinates
             self.Mouse_x, self.Mouse_y = pygame.mouse.get_pos()
             
             # Check for key input
             Game.controlBinding(self)
-        
+
             pygame.draw.rect(self.screen,('#9e482c'),(90,90,200,300))
 
-            if 0 >= self.redSquarePosX:
-                self.redSquarePosX =0
-                self.x=0
-            if self.DISPLAY_W <= self.redSquarePosX:
-                self.redSquarePosX = self.DISPLAY_W -5
-                self.x=0
+            
             
             if self.PRESSED_SELECTKEY:
-                Game.drawParticles(self,self.redSquarePosX, self.redSquarePosY,('#111111'), randint(-5,5), randint(-5,5), radius)
-                self.x += 0.1
-                self.x*1.3
-                self.redSquarePosX += self.x
-                self.pixel = pygame.draw.rect(self.screen,"#FFFFFF", (self.redSquarePosX,self.redSquarePosY,5,5))
+                # Draw pixel 
+                self.pixelRect = Game.drawPixels(self,(255,0,0),self.redSquarePosX,self.redSquarePosY,5,5)
+                
+                # Draw particles
+                Game.drawParticles(self,self.redSquarePosX, self.redSquarePosY,('#FFFFFF'), 0, -10, radius)
+                # Check if touching border
+                if self.pixelRect[1] <= 0:
+                    self.redSquarePosY = 0
+                    self.redSquareDY = 5
+                if self.pixelRect[1] >= self.DISPLAY_H:
+                    # Set to max height subtract the pixel height
+                    self.redSquarePosY = self.DISPLAY_H
+                    self.redSquareDY = 5
+                # Move
+                self.redSquarePosY -= self.redSquareDY
+                self.redSquareDY += 1
+                # Update screen
                 pygame.display.update()
-                self.x+=0.5
 
             if not self.PRESSED_SELECTKEY:
-                #Game.drawParticles(self,self.redSquarePosX, self.redSquarePosY,('#111111'), randint(-5,5), randint(-5,5), 4)
+                # Draw pixel
+                self.pixelRect = Game.drawPixels(self,(255,0,0),self.redSquarePosX,self.redSquarePosY,5,5)
+                
+                print(self.pixelRect)
+                # Draw particles
+                Game.drawParticles(self,self.redSquarePosX, self.redSquarePosY,('#111111'), 0, -10, 4)
+                # Check if touching border
+                if self.pixelRect[1] <= 0:
+                    self.redSquarePosY = 0
+                    self.redSquareDY = 5
+                if self.pixelRect[1] >= self.DISPLAY_H:
+                    # Set to max height subtract the pixel height
+                    self.redSquarePosY = self.DISPLAY_H
+                    self.redSquareDY = 5
                 self.particles.clear()
-                self.x*1.3
-                self.redSquarePosX += self.x
-                self.pixel = pygame.draw.rect(self.screen,"#FFFFFF", (self.redSquarePosX,self.redSquarePosY,5,5))
+                
+                # Move
+                self.redSquarePosY += self.redSquareDY
+                self.redSquareDY += 1
+                
+                # Update screen
+               
                 pygame.display.update()
-                self.x-=0.5     
 
             
             

@@ -7,7 +7,7 @@
         "fullscreen": "0",
         "button_up": "w",
         "button_left": "a",
-        "button_down": "s",
+        "button_down": "u",
         "button_right": "d",
         "button_select": "space",
         "button_esc": "escape"
