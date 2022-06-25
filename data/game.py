@@ -1,3 +1,4 @@
+from tkinter import CENTER
 import pygame, os
 import pygame.freetype
 from fileget import Files
@@ -38,7 +39,7 @@ class Game():
         self.mainClock =  pygame.time.Clock()
 
         # Frame Rate Cap
-        self.FPS = 60
+        self.FPS = 20
 
         # Variables used to set window height, width, fullscreen(yes/no) from loadedFile
         self.DISPLAY_W = int(loadedFile['settings']['window_w'])
@@ -64,7 +65,8 @@ class Game():
         self.PRESSED_SELECTKEY = False# Pressed key logic
 
         # Set the window to window variables defined earlier
-        self.screen = pygame.display.set_mode(((self.DISPLAY_W, self.DISPLAY_H)))
+        self.screen = pygame.display.set_mode(((self.DISPLAY_W, self.DISPLAY_H)), pygame.SCALED, vsync=1)
+        self.screen = pygame.transform.scale(self.screen,(120,120))
         self.screenRect = self.screen.get_rect()
         #print(self.screenRect)
 
@@ -95,9 +97,20 @@ class Game():
         self.last_time = time.time()
         
         self.averageFPS = ''
+        self.redList = []
+        for i in range(0,7):
+            self.redList.append(pygame.image.load('data/images/pixilart-frames/pixil-frame-'+str(i)+'.png').convert_alpha())
+            self.redRect = self.redList[i].get_rect()
+            self.redList[i] = pygame.transform.scale(self.redList[i],(100,100))
+        print (self.redList)
+        #self.red = pygame.transform.scale(self.redList,(400,400))
+        self.red = pygame.image.load('data/images/pixilart-frames/pixil-frame-0.png').convert_alpha()
+        self.rect = self.red.get_rect()
+        self.screen.blit(self.red,self.rect)
+        self.i = 0
         
-        self.red = pygame.image.load('data/images/red.png').convert()
-        self.redRect = self.red.get_rect()
+        
+        
         
 
     def checkFullscreen(self): 
@@ -200,42 +213,49 @@ class Game():
                 if event.key == pygame.key.key_code(str(self.user_UPKEY)):
                     self.PRESSED_UPKEY = False
 
-    #def generalKeyPressHandle(self):
-        #None
-        #radius = 3
-        #if self.PRESSED_SELECTKEY:
-        #    # Draw pixel 
-        #    self.pixelRect = Game.drawPixels(self,(255,0,0),self.redSquarePosX,self.redSquarePosY,5,5)
-        #    # Draw particles
-        #    Game.drawParticles(self,self.redSquarePosX, self.redSquarePosY,('#FFFFFF'), 0, -2, radius)
-        #    # Check if touching border
-        #    if self.pixelRect[1] <= 0:
-        #        self.redSquarePosY = 0
-        #    if self.pixelRect[1] >= self.DISPLAY_H:
-        #        # Set to max height subtract the pixel height
-        #        self.redSquarePosY = self.DISPLAY_H - 5
-        #    # Move
-        #    self.redSquarePosY -= self.redSquareDY
-        #    # Update screen
-        #    pygame.display.update()
-
-        #else:
-        #    # Draw pixel
-        #    self.pixelRect = Game.drawPixels(self,(255,0,0),self.redSquarePosX,self.redSquarePosY,5,5)
-        #    # Draw particles
-        #    Game.drawParticles(self,self.redSquarePosX, self.redSquarePosY,('#111111'), 0, -2, 4)
-        #    # Check if touching border
-        #    if self.pixelRect[1] <= 0:
-        #        self.redSquarePosY = 0
-        #    if self.pixelRect[1] >= self.DISPLAY_H:
-        #        # Set to max height subtract the pixel height
-        #        self.redSquarePosY = self.DISPLAY_H - 5
-        #    self.particles.clear()
-        #    # Move
-        #    self.redSquarePosY += self.redSquareDY
-        #    # Update screen
-        #    pygame.display.update()
-
+    def generalKeyPressHandle(self):
+        radius = 3
+        if self.PRESSED_SELECTKEY:
+            # Draw pixel 
+            self.redRect = (self.redSquarePosX,self.redSquarePosY)
+            # Draw particles
+            #Game.drawParticles(self,self.redSquarePosX, self.redSquarePosY,('#FFFFFF'), 0, -2, radius)
+            # Check if touching border
+            if self.redRect[1] <= 0:
+               self.redSquarePosY = 0
+            if self.redRect[1] >= self.DISPLAY_H:
+               # Set to max height subtract the pixel height
+               self.redSquarePosY = self.DISPLAY_H - 300
+            # Move
+            self.redSquarePosY -= 10
+            # Update screen
+        
+        else:
+            # Draw pixel
+            #self.pixelRect = Game.drawPixels(self,(255,0,0),self.redSquarePosX,self.redSquarePosY,5,5)
+            self.redRect = (self.redSquarePosX,self.redSquarePosY)
+            # Draw particles
+           # Game.drawParticles(self,self.redSquarePosX, self.redSquarePosY,('#111111'), 0, -2, 4)
+            # Check if touching border
+            if self.redRect[1] <= 0:
+                self.redSquarePosY = 0
+            if self.redRect[1] >= self.DISPLAY_H:
+                # Set to max height subtract the pixel height
+                self.redSquarePosY = self.DISPLAY_H -300
+            self.particles.clear()
+            # Move
+            self.redSquarePosY += 10
+            # Update screen
+        #self.screen.blit(self.red,self.rect)
+        
+        
+        
+        self.screen.blit(self.redList[self.i],self.redRect)  
+        #pygame.display.update()
+        self.i += 1
+        if self.i > 6:
+            self.i = 0
+        
         
     def mainLoop(self):
         # Go through this initial logic to set window up
@@ -259,10 +279,10 @@ class Game():
             
             # Check for key input
             Game.controlBinding(self)
-            pygame.draw.rect(self.screen,('#9e482c'),(0,self.DISPLAY_H-self.DISPLAY_H/8,self.DISPLAY_W,self.DISPLAY_H/8))
-            #1Game.generalKeyPressHandle(self)
-            self.red.blit(self.screen,self.redRect.center)
-
+            #pygame.draw.rect(self.screen,('#9e482c'),(0,self.DISPLAY_H-self.DISPLAY_H/8,self.DISPLAY_W,self.DISPLAY_H/8)
+            
+            Game.generalKeyPressHandle(self)
+            
             # Delta t to be used for framerate independence
             # Wait for next frame render time
             self.delta_t = time.time() - self.last_time
