@@ -16,7 +16,7 @@ You can get it [_*here.*_](https://www.python.org/downloads/)
 2. Paste `pip install pygame, pygame_gui, pypi-json,
 tk, pynput`, then press the enter key.
 
-3. Open _main.py_ and run it.
+3. Open _data/main.py_ and run it.
 
 ---
 
@@ -27,7 +27,7 @@ tk, pynput`, then press the enter key.
 2. Paste `pip install pygame, pygame_gui, pypi-json,
 tk, pynput`, then press the enter key.
 
-3. Then, open _main.py_ and run it.
+3. Then, open _data/main.py_ and run it.
 
 <h5> Written by Logan Amos </h5>
 
