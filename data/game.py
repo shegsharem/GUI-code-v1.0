@@ -3,10 +3,94 @@ import pygame.freetype
 from fileget import Files
 from random import randint
 import time
+import math
 
 
 # Game settings file(*.json) location
 f = Files('data/settings/gamesettings.json')
+
+# Load the game settings into a dictionary called loadedFile
+loadedFile = f.readSettingsFile()
+
+# "Global" variables, usable in any part of the program
+# ---------------------
+global DISPLAY_W
+global DISPLAY_H
+global FULLSCREEN
+global FPS
+global user_DOWNKEY
+global user_UPKEY
+global user_ESCAPEKEY
+global user_LEFTKEY
+global user_RIGHTKE
+global user_SELECTKEY
+global narrowedDownDict
+global PRESSED_DOWNKEY
+global PRESSED_UPKEY
+global PRESSED_ESCAPEKEY
+global PRESSED_LEFTKEY
+global PRESSED_RIGHTKEY
+global PRESSED_SELECTKEY
+# -----------------------
+
+# Variables used to set window height, width, fullscreen(yes/no) from loadedFile
+DISPLAY_W = int(loadedFile['settings']['window_w'])
+DISPLAY_H = int(loadedFile['settings']['window_h'])
+FULLSCREEN = int(loadedFile['settings']['fullscreen'])
+
+# Frame Rate Cap
+FPS = 60
+
+# Player-defined button variables to values stored in the loadedFile dictionary
+user_ESCAPEKEY = loadedFile['settings']['button_esc']
+user_UPKEY = loadedFile['settings']['button_up']
+user_DOWNKEY = loadedFile['settings']['button_down']
+user_LEFTKEY = loadedFile['settings']['button_left']
+user_RIGHTKEY = loadedFile['settings']['button_right']
+user_SELECTKEY = loadedFile['settings']['button_select']
+
+# Narrow down the loadedFile dictionary to values nested under settings
+narrowedDownDict = loadedFile['settings']
+
+# Event Logic
+PRESSED_ESCAPEKEY = False
+PRESSED_UPKEY  = False
+PRESSED_DOWNKEY  = False
+PRESSED_RIGHTKEY  = False
+PRESSED_LEFTKEY  = False
+PRESSED_SELECTKEY = False
+
+
+class Player(pygame.sprite.Sprite):
+    def __init__(self):
+        pygame.sprite.Sprite.__init__(self)
+        self.playerList = []
+        for i in range(0,7):
+            self.playerList.append(pygame.image.load('data/images/pixilart-frames/pixil-frame-'+str(i)+'.png').convert_alpha())
+            self.playerRect = self.playerList[i].get_rect()
+            self.playerRect = self.playerRect.bottom
+            # Scale the player relative to the screen size
+            self.playerList[i] = pygame.transform.scale(self.playerList[i],(DISPLAY_W/10,DISPLAY_W/10))
+        print (self.playerList)
+    
+    #def update(self):
+    #    newpos = self.calcNewPos(self.playerRect, self.vector)
+    #    self.playerRect = newpos
+    #
+    #def calcNewPos(self, rect, vector):
+    #    (angle,z) = vector
+    #    (dx,dy) = (z*math.cos(angle),z*math.sin(angle))
+    #    return rect.move(dx,dy)
+
+class Line(pygame.sprite.Sprite):
+    def __init__(self, color, startPos, endPos):
+        super().__init__()
+        width = DISPLAY_W
+        height = DISPLAY_H
+        self.image = pygame.Surface([width,height])
+        pygame.draw.line(self.image,color, startPos, endPos)
+        self.rect = self.image.get_rect()
+
 
 class Game():
     def __init__(self):
@@ -16,44 +100,21 @@ class Game():
         # Center the window on the display
         os.environ['SDL_VIDEO_CENTERED'] = '1'
 
-        # Load the game settings into a dictionary called loadedFile
-        loadedFile = f.readSettingsFile()
+        
 
         # Main clock used to keep track of frames and other time-based events
         self.mainClock =  pygame.time.Clock()
 
-        # Frame Rate Cap
-        self.FPS = 60
-
-        # Variables used to set window height, width, fullscreen(yes/no) from loadedFile
-        self.DISPLAY_W = int(loadedFile['settings']['window_w'])
-        self.DISPLAY_H = int(loadedFile['settings']['window_h'])
-        self.FULLSCREEN = int(loadedFile['settings']['fullscreen'])
-
-        # Narrow down the loadedFile dictionary to values nested under settings
-        self.narrowedDownDict = loadedFile['settings']
-
-        # Player-defined button variables to values stored in the loadedFile dictionary
-        self.user_ESCAPEKEY = loadedFile['settings']['button_esc']
-        self.user_UPKEY = loadedFile['settings']['button_up']
-        self.user_DOWNKEY = loadedFile['settings']['button_down']
-        self.user_LEFTKEY = loadedFile['settings']['button_left']
-        self.user_RIGHTKEY = loadedFile['settings']['button_right']
-        self.user_SELECTKEY = loadedFile['settings']['button_select']
-
-        self.PRESSED_ESCAPEKEY = False  # Pressed key logic
-        self.PRESSED_UPKEY  = False# Pressed key logic
-        self.PRESSED_DOWNKEY  = False# Pressed key logic
-        self.PRESSED_RIGHTKEY  = False# Pressed key logic
-        self.PRESSED_LEFTKEY  = False# Pressed key logic
-        self.PRESSED_SELECTKEY = False# Pressed key logic
-
         # Set the window to window variables defined earlier
-        self.screen = pygame.display.set_mode(((self.DISPLAY_W, self.DISPLAY_H)), pygame.SCALED, vsync=1)
+        self.screen = pygame.display.set_mode(((DISPLAY_W, DISPLAY_H)), pygame.SCALED, vsync=1)
         self.screenRect = self.screen.get_rect()
-        #print(self.screenRect)
 
-        
+        # Sprite Initiation
+
+        self.allSprites = pygame.sprite.Group()
+        self.ground = Line(('#FFFFFF'), (0,DISPLAY_H - DISPLAY_H/4),(DISPLAY_W,DISPLAY_H - DISPLAY_H/4))
+        self.allSprites.add(self.ground)
+
         # Event logic variables to control game loops
         self.running, self.playing = True, True
 
@@ -65,14 +126,13 @@ class Game():
         self.BLACK, self.WHITE = (0,0,0), (255,255,255)
         self.BLUE = '#4fadf5'
 
-        # Sprite xy coordinate variables
-        self.playerPosX = self.DISPLAY_W/5
-        self.playerPosY = 300
+        ## Sprite xy coordinate variables
+        #self.playerPosX = self.DISPLAY_W/5
+        #self.playerPosY = 300
 
         # red square change in dx
-        self.playerDX = 1
-        self.playerDY = 5
-
+        #self.playerDX = 1
+        #self.playerDY = 5
 
         # [location, velocity, timer]
         self.particles = []
@@ -82,33 +142,32 @@ class Game():
         self.last_time = time.time()
         
         self.averageFPS = ''
-        self.playerList = []
-        for i in range(0,7):
-            self.playerList.append(pygame.image.load('data/images/pixilart-frames/pixil-frame-'+str(i)+'.png').convert_alpha())
-            self.playerRect = self.playerList[i].get_rect()
-            self.playerRect = self.playerRect.bottom
-            # Scale the player relative to the screen size
-            self.playerList[i] = pygame.transform.scale(self.playerList[i],(self.DISPLAY_W/10,self.DISPLAY_W/10))
-        print (self.playerList)
-        #self.red = pygame.transform.scale(self.redList,(400,400))
-        self.i = 0
-        
-
 
     def checkFullscreen(self): 
-        if self.FULLSCREEN == 1:
-            self.screen = pygame.display.set_mode(((self.DISPLAY_W, self.DISPLAY_H)), pygame.FULLSCREEN | pygame.DOUBLEBUF | pygame.HWACCEL)
+        if FULLSCREEN == 1:
+            self.screen = pygame.display.set_mode(((DISPLAY_W, DISPLAY_H)), pygame.FULLSCREEN | pygame.DOUBLEBUF | pygame.HWACCEL)
         else:
-            self.screen = pygame.display.set_mode(((self.DISPLAY_W, self.DISPLAY_H)),pygame.NOFRAME | pygame.DOUBLEBUF | pygame.HWACCEL)
+            self.screen = pygame.display.set_mode(((DISPLAY_W, DISPLAY_H)),pygame.NOFRAME | pygame.DOUBLEBUF | pygame.HWACCEL)
     
     def renderBackground(self):
         self.screen.fill(self.BLACK)
+
+    def renderFPS(self):
+        self.delta_t = time.time() - self.last_time
+        self.delta_t *= FPS
+        self.last_time = time.time()
+        takeaverage = 0
+        takeaverage = int(FPS/self.delta_t)
+        # Update framerate string every second
+        if self.FPSLOOPCOUNT == 60:
+            self.averageFPS = takeaverage
+            self.FPSLOOPCOUNT = 0
+            takeaverage = 0
+        self.FPSLOOPCOUNT+=1
+
         # Show FPS count
         Game.draw_text(self,text=str(self.averageFPS),font=pygame.font.Font(self.font, 20),color=self.WHITE, surface=self.screen, x=15,y=15)
 
-    def writeKEYSTRING(self):
-        Game.draw_text(self,text='Select Key Pressed',font=pygame.font.Font(self.font, 500),color=self.WHITE, surface=self.screen, x=5,y=5)
-        pygame.display.flip()
     
     def circle_surf(self, radius, color):
         serf = pygame.Surface((radius * 2, radius * 2))
@@ -134,18 +193,6 @@ class Game():
 
             if particle[2] <= 0:
                 self.particles.remove(particle)
-    
-    def drawPixels(self, color, posx, posy, width, height):
-        self.pixels = [[posx,posy],[width,height]]
-        shapeW = self.pixels[1][0]
-        shapeH = self.pixels[1][1]
-        xpos = self.pixels[0][0]
-        ypos = self.pixels[0][1]
-        
-        rect = [int(self.pixels[0][0]), int(self.pixels[0][1]), int(self.pixels[1][0]), int(self.pixels[1][1])]
-        pygame.draw.rect(self.screen, color, rect)
-        
-        return rect
 
     # Function to draw text on screen. 
     # Arguments: text, font, text color, surface to render on, x position, y position
@@ -161,6 +208,8 @@ class Game():
 
 
     def controlBinding(self):
+        # Get mouse coordinates
+        self.Mouse_x, self.Mouse_y = pygame.mouse.get_pos()
         # end the program when running is = False
         if self.running == False:
             pygame.quit()
@@ -169,139 +218,141 @@ class Game():
                 pygame.quit()
             if event.type == pygame.KEYDOWN:
                 # IF KEY IS PRESSED DOWN
-                if event.key == pygame.key.key_code(str(self.user_ESCAPEKEY)):
-                    self.PRESSED_ESCAPEKEY = True
-                if event.key == pygame.key.key_code(str(self.user_SELECTKEY)):
-                    self.PRESSED_SELECTKEY = True
-                if event.key == pygame.key.key_code(str(self.user_RIGHTKEY)):
-                    self.PRESSED_RIGHTKEY = True
-                if event.key == pygame.key.key_code(str(self.user_LEFTKEY)):
-                    self.PRESSED_LEFTKEY = True
-                if event.key == pygame.key.key_code(str(self.user_DOWNKEY)):
-                    self.PRESSED_DOWNKEY = True
-                if event.key == pygame.key.key_code(str(self.user_UPKEY)):
-                    self.PRESSED_UPKEY = True
+                if event.key == pygame.key.key_code(str(user_ESCAPEKEY)):
+                    PRESSED_ESCAPEKEY = True
+                if event.key == pygame.key.key_code(str(user_SELECTKEY)):
+                    PRESSED_SELECTKEY = True
+                if event.key == pygame.key.key_code(str(user_RIGHTKEY)):
+                    PRESSED_RIGHTKEY = True
+                if event.key == pygame.key.key_code(str(user_LEFTKEY)):
+                    PRESSED_LEFTKEY = True
+                if event.key == pygame.key.key_code(str(user_DOWNKEY)):
+                    PRESSED_DOWNKEY = True
+                if event.key == pygame.key.key_code(str(user_UPKEY)):
+                    PRESSED_UPKEY = True
             if event.type == pygame.KEYUP:
                 # If key is released
-                if event.key == pygame.key.key_code(str(self.user_ESCAPEKEY)):
-                    self.PRESSED_ESCAPEKEY = False
+                if event.key == pygame.key.key_code(str(user_ESCAPEKEY)):
+                    PRESSED_ESCAPEKEY = False
                     self.running = False
-                if event.key == pygame.key.key_code(str(self.user_SELECTKEY)):
-                    self.PRESSED_SELECTKEY = False
+                if event.key == pygame.key.key_code(str(user_SELECTKEY)):
+                    PRESSED_SELECTKEY = False
                     
-                if event.key == pygame.key.key_code(str(self.user_RIGHTKEY)):
-                    self.PRESSED_RIGHTKEY = False
-                if event.key == pygame.key.key_code(str(self.user_LEFTKEY)):
-                    self.PRESSED_LEFTKEY = False
-                if event.key == pygame.key.key_code(str(self.user_DOWNKEY)):
-                    self.PRESSED_DOWNKEY = False
-                if event.key == pygame.key.key_code(str(self.user_UPKEY)):
-                    self.PRESSED_UPKEY = False
+                if event.key == pygame.key.key_code(str(user_RIGHTKEY)):
+                    PRESSED_RIGHTKEY = False
+                if event.key == pygame.key.key_code(str(user_LEFTKEY)):
+                    PRESSED_LEFTKEY = False
+                if event.key == pygame.key.key_code(str(user_DOWNKEY)):
+                    PRESSED_DOWNKEY = False
+                if event.key == pygame.key.key_code(str(user_UPKEY)):
+                    PRESSED_UPKEY = False
 
-    def spriteAnimator(self):
-        
-        self.playerRect = (self.playerPosX,self.playerPosY)
-        ground = self.DISPLAY_H-(self.DISPLAY_H/4 + int(self.playerList[1].get_rect()[3])*0.76)
-
-        if self.i > 6:
-            self.i = 5
-
-        # if touching top
-        if self.playerRect[1] <= -int(self.playerList[1].get_rect()[3]*0.25):
-            self.playerPosY = -int(self.playerList[1].get_rect()[3]*0.25)
-            if self.i>1:
-                self.i-=1
-
-        # if touching ground
-        if self.playerRect[1] >= ground:
-            # Snap to the ground, not past
-            self.playerPosY = ground
-            self.i = 3
-            
-        if self.playerRect[0]<= 0:
-            self.playerPosX = 0
-        
-        if self.playerRect[0] >= self.DISPLAY_W:
-            self.playerPosX = self.DISPLAY_W
-
-        # If not touching the ground, apply the effects of gravity
-        if self.playerPosY != ground:
-            Game.gravity(self)
-
-        if self.PRESSED_UPKEY:
-            # Move
-            self.gravity = 4.8
-            if self.playerPosY == ground:
-                self.playerPosY -= 10
-            if self.i != 6:
-                self.i +=1
-
-        if self.PRESSED_LEFTKEY:
-            self.playerPosX -= 10
-
-        if self.PRESSED_RIGHTKEY:
-            self.playerPosX += 10
-  
-        if self.PRESSED_DOWNKEY:
-            # if not already touching the ground
-            if self.playerPosY != ground:
-                self.playerPosY += 10
-            if self.i != 2 and self.i >0:
-                self.i -= 1
-        
-               
+    def drawSprites(self):
+#        
+#        self.playerRect = (self.playerPosX,self.playerPosY)
+#        ground = self.DISPLAY_H-(self.DISPLAY_H/4 + int(self.playerList[1].get_rect()[3])*0.76)
+#
+#        if self.i > 6:
+#            self.i = 5
+#
+#        # if touching top
+#        if self.playerRect[1] <= -int(self.playerList[1].get_rect()[3]*0.25):
+#            self.playerPosY = -int(self.playerList[1].get_rect()[3]*0.25)
+#            if self.i>1:
+#                self.i-=1
+#
+#        # if touching ground
+#        if self.playerRect[1] >= ground:
+#            # Snap to the ground, not past
+#            self.playerPosY = ground
+#            self.i = 3
+#            
+#        if self.playerRect[0]<= 0:
+#            self.playerPosX = 0
+#        
+#        if self.playerRect[0] >= self.DISPLAY_W:
+#            self.playerPosX = self.DISPLAY_W
+#
+#        # If not touching the ground, apply the effects of gravity
+#        if self.playerPosY != ground:
+#            Game.gravity(self)
+#
+#        if self.PRESSED_UPKEY:
+#            # Move
+#            self.gravity = 4.8
+#            if self.playerPosY == ground:
+#                self.playerPosY -= 10
+#            if self.i != 6:
+#                self.i +=1
+#
+#        if self.PRESSED_LEFTKEY:
+#            self.playerPosX -= 10
+#
+#        if self.PRESSED_RIGHTKEY:
+#            self.playerPosX += 10
+#  
+#        if self.PRESSED_DOWNKEY:
+#            # if not already touching the ground
+#            if self.playerPosY != ground:
+#                self.playerPosY += 10
+#            if self.i != 2 and self.i >0:
+#                self.i -= 1
+#        
+#               
         # Copy image to display
-        self.screen.blit(self.playerList[self.i],self.playerRect)
+        self.allSprites.update()
+        self.allSprites.draw(self.screen)    
+        #self.screen.blit(self.playerList[self.i],self.playerRect)
+        
+    def clockTick(self):
+        # Delta t to be used for framerate independence
+        # Wait for next frame render time
+        self.delta_t = time.time() - self.last_time
+        self.delta_t *= FPS
+        self.last_time = time.time()
+        pygame.display.flip()
+        self.mainClock.tick(FPS)
+
         
         
-        
-    def mainLoop(self):
+    def mainGameLoop(self):
         # Go through this initial logic to set window up
         Game.checkFullscreen(self) # determine if window should be fullscreened or not, based on the loadedFile's parameters
+
+        # Hide mouse
         pygame.mouse.set_visible(False)
+
         self.running = True # Set control logic variable to True
         # Loop to run while control logic variable is set to True
-        self.PRESSED_ESCAPEKEY = False  # Pressed key logic reset
-        self.PRESSED_UPKEY  = False# Pressed key logic reset
-        self.PRESSED_DOWNKEY  = False# Pressed key logic reset
-        self.PRESSED_RIGHTKEY  = False# Pressed key logic reset
-        self.PRESSED_LEFTKEY  = False# Pressed key logic reset
-        self.PRESSED_SELECTKEY = False# Pressed key logic reset
+        PRESSED_ESCAPEKEY = False
+        PRESSED_UPKEY  = False
+        PRESSED_DOWNKEY  = False
+        PRESSED_RIGHTKEY  = False
+        PRESSED_LEFTKEY  = False
+        PRESSED_SELECTKEY = False
         
+        # ------------------------------------------------------------------------------------------
+        # MAIN GAME LOOP (Should be function calls only, keep as clean as possible)
         while self.running:
             # Draw background
             Game.renderBackground(self)
-
-            # Get mouse coordinates
-            self.Mouse_x, self.Mouse_y = pygame.mouse.get_pos()
             
             # Check for key input
             Game.controlBinding(self)
-            self.ground = pygame.draw.line(self.screen,('#FFFFFF'),(0,self.DISPLAY_H - self.DISPLAY_H/4), (self.DISPLAY_W,self.DISPLAY_H - self.DISPLAY_H/4))
-            #self.groundRect = self.ground.get_rect()
             
-            Game.spriteAnimator(self)
-            
-            # Delta t to be used for framerate independence
-            # Wait for next frame render time
-            self.delta_t = time.time() - self.last_time
-            self.delta_t *= self.FPS
-            self.last_time = time.time()
-            pygame.display.flip()
-            self.mainClock.tick(self.FPS)
-            takeaverage = 0
-            takeaverage = int(self.FPS/self.delta_t)
-            # Only update framerate every second
-            if self.FPSLOOPCOUNT == 60:
-                self.averageFPS = takeaverage
-                self.FPSLOOPCOUNT = 0
-                takeaverage = 0
-            else:
-                self.averageFPS = self.averageFPS
-            self.FPSLOOPCOUNT+=1
+            # Draw Sprites
+            Game.drawSprites(self)
+
+            # Display current FPS in top left corner
+            Game.renderFPS(self)
+
+            # Run limitor to lock in set frame rate (loop will only iterate whatever FPS is set to)
+            Game.clockTick(self)
+
             # Update to next frame
             pygame.display.flip()
+        # ------------------------------------------------------------------------------------------
 
 if __name__ == '__main__':
     g = Game()
-    g.mainLoop()
+    g.mainGameLoop()
