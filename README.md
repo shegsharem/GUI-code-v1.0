@@ -1,4 +1,4 @@
-# GUI-code-v1.0
+# bloot
 
 
 Ensure you have Python 3 installed.\
@@ -14,9 +14,9 @@ You can get it [_*here.*_](https://www.python.org/downloads/)
 1. Open Thonny and go to Tools>Start System Shell
 
 2. Paste `pip install pygame, pygame_gui, pypi-json,
-tk, pynput`, then press the enter key.
+tk, pynput, functools`, then press the enter key.
 
-3. Open _main.py_ and run it.
+3. Open _data/main.py_ and run it.
 
 ---
 
@@ -25,9 +25,9 @@ tk, pynput`, then press the enter key.
 1. Open Command Prompt or a Terminal Window
 
 2. Paste `pip install pygame, pygame_gui, pypi-json,
-tk, pynput`, then press the enter key.
+tk, pynput, functools`, then press the enter key.
 
-3. Then, open _main.py_ and run it.
+3. Then, open _data/main.py_ and run it.
 
 <h5> Written by Logan Amos </h5>
 
