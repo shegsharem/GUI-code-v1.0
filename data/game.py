@@ -1,28 +1,12 @@
-from tkinter import CENTER
 import pygame, os
 import pygame.freetype
 from fileget import Files
-from time import sleep
-from random import randint, random
+from random import randint
 import time
-
-import pygame.gfxdraw
 
 
 # Game settings file(*.json) location
 f = Files('data/settings/gamesettings.json')
-
-class Player(pygame.sprite.Sprite):
-    def __init__(self):
-        pygame.sprite.Sprite.__init__(self)
-        self.img = pygame.Surface((50,50))
-        self.img.fill((255,0,0))
-        self.rect = self.img.get_rect()
-        self.rect.left = 0
-        self.rect.centery = g.DISPLAY_H / 2
-        self.vx = 2
-    
-
 
 class Game():
     def __init__(self):
@@ -39,7 +23,7 @@ class Game():
         self.mainClock =  pygame.time.Clock()
 
         # Frame Rate Cap
-        self.FPS = 20
+        self.FPS = 60
 
         # Variables used to set window height, width, fullscreen(yes/no) from loadedFile
         self.DISPLAY_W = int(loadedFile['settings']['window_w'])
@@ -66,7 +50,6 @@ class Game():
 
         # Set the window to window variables defined earlier
         self.screen = pygame.display.set_mode(((self.DISPLAY_W, self.DISPLAY_H)), pygame.SCALED, vsync=1)
-        self.screen = pygame.transform.scale(self.screen,(120,120))
         self.screenRect = self.screen.get_rect()
         #print(self.screenRect)
 
@@ -76,17 +59,19 @@ class Game():
 
         # Useful variables to be reused later
         self.font = 'data/fonts/orange kid.ttf'
+        self.FPSLOOPCOUNT = 0
+        self.gravity = 4.8
         
         self.BLACK, self.WHITE = (0,0,0), (255,255,255)
         self.BLUE = '#4fadf5'
 
         # Sprite xy coordinate variables
-        self.redSquarePosX = 300
-        self.redSquarePosY = 300
+        self.playerPosX = self.DISPLAY_W/5
+        self.playerPosY = 300
 
         # red square change in dx
-        self.redSquareDX = 1
-        self.redSquareDY = 5
+        self.playerDX = 1
+        self.playerDY = 5
 
 
         # [location, velocity, timer]
@@ -97,21 +82,18 @@ class Game():
         self.last_time = time.time()
         
         self.averageFPS = ''
-        self.redList = []
+        self.playerList = []
         for i in range(0,7):
-            self.redList.append(pygame.image.load('data/images/pixilart-frames/pixil-frame-'+str(i)+'.png').convert_alpha())
-            self.redRect = self.redList[i].get_rect()
-            self.redList[i] = pygame.transform.scale(self.redList[i],(100,100))
-        print (self.redList)
+            self.playerList.append(pygame.image.load('data/images/pixilart-frames/pixil-frame-'+str(i)+'.png').convert_alpha())
+            self.playerRect = self.playerList[i].get_rect()
+            self.playerRect = self.playerRect.bottom
+            # Scale the player relative to the screen size
+            self.playerList[i] = pygame.transform.scale(self.playerList[i],(self.DISPLAY_W/10,self.DISPLAY_W/10))
+        print (self.playerList)
         #self.red = pygame.transform.scale(self.redList,(400,400))
-        self.red = pygame.image.load('data/images/pixilart-frames/pixil-frame-0.png').convert_alpha()
-        self.rect = self.red.get_rect()
-        self.screen.blit(self.red,self.rect)
         self.i = 0
         
-        
-        
-        
+
 
     def checkFullscreen(self): 
         if self.FULLSCREEN == 1:
@@ -120,10 +102,9 @@ class Game():
             self.screen = pygame.display.set_mode(((self.DISPLAY_W, self.DISPLAY_H)),pygame.NOFRAME | pygame.DOUBLEBUF | pygame.HWACCEL)
     
     def renderBackground(self):
-        self.screen.fill(self.BLUE)
+        self.screen.fill(self.BLACK)
         # Show FPS count
-        Game.draw_text(self,text=str(self.averageFPS),font=pygame.font.Font(self.font, 20),color=self.WHITE, surface=self.screen, x=0,y=0)
-        #self.screen.blit(self.cloud1,self.cloud1rect)
+        Game.draw_text(self,text=str(self.averageFPS),font=pygame.font.Font(self.font, 20),color=self.WHITE, surface=self.screen, x=15,y=15)
 
     def writeKEYSTRING(self):
         Game.draw_text(self,text='Select Key Pressed',font=pygame.font.Font(self.font, 500),color=self.WHITE, surface=self.screen, x=5,y=5)
@@ -173,6 +154,10 @@ class Game():
         textRect = textObj.get_rect() # Get text's occupied space size
         textRect.topleft = (x-1,y-8) # Set the text's position to the x and y position
         surface.blit(textObj, textRect) # Render the text to the surface
+    
+    def gravity(self):
+        self.playerPosY -= self.gravity
+        self.gravity -= 0.3
 
 
     def controlBinding(self):
@@ -213,48 +198,46 @@ class Game():
                 if event.key == pygame.key.key_code(str(self.user_UPKEY)):
                     self.PRESSED_UPKEY = False
 
-    def generalKeyPressHandle(self):
-        radius = 3
-        if self.PRESSED_SELECTKEY:
-            # Draw pixel 
-            self.redRect = (self.redSquarePosX,self.redSquarePosY)
-            # Draw particles
-            #Game.drawParticles(self,self.redSquarePosX, self.redSquarePosY,('#FFFFFF'), 0, -2, radius)
-            # Check if touching border
-            if self.redRect[1] <= 0:
-               self.redSquarePosY = 0
-            if self.redRect[1] >= self.DISPLAY_H:
-               # Set to max height subtract the pixel height
-               self.redSquarePosY = self.DISPLAY_H - 300
-            # Move
-            self.redSquarePosY -= 10
-            # Update screen
+    def spriteAnimator(self):
         
-        else:
-            # Draw pixel
-            #self.pixelRect = Game.drawPixels(self,(255,0,0),self.redSquarePosX,self.redSquarePosY,5,5)
-            self.redRect = (self.redSquarePosX,self.redSquarePosY)
-            # Draw particles
-           # Game.drawParticles(self,self.redSquarePosX, self.redSquarePosY,('#111111'), 0, -2, 4)
-            # Check if touching border
-            if self.redRect[1] <= 0:
-                self.redSquarePosY = 0
-            if self.redRect[1] >= self.DISPLAY_H:
-                # Set to max height subtract the pixel height
-                self.redSquarePosY = self.DISPLAY_H -300
-            self.particles.clear()
-            # Move
-            self.redSquarePosY += 10
-            # Update screen
-        #self.screen.blit(self.red,self.rect)
-        
-        
-        
-        self.screen.blit(self.redList[self.i],self.redRect)  
-        #pygame.display.update()
-        self.i += 1
+        self.playerRect = (self.playerPosX,self.playerPosY)
+        ground = self.DISPLAY_H-(self.DISPLAY_H/4 + int(self.playerList[1].get_rect()[3])*0.76)
+
         if self.i > 6:
-            self.i = 0
+            self.i = 5
+
+        # if touching top
+        if self.playerRect[1] <= -int(self.playerList[1].get_rect()[3]*0.25):
+            self.playerPosY = -int(self.playerList[1].get_rect()[3]*0.25)
+
+        # if touching ground
+        if self.playerRect[1] >= ground:
+            # Snap to the ground, not past
+            self.playerPosY = ground
+            self.i = 3
+            
+        # If not touching the ground, apply the effects of gravity
+        if self.playerPosY != ground:
+            Game.gravity(self)
+
+        if self.PRESSED_UPKEY:
+            # Move
+            self.gravity = 4.8
+            self.playerPosY -= 10
+            if self.i != 6:
+                self.i +=1
+  
+        if self.PRESSED_DOWNKEY:
+            # if not already touching the ground
+            if self.playerPosY != ground:
+                self.playerPosY += 10
+            if self.i != 2 and self.i >0:
+                self.i -= 1
+        
+               
+        # Copy image to display
+        self.screen.blit(self.playerList[self.i],self.playerRect)
+        
         
         
     def mainLoop(self):
@@ -279,9 +262,10 @@ class Game():
             
             # Check for key input
             Game.controlBinding(self)
-            #pygame.draw.rect(self.screen,('#9e482c'),(0,self.DISPLAY_H-self.DISPLAY_H/8,self.DISPLAY_W,self.DISPLAY_H/8)
+            self.ground = pygame.draw.line(self.screen,('#FFFFFF'),(0,self.DISPLAY_H - self.DISPLAY_H/4), (self.DISPLAY_W,self.DISPLAY_H - self.DISPLAY_H/4))
+            #self.groundRect = self.ground.get_rect()
             
-            Game.generalKeyPressHandle(self)
+            Game.spriteAnimator(self)
             
             # Delta t to be used for framerate independence
             # Wait for next frame render time
@@ -290,8 +274,16 @@ class Game():
             self.last_time = time.time()
             pygame.display.flip()
             self.mainClock.tick(self.FPS)
-
-            self.averageFPS = int(self.FPS/self.delta_t)
+            takeaverage = 0
+            takeaverage = int(self.FPS/self.delta_t)
+            # Only update framerate every second
+            if self.FPSLOOPCOUNT == 60:
+                self.averageFPS = takeaverage
+                self.FPSLOOPCOUNT = 0
+                takeaverage = 0
+            else:
+                self.averageFPS = self.averageFPS
+            self.FPSLOOPCOUNT+=1
             # Update to next frame
             pygame.display.flip()
 

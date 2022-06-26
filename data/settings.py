@@ -37,9 +37,7 @@ class Settings(tk.Frame):
              '1024x576',
              '1152x648',
              '1280x720',
-             '854x480',
-             '640x360',
-             '426x240'
+             '854x480'
              ]
     
         self.GAME_RESOLUTION.set(self.resolutionlist[0])
@@ -130,9 +128,6 @@ class Settings(tk.Frame):
             self.controlsListbox.insert('',tk.END, text=key,values=self.customControlsList[key])
             print(self.customControlsList)
 
-        
-        
-
         f.updateDictWithNewValues(self.controlsList,self.customControlsList)
 
         def items_selected(event=None):
@@ -143,7 +138,6 @@ class Settings(tk.Frame):
             # Collect events until released
             with keyboard.Listener(on_press=on_press,on_release=on_release) as listener:
                 listener.join() 
-
 
             self.controlsListbox.insert(text=self.controlsListbox.item(selected_indices)['text'],parent='',
                 index=selected_indices[3],values=(self.keyPressed))
@@ -164,8 +158,6 @@ class Settings(tk.Frame):
         f.writeSettingsFile(loadedFile)
         print("Saved Changes")
         self.root.destroy()
-
-
 
     def changeResolutionSetting(self, event=None):
         self.selected = self.GAME_RESOLUTION.get()
