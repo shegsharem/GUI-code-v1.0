@@ -209,6 +209,8 @@ class Game():
         # if touching top
         if self.playerRect[1] <= -int(self.playerList[1].get_rect()[3]*0.25):
             self.playerPosY = -int(self.playerList[1].get_rect()[3]*0.25)
+            if self.i>1:
+                self.i-=1
 
         # if touching ground
         if self.playerRect[1] >= ground:
@@ -216,6 +218,12 @@ class Game():
             self.playerPosY = ground
             self.i = 3
             
+        if self.playerRect[0]<= 0:
+            self.playerPosX = 0
+        
+        if self.playerRect[0] >= self.DISPLAY_W:
+            self.playerPosX = self.DISPLAY_W
+
         # If not touching the ground, apply the effects of gravity
         if self.playerPosY != ground:
             Game.gravity(self)
@@ -223,9 +231,16 @@ class Game():
         if self.PRESSED_UPKEY:
             # Move
             self.gravity = 4.8
-            self.playerPosY -= 10
+            if self.playerPosY == ground:
+                self.playerPosY -= 10
             if self.i != 6:
                 self.i +=1
+
+        if self.PRESSED_LEFTKEY:
+            self.playerPosX -= 10
+
+        if self.PRESSED_RIGHTKEY:
+            self.playerPosX += 10
   
         if self.PRESSED_DOWNKEY:
             # if not already touching the ground
