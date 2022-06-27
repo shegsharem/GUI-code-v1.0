@@ -106,16 +106,32 @@ class Player(pygame.sprite.Sprite):
         self.image = self.images[self.index]
    
     def move(self):
+        top = -int(self.image.get_rect()[3]*0.25)
         # top = self.playerPosY = -int(self.playerList[1].get_rect()[3]*0.25)
+        bottom = DISPLAY_H-(DISPLAY_H/4 + int(self.images[1].get_rect()[3])*0.76)
         self.acc = vec(0,0)
+        
+        # X-AXIS MOVEMENT
         self.acc.x += self.vel.x * FRICTION
+    
+        # Y-AXIS MOVEMENT
+        self.acc.y -=  -0.5
+
         self.vel += self.acc
         self.pos += self.vel + 0.5 * self.acc
 
         if self.pos.x > DISPLAY_W:
             self.pos.x = 0
+
         if self.pos.x < 0:
             self.pos.x = DISPLAY_W
+
+        if self.pos.y < top:
+            self.pos.y = top
+        
+        if self.pos.y > bottom:
+            self.pos.y = bottom
+
         self.rect = self.pos
     
     def moveLeft(self):
@@ -126,12 +142,6 @@ class Player(pygame.sprite.Sprite):
         self.vel += self.acc
         self.pos += self.vel + 0.5 * self.acc
 
-        if self.pos.x > DISPLAY_W:
-            self.pos.x = 0
-        if self.pos.x < 0:
-            self.pos.x = DISPLAY_W
-        self.rect = self.pos
-
     def moveRight(self):
         self.acc = vec(0,0)
         self.acc.x = ACCELERATION
@@ -140,11 +150,23 @@ class Player(pygame.sprite.Sprite):
         self.vel += self.acc
         self.pos += self.vel + 0.5 * self.acc
 
-        if self.pos.x > DISPLAY_W:
-            self.pos.x = 0
-        if self.pos.x < 0:
-            self.pos.x = DISPLAY_W
-        self.rect = self.pos
+    def moveUp(self):
+        self.acc = vec(0,0)
+        self.acc.y = -4
+        
+        self.vel += self.acc
+        self.pos += self.vel + 0.5 * -self.acc
+        self.acc.y = 0
+    
+    def moveDown(self):
+        self.acc = vec(0,0)
+        self.acc.y = ACCELERATION
+        
+        self.acc.y += self.vel.y * FRICTION
+        self.vel += self.acc
+        self.pos += self.vel + 0.5 * self.acc
+
+
 
 class Line(pygame.sprite.Sprite):
     def __init__(self, color, startPos, endPos):
@@ -309,8 +331,6 @@ def mainGameLoop():
                 player.index += 1
             if player.index == 6:
                 player.index = 6
-
-            print("YEET DOWN")
             player.moveRight()
         
         if PRESSED_LEFTKEY:
@@ -319,6 +339,12 @@ def mainGameLoop():
             if player.index == 2:
                 player.index = 2
             player.moveLeft()
+
+        if PRESSED_UPKEY:
+            player.moveUp()
+
+        if PRESSED_DOWNKEY:
+            player.moveDown()
 
         player.move()
 
