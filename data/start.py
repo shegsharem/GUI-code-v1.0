@@ -11,8 +11,7 @@ import tkinter as tk
 
 # Modules I wrote
 
-import settings as settings
-from game import Game
+import settings
 from fileget import Files
 
 import sys
@@ -69,92 +68,78 @@ class Text:
         #screen.blit(screen, (width/2,height/2))
 
 
+pygame.quit()
+#settings.getScreenData()
+pygame.init()
+pygame.freetype.init()
+pygame.freetype.set_default_resolution(72)
+width = 400
+height = 500
+flags = NOFRAME
+windowTitle = pygame.display.set_caption('game') # Window Title
+screen = pygame.display.set_mode((width, height), flags, vsync=1)
+manager = pygame_gui.UIManager((width, height), 'data/settings/theme.json',)
+titleImage = pygame.image.load('data/images/image.png').convert()
+background = pygame.Surface((width, height)) # Set to maximum possible resolution
+title = Text("game", fontcolor=Color('white'), pos=(30,30), fontsize=48, fontname="Consolas")
+settings_button = UIButton(relative_rect=pygame.Rect(((width/2)+50, 400), (125,75)), text='settings',
+            manager=manager, object_id=ObjectID(class_id='default'), 
+            anchors={'left': 'left','right': 'right','top': 'top','bottom': 'bottom'})
+    
+play_button = UIButton(relative_rect=pygame.Rect((25, 380), (200,100)), text='play',
+            manager=manager, object_id=ObjectID(class_id='buttons'), 
+            anchors={'left': 'left','right': 'right','top': 'top','bottom': 'bottom'})
+exit_button = UIButton(relative_rect=pygame.Rect((350, 10), (40,40)), text='X',
+            manager=manager, object_id=ObjectID(class_id='default'), 
+            anchors={'left': 'left','right': 'right','top': 'top','bottom': 'bottom'})
+
+global running
 
 
-class Start:
-    def __init__(self):
-        pygame.quit()
-        #settings.getScreenData()
-        pygame.init()
-        pygame.freetype.init()
-        pygame.freetype.set_default_resolution(72)
 
-        self.width = 400
-        self.height = 500
-
-        flags = NOFRAME
-
-
-        Start.windowTitle = pygame.display.set_caption('game') # Window Title
-        Start.screen = pygame.display.set_mode((self.width, self.height), flags, vsync=1)
-        Start.manager = pygame_gui.UIManager((self.width, self.height), 'data/settings/theme.json',)
-        Start.titleImage = pygame.image.load('data/images/image.png').convert()
-
-        Start.background = pygame.Surface((self.width, self.height)) # Set to maximum possible resolution
-
-        Start.title = Text("game", fontcolor=Color('white'), pos=(30,30), fontsize=48, fontname="Consolas")
-
-        Start.settings_button = UIButton(relative_rect=pygame.Rect(((self.width/2)+50, 400), (125,75)), text='settings',
-                manager=Start.manager, object_id=ObjectID(class_id='default'), 
-                anchors={'left': 'left','right': 'right','top': 'top','bottom': 'bottom'})
-        
-        Start.play_button = UIButton(relative_rect=pygame.Rect((25, 380), (200,100)), text='play',
-                manager=Start.manager, object_id=ObjectID(class_id='buttons'), 
-                anchors={'left': 'left','right': 'right','top': 'top','bottom': 'bottom'})
-
-
-        Start.exit_button = UIButton(relative_rect=pygame.Rect((350, 10), (40,40)), text='X',
-                manager=Start.manager, object_id=ObjectID(class_id='default'), 
-                anchors={'left': 'left','right': 'right','top': 'top','bottom': 'bottom'})
-        
-        Start.running = True
+def titlePicture():
+    screen.blit(titleImage, (50,125))
 
     
-    def titlePicture():
-        Start.screen.blit(Start.titleImage, (50,125))
-
-    
-    def run(self):
-        while Start.running:
+def run():
+    running = True
+    while running:
+        clock = pygame.time.Clock()
+        time_delta = clock.tick(60)/1000.0 # Frame Cap at 60 FPS
             
-            clock = pygame.time.Clock()
-            time_delta = clock.tick(60)/1000.0 # Frame Cap at 60 FPS
-            
-            for event in pygame.event.get():
-                Start.manager.process_events(event)
-                #print(event)
+        for event in pygame.event.get():
+            manager.process_events(event)
 
-                if event.type == pygame.QUIT:
-                    Start.running = False
+            if event.type == pygame.QUIT:
+                    running = False
 
-                if event.type == pygame_gui.UI_BUTTON_PRESSED:
+            if event.type == pygame_gui.UI_BUTTON_PRESSED:
                     
-                    if event.ui_element == Start.exit_button:
-                        Start.running = False
-                        #GUI.quitConfirm_dialog.visible = 1
-                        sys.exit()
+                if event.ui_element == exit_button:
+                    running = False
+                    sys.exit()
                         
                         
-                    if event.ui_element == Start.settings_button:
-                        settings.main()
+                if event.ui_element == settings_button:
+                    settings.main()
 
-                    if event.ui_element == Start.play_button:
-                        Start.running = False
-                        pygame.quit()
-                        g = Game()
-                        g.mainGameLoop()
+                if event.ui_element == play_button:
+                    running = False
+                    pygame.quit()
+                    import game
+                    game.mainGameLoop()
                         
                         
-            Start.manager.update(time_delta)
+            manager.update(time_delta)
 
-            Start.screen.fill(Color("#303030"))
-            Start.manager.draw_ui(Start.screen)
+            screen.fill(Color("#303030"))
+            manager.draw_ui(screen)
             
-            Start.titlePicture()
-            Start.title.draw(Start.screen)
+            titlePicture()
+            title.draw(screen)
             pygame.display.update()
      
-        pygame.quit()
+    pygame.quit()
 
     
 
@@ -164,6 +149,5 @@ class Start:
         
 # Only run if the program is run directly, not when imported as a module somewhere else
 if __name__ == '__main__':
-    #Settings().run()
-    Start().run()
+    run()
     

@@ -210,8 +210,6 @@ def on_release(key):
 
 def main():
     root = tk.Tk()
-    
-    
     root.protocol("WM_DELETE_WINDOW", Settings(root).on_closing)
     root.mainloop()
 

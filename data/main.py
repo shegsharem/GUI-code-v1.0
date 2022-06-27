@@ -1,9 +1,9 @@
-import settings as settings
-from start import Start
+import settings
+import start
 
 #g = Game()
-gui = Start()
-gui.run()
+start.run()
+
 settings.getScreenData()
 
 #while gui.running:
