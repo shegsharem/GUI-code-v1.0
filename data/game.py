@@ -1,9 +1,12 @@
 import pygame, os
+from pygame.locals import *
 import pygame.freetype
 from fileget import Files
 from random import randint
 import time
 import math
+
+vec = pygame.math.Vector2  # 2 for two dimensional
 
 
 class Player(pygame.sprite.Sprite):
@@ -16,7 +19,10 @@ class Player(pygame.sprite.Sprite):
             self.playerRect = self.playerRect.bottom
             # Scale the player relative to the screen size
             self.playerList[i] = pygame.transform.scale(self.playerList[i],(DISPLAY_W/10,DISPLAY_W/10))
-        print (self.playerList)
+
+        self.pos = vec((10, 385))
+        self.vel = vec(0,0)
+        self.acc = vec(0,0)
     
     #def update(self):
     #    newpos = self.calcNewPos(self.playerRect, self.vector)
@@ -48,7 +54,6 @@ loadedFile = f.readSettingsFile()
 # ---------------------
 global DISPLAY_W
 global DISPLAY_H
-global FULLSCREEN
 global FPS
 global user_DOWNKEY
 global user_UPKEY
