@@ -40,11 +40,10 @@ DISPLAY_H = int(loadedFile['settings']['window_h'])
 FULLSCREEN = int(loadedFile['settings']['fullscreen'])
 
 # Frame Rate Cap
-FPS = 30
+FPS = 60
 
 # Clock used to handle time-based events
 mainClock =  pygame.time.Clock()
-
 
 # Player-defined button variables to values stored in the loadedFile dictionary
 user_ESCAPEKEY = loadedFile['settings']['button_esc']
@@ -72,8 +71,8 @@ FPSLOOPCOUNT = 0
 last_time = time.time()
 averageFPS = ''
 
-ACCELERATION = 0.5
-FRICTION = -0.12
+ACCELERATION = 1.5
+FRICTION = -0.09
 
 class Player(pygame.sprite.Sprite):
     def __init__(self, scaledWidth, scaledHeight):
@@ -86,7 +85,7 @@ class Player(pygame.sprite.Sprite):
             # Scale the player relative to the screen size
             self.images[i] = pygame.transform.scale(self.images[i],(scaledWidth,scaledHeight))
 
-        self.pos = vec((0, 0))
+        self.pos = vec((0, DISPLAY_H-(DISPLAY_H/4 + int(self.images[1].get_rect()[3])*0.76)))
         self.vel = vec(0,0)
         self.acc = vec(0,0)
 
@@ -107,6 +106,7 @@ class Player(pygame.sprite.Sprite):
         self.image = self.images[self.index]
    
     def move(self):
+        # top = self.playerPosY = -int(self.playerList[1].get_rect()[3]*0.25)
         self.acc = vec(0,0)
         self.acc.x += self.vel.x * FRICTION
         self.vel += self.acc
@@ -120,7 +120,7 @@ class Player(pygame.sprite.Sprite):
     
     def moveLeft(self):
         self.acc = vec(0,0)
-        self.acc.x = -5
+        self.acc.x = -ACCELERATION
         
         self.acc.x += self.vel.x * FRICTION
         self.vel += self.acc
@@ -134,7 +134,7 @@ class Player(pygame.sprite.Sprite):
 
     def moveRight(self):
         self.acc = vec(0,0)
-        self.acc.x = 5
+        self.acc.x = ACCELERATION
         
         self.acc.x += self.vel.x * FRICTION
         self.vel += self.acc
@@ -145,10 +145,6 @@ class Player(pygame.sprite.Sprite):
         if self.pos.x < 0:
             self.pos.x = DISPLAY_W
         self.rect = self.pos
-    #def calcNewPos(self, rect, vector):
-    #    (angle,z) = vector
-    #    (dx,dy) = (z*math.cos(angle),z*math.sin(angle))
-    #    return rect.move(dx,dy)
 
 class Line(pygame.sprite.Sprite):
     def __init__(self, color, startPos, endPos):
@@ -210,65 +206,11 @@ def gravity():
     playerPosY -= gravity
     gravity -= 0.3
 
-
-        
-
 def drawSprites(sprite, surface):
-#       
-#       self.playerRect = (self.playerPosX,self.playerPosY)
-#       ground = self.DISPLAY_H-(self.DISPLAY_H/4 + int(self.playerList[1].get_rect()[3])*0.76)
-
-#       if self.i > 6:
-#           self.i = 5
-
-#       # if touching top
-#       if self.playerRect[1] <= -int(self.playerList[1].get_rect()[3]*0.25):
-#           self.playerPosY = -int(self.playerList[1].get_rect()[3]*0.25)
-#           if self.i>1:
-#               self.i-=1
-
-#       # if touching ground
-#       if self.playerRect[1] >= ground:
-#           # Snap to the ground, not past
-#           self.playerPosY = ground
-#           self.i = 3
-#           
-#       if self.playerRect[0]<= 0:
-#           self.playerPosX = 0
-#       
-#       if self.playerRect[0] >= self.DISPLAY_W:
-#           self.playerPosX = self.DISPLAY_W
-
-#       # If not touching the ground, apply the effects of gravity
-#       if self.playerPosY != ground:
-#           Game.gravity(self)
-
-#       self.PRESSED_UPKEY:
-#           # Move
-#           self.gravity = 4.8
-#           if self.playerPosY == ground:
-#               self.playerPosY -= 10
-#           if self.i != 6:
-#               self.i +=1
-
-#       if self.PRESSED_LEFTKEY:
-#           self.playerPosX -= 10
-
-#       if self.PRESSED_RIGHTKEY:
-#           self.playerPosX += 10
-# 
-#       if self.PRESSED_DOWNKEY:
-#           # if not already touching the ground
-#           if self.playerPosY != ground:
-#               self.playerPosY += 10
-#           if self.i != 2 and self.i >0:
-#               self.i -= 1
-#       
     # Copy image to display
     sprite.update()
     sprite.draw(surface)  
-
-        
+  
 def clockTick():
     last_time = time.time()
     # Delta t to be used for framerate independence
@@ -278,8 +220,6 @@ def clockTick():
     pygame.display.flip()
     mainClock.tick(FPS)
 
-        
-        
 def mainGameLoop():
     # Start pygame
     pygame.init()
@@ -324,12 +264,8 @@ def mainGameLoop():
         # Draw background
         renderBackground(screen)
     
-        
         # Draw Sprites
         drawSprites(allSprites, screen)
-
-            # Loop to run while 
-
 
         # Get mouse coordinates
         Mouse_x, Mouse_y = pygame.mouse.get_pos()
@@ -369,15 +305,19 @@ def mainGameLoop():
                     PRESSED_UPKEY = True
 
         if PRESSED_RIGHTKEY:
-            if player.index < 5:
+            if player.index < 6:
                 player.index += 1
-            if player.index == 5:
-                player.index = 5
+            if player.index == 6:
+                player.index = 6
 
             print("YEET DOWN")
             player.moveRight()
         
         if PRESSED_LEFTKEY:
+            if player.index > 2:
+                player.index -= 1
+            if player.index == 2:
+                player.index = 2
             player.moveLeft()
 
         player.move()
