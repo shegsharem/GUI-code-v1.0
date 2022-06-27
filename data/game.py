@@ -6,6 +6,38 @@ import time
 import math
 
 
+class Player(pygame.sprite.Sprite):
+    def __init__(self):
+        pygame.sprite.Sprite.__init__(self)
+        self.playerList = []
+        for i in range(0,7):
+            self.playerList.append(pygame.image.load('data/images/pixilart-frames/pixil-frame-'+str(i)+'.png').convert_alpha())
+            self.playerRect = self.playerList[i].get_rect()
+            self.playerRect = self.playerRect.bottom
+            # Scale the player relative to the screen size
+            self.playerList[i] = pygame.transform.scale(self.playerList[i],(DISPLAY_W/10,DISPLAY_W/10))
+        print (self.playerList)
+    
+    #def update(self):
+    #    newpos = self.calcNewPos(self.playerRect, self.vector)
+    #    self.playerRect = newpos
+    #
+    #def calcNewPos(self, rect, vector):
+    #    (angle,z) = vector
+    #    (dx,dy) = (z*math.cos(angle),z*math.sin(angle))
+    #    return rect.move(dx,dy)
+
+class Line(pygame.sprite.Sprite):
+    def __init__(self, color, startPos, endPos):
+        super().__init__()
+        width = DISPLAY_W
+        height = DISPLAY_H
+        self.image = pygame.Surface([width,height])
+        pygame.draw.line(self.image,color, startPos, endPos)
+        self.rect = self.image.get_rect()
+
+
+
 # Game settings file(*.json) location
 f = Files('data/settings/gamesettings.json')
 
@@ -78,40 +110,6 @@ gravity = 4.8
 FPSLOOPCOUNT = 0
 last_time = time.time()
 averageFPS = ''
-
-
-
-class Player(pygame.sprite.Sprite):
-    def __init__(self):
-        pygame.sprite.Sprite.__init__(self)
-        self.playerList = []
-        for i in range(0,7):
-            self.playerList.append(pygame.image.load('data/images/pixilart-frames/pixil-frame-'+str(i)+'.png').convert_alpha())
-            self.playerRect = self.playerList[i].get_rect()
-            self.playerRect = self.playerRect.bottom
-            # Scale the player relative to the screen size
-            self.playerList[i] = pygame.transform.scale(self.playerList[i],(DISPLAY_W/10,DISPLAY_W/10))
-        print (self.playerList)
-    
-    #def update(self):
-    #    newpos = self.calcNewPos(self.playerRect, self.vector)
-    #    self.playerRect = newpos
-    #
-    #def calcNewPos(self, rect, vector):
-    #    (angle,z) = vector
-    #    (dx,dy) = (z*math.cos(angle),z*math.sin(angle))
-    #    return rect.move(dx,dy)
-
-
-
-class Line(pygame.sprite.Sprite):
-    def __init__(self, color, startPos, endPos):
-        super().__init__()
-        width = DISPLAY_W
-        height = DISPLAY_H
-        self.image = pygame.Surface([width,height])
-        pygame.draw.line(self.image,color, startPos, endPos)
-        self.rect = self.image.get_rect()
 
 # Sprite Initiation
 allSprites = pygame.sprite.Group()
