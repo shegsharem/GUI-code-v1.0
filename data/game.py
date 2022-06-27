@@ -8,42 +8,6 @@ import math
 
 vec = pygame.math.Vector2  # 2 for two dimensional
 
-
-class Player(pygame.sprite.Sprite):
-    def __init__(self):
-        pygame.sprite.Sprite.__init__(self)
-        self.playerList = []
-        for i in range(0,7):
-            self.playerList.append(pygame.image.load('data/images/pixilart-frames/pixil-frame-'+str(i)+'.png').convert_alpha())
-            self.playerRect = self.playerList[i].get_rect()
-            self.playerRect = self.playerRect.bottom
-            # Scale the player relative to the screen size
-            self.playerList[i] = pygame.transform.scale(self.playerList[i],(DISPLAY_W/10,DISPLAY_W/10))
-
-        self.pos = vec((10, 385))
-        self.vel = vec(0,0)
-        self.acc = vec(0,0)
-    
-    #def update(self):
-    #    newpos = self.calcNewPos(self.playerRect, self.vector)
-    #    self.playerRect = newpos
-    #
-    #def calcNewPos(self, rect, vector):
-    #    (angle,z) = vector
-    #    (dx,dy) = (z*math.cos(angle),z*math.sin(angle))
-    #    return rect.move(dx,dy)
-
-class Line(pygame.sprite.Sprite):
-    def __init__(self, color, startPos, endPos):
-        super().__init__()
-        width = DISPLAY_W
-        height = DISPLAY_H
-        self.image = pygame.Surface([width,height])
-        pygame.draw.line(self.image,color, startPos, endPos)
-        self.rect = self.image.get_rect()
-
-
-
 # Game settings file(*.json) location
 f = Files('data/settings/gamesettings.json')
 
@@ -76,7 +40,7 @@ DISPLAY_H = int(loadedFile['settings']['window_h'])
 FULLSCREEN = int(loadedFile['settings']['fullscreen'])
 
 # Frame Rate Cap
-FPS = 60
+FPS = 30
 
 # Clock used to handle time-based events
 mainClock =  pygame.time.Clock()
@@ -93,14 +57,6 @@ user_SELECTKEY = loadedFile['settings']['button_select']
 # Narrow down the loadedFile dictionary to values nested under settings
 narrowedDownDict = loadedFile['settings']
 
-# Event Logic
-PRESSED_ESCAPEKEY = False
-PRESSED_UPKEY  = False
-PRESSED_DOWNKEY  = False
-PRESSED_RIGHTKEY  = False
-PRESSED_LEFTKEY  = False
-PRESSED_SELECTKEY = False
-
 # Colors
 BLACK, WHITE = (0,0,0), (255,255,255)
 BLUE = '#4fadf5'
@@ -116,11 +72,92 @@ FPSLOOPCOUNT = 0
 last_time = time.time()
 averageFPS = ''
 
-# Sprite Initiation
-allSprites = pygame.sprite.Group()
-ground = Line(('#FFFFFF'), (0,DISPLAY_H - DISPLAY_H/4),(DISPLAY_W,DISPLAY_H - DISPLAY_H/4))
-allSprites.add(ground)
+ACCELERATION = 0.5
+FRICTION = -0.12
 
+class Player(pygame.sprite.Sprite):
+    def __init__(self, scaledWidth, scaledHeight):
+        pygame.sprite.Sprite.__init__(self)
+        self.images = []
+        for i in range(0,7):
+            self.images.append(pygame.image.load('data/images/pixilart-frames/pixil-frame-'+str(i)+'.png').convert_alpha())
+            self.rect = self.images[i].get_rect()
+            self.rect = self.rect.center
+            # Scale the player relative to the screen size
+            self.images[i] = pygame.transform.scale(self.images[i],(scaledWidth,scaledHeight))
+
+        self.pos = vec((0, 0))
+        self.vel = vec(0,0)
+        self.acc = vec(0,0)
+
+        self.index = 0
+
+        self.image = self.images[self.index]
+    
+    def update(self):
+        #when the update method is called, we will increment the index
+        #self.index += 1
+ 
+        #if the index is larger than the total images
+        if self.index >= len(self.images):
+            #we will make the index to 0 again
+            self.index = 0
+        
+        #finally we will update the image that will be displayed
+        self.image = self.images[self.index]
+   
+    def move(self):
+        self.acc = vec(0,0)
+        self.acc.x += self.vel.x * FRICTION
+        self.vel += self.acc
+        self.pos += self.vel + 0.5 * self.acc
+
+        if self.pos.x > DISPLAY_W:
+            self.pos.x = 0
+        if self.pos.x < 0:
+            self.pos.x = DISPLAY_W
+        self.rect = self.pos
+    
+    def moveLeft(self):
+        self.acc = vec(0,0)
+        self.acc.x = -5
+        
+        self.acc.x += self.vel.x * FRICTION
+        self.vel += self.acc
+        self.pos += self.vel + 0.5 * self.acc
+
+        if self.pos.x > DISPLAY_W:
+            self.pos.x = 0
+        if self.pos.x < 0:
+            self.pos.x = DISPLAY_W
+        self.rect = self.pos
+
+    def moveRight(self):
+        self.acc = vec(0,0)
+        self.acc.x = 5
+        
+        self.acc.x += self.vel.x * FRICTION
+        self.vel += self.acc
+        self.pos += self.vel + 0.5 * self.acc
+
+        if self.pos.x > DISPLAY_W:
+            self.pos.x = 0
+        if self.pos.x < 0:
+            self.pos.x = DISPLAY_W
+        self.rect = self.pos
+    #def calcNewPos(self, rect, vector):
+    #    (angle,z) = vector
+    #    (dx,dy) = (z*math.cos(angle),z*math.sin(angle))
+    #    return rect.move(dx,dy)
+
+class Line(pygame.sprite.Sprite):
+    def __init__(self, color, startPos, endPos):
+        super().__init__()
+        width = DISPLAY_W
+        height = DISPLAY_H
+        self.image = pygame.Surface([width,height])
+        pygame.draw.line(self.image,color, startPos, endPos)
+        self.rect = self.image.get_rect()
 
 def checkFullscreen(): 
     if FULLSCREEN == 1:
@@ -174,44 +211,9 @@ def gravity():
     gravity -= 0.3
 
 
-def checkControllerInput():
-    # Get mouse coordinates
-    Mouse_x, Mouse_y = pygame.mouse.get_pos()
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            pygame.quit()
-        if event.type == pygame.KEYDOWN:
-            # IF KEY IS PRESSED DOWN
-            if event.key == pygame.key.key_code(str(user_ESCAPEKEY)):
-                PRESSED_ESCAPEKEY = True
-            if event.key == pygame.key.key_code(str(user_SELECTKEY)):
-                PRESSED_SELECTKEY = True
-            if event.key == pygame.key.key_code(str(user_RIGHTKEY)):
-                PRESSED_RIGHTKEY = True
-            if event.key == pygame.key.key_code(str(user_LEFTKEY)):
-                PRESSED_LEFTKEY = True
-            if event.key == pygame.key.key_code(str(user_DOWNKEY)):
-                PRESSED_DOWNKEY = True
-            if event.key == pygame.key.key_code(str(user_UPKEY)):
-                PRESSED_UPKEY = True
+        
 
-        if event.type == pygame.KEYUP:
-            # If key is released
-            if event.key == pygame.key.key_code(str(user_ESCAPEKEY)):
-                PRESSED_ESCAPEKEY = False
-                pygame.quit()
-            if event.key == pygame.key.key_code(str(user_SELECTKEY)):
-                PRESSED_SELECTKEY = False
-            if event.key == pygame.key.key_code(str(user_RIGHTKEY)):
-                PRESSED_RIGHTKEY = False
-            if event.key == pygame.key.key_code(str(user_LEFTKEY)):
-                PRESSED_LEFTKEY = False
-            if event.key == pygame.key.key_code(str(user_DOWNKEY)):
-                PRESSED_DOWNKEY = False
-            if event.key == pygame.key.key_code(str(user_UPKEY)):
-                PRESSED_UPKEY = False
-
-def drawSprites(surface):
+def drawSprites(sprite, surface):
 #       
 #       self.playerRect = (self.playerPosX,self.playerPosY)
 #       ground = self.DISPLAY_H-(self.DISPLAY_H/4 + int(self.playerList[1].get_rect()[3])*0.76)
@@ -241,7 +243,7 @@ def drawSprites(surface):
 #       if self.playerPosY != ground:
 #           Game.gravity(self)
 
-#       if self.PRESSED_UPKEY:
+#       self.PRESSED_UPKEY:
 #           # Move
 #           self.gravity = 4.8
 #           if self.playerPosY == ground:
@@ -262,10 +264,9 @@ def drawSprites(surface):
 #           if self.i != 2 and self.i >0:
 #               self.i -= 1
 #       
-#              
     # Copy image to display
-    allSprites.update()
-    allSprites.draw(surface)    
+    sprite.update()
+    sprite.draw(surface)  
 
         
 def clockTick():
@@ -295,19 +296,25 @@ def mainGameLoop():
     screenRect = screen.get_rect()
     # ----------------------------------------------
 
+    # Sprite Initiation
+    allSprites = pygame.sprite.Group()
+    ground = Line(('#FFFFFF'), (0,DISPLAY_H - DISPLAY_H/4),(DISPLAY_W,DISPLAY_H - DISPLAY_H/4))
+    player = Player(DISPLAY_W/10,DISPLAY_W/10)
+    allSprites.add(ground,player)
+
     # Hide mouse
     pygame.mouse.set_visible(False)
 
-    # Loop to run while control logic variable is set to True
+    FPSLOOPCOUNT = 0
+    averageFPS = FPS
+
+    # Event Logic
     PRESSED_ESCAPEKEY = False
     PRESSED_UPKEY  = False
     PRESSED_DOWNKEY  = False
     PRESSED_RIGHTKEY  = False
     PRESSED_LEFTKEY  = False
     PRESSED_SELECTKEY = False
-
-    FPSLOOPCOUNT = 0
-    averageFPS = FPS
     
 
     # MAIN GAME LOOP (Should be function calls only, keep as clean as possible)
@@ -316,12 +323,64 @@ def mainGameLoop():
 
         # Draw background
         renderBackground(screen)
-        
-        # Check for key input
-        checkControllerInput()
+    
         
         # Draw Sprites
-        drawSprites(screen)
+        drawSprites(allSprites, screen)
+
+            # Loop to run while 
+
+
+        # Get mouse coordinates
+        Mouse_x, Mouse_y = pygame.mouse.get_pos()
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+
+            if event.type == pygame.KEYUP:
+                # If key is released
+                if event.key == pygame.key.key_code(str(user_ESCAPEKEY)):
+                    PRESSED_ESCAPEKEY = False
+                    pygame.quit()
+                if event.key == pygame.key.key_code(str(user_SELECTKEY)):
+                    PRESSED_SELECTKEY = False
+                if event.key == pygame.key.key_code(str(user_RIGHTKEY)):
+                    PRESSED_RIGHTKEY = False
+                if event.key == pygame.key.key_code(str(user_LEFTKEY)):
+                    PRESSED_LEFTKEY = False
+                if event.key == pygame.key.key_code(str(user_DOWNKEY)):
+                    PRESSED_DOWNKEY = False
+                if event.key == pygame.key.key_code(str(user_UPKEY)):
+                    PRESSED_UPKEY = False
+            
+            if event.type == pygame.KEYDOWN:
+                # IF KEY IS PRESSED DOWN
+                if event.key == pygame.key.key_code(str(user_ESCAPEKEY)):
+                    PRESSED_ESCAPEKEY = True
+                if event.key == pygame.key.key_code(str(user_SELECTKEY)):
+                    PRESSED_SELECTKEY = True
+                if event.key == pygame.key.key_code(str(user_RIGHTKEY)):
+                    PRESSED_RIGHTKEY = True
+                if event.key == pygame.key.key_code(str(user_LEFTKEY)):
+                    PRESSED_LEFTKEY = True
+                if event.key == pygame.key.key_code(str(user_DOWNKEY)):
+                    PRESSED_DOWNKEY = True
+                if event.key == pygame.key.key_code(str(user_UPKEY)):
+                    PRESSED_UPKEY = True
+
+        if PRESSED_RIGHTKEY:
+            if player.index < 5:
+                player.index += 1
+            if player.index == 5:
+                player.index = 5
+
+            print("YEET DOWN")
+            player.moveRight()
+        
+        if PRESSED_LEFTKEY:
+            player.moveLeft()
+
+        player.move()
 
         # Display current FPS in top left corner
         renderFPS(screen, averageFPS)
