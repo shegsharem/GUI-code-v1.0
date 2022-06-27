@@ -115,7 +115,7 @@ class Player(pygame.sprite.Sprite):
         self.acc.x += self.vel.x * FRICTION
     
         # Y-AXIS MOVEMENT
-        self.acc.y -=  -0.5
+        self.acc.y +=  0.5
 
         self.vel += self.acc
         self.pos += self.vel + 0.5 * self.acc
@@ -156,7 +156,6 @@ class Player(pygame.sprite.Sprite):
         
         self.vel += self.acc
         self.pos += self.vel + 0.5 * -self.acc
-        self.acc.y = 0
     
     def moveDown(self):
         self.acc = vec(0,0)
@@ -187,9 +186,9 @@ def checkFullscreen():
 def renderBackground(surface):
     surface.fill(BLACK)
 
-def renderFPS(surface, FPS, ):
+def renderFPS(surface, FPS, x, y):
     # Show FPS count
-    draw_text(text=str(FPS),font=pygame.font.Font(font, 20),color=WHITE, surface=surface, x=15,y=15)
+    draw_text(text=str(FPS),font=pygame.font.Font(font, 20),color=WHITE, surface=surface, x=x ,y=y)
 
     
 def circle_surf(radius, color):
@@ -223,10 +222,6 @@ def draw_text(text, font, color, surface, x, y):
     textRect = textObj.get_rect() # Get text's occupied space size
     textRect.topleft = (x-1,y-8) # Set the text's position to the x and y position
     surface.blit(textObj, textRect) # Render the text to the surface
-
-def gravity():
-    playerPosY -= gravity
-    gravity -= 0.3
 
 def drawSprites(sprite, surface):
     # Copy image to display
@@ -279,15 +274,23 @@ def mainGameLoop():
     PRESSED_SELECTKEY = False
     
 
-    # MAIN GAME LOOP (Should be function calls only, keep as clean as possible)
+    # MAIN GAME LOOP (keep as clean as possible)
     while True:
         last_time = time.time()
 
         # Draw background
         renderBackground(screen)
     
+        collide = ground.rect.collidepoint(player.pos)
+            
+        if not collide:
+            player.pos.y = ground.rect.center[1]
+            player.moveDown()
+            
         # Draw Sprites
         drawSprites(allSprites, screen)
+
+
 
         # Get mouse coordinates
         Mouse_x, Mouse_y = pygame.mouse.get_pos()
@@ -349,7 +352,7 @@ def mainGameLoop():
         player.move()
 
         # Display current FPS in top left corner
-        renderFPS(screen, averageFPS)
+        renderFPS(screen, averageFPS, 15,15)
 
         # Run limitor to lock in set frame rate (loop will only iterate whatever FPS is set to)
         clockTick()
