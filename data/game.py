@@ -31,10 +31,6 @@ global PRESSED_ESCAPEKEY
 global PRESSED_LEFTKEY
 global PRESSED_RIGHTKEY
 global PRESSED_SELECTKEY
-global last_time
-global FPSLOOPCOUNT
-global averageFPS
-global screen
 # -----------------------
 
 # Variables used to set window height, width, fullscreen(yes/no) from loadedFile
@@ -128,25 +124,14 @@ def checkFullscreen():
         screen = pygame.display.set_mode(((DISPLAY_W, DISPLAY_H)), pygame.FULLSCREEN | pygame.DOUBLEBUF | pygame.HWACCEL)
     else:
         screen = pygame.display.set_mode(((DISPLAY_W, DISPLAY_H)),pygame.NOFRAME | pygame.DOUBLEBUF | pygame.HWACCEL)
-
     return screen
     
 def renderBackground(surface):
     surface.fill(BLACK)
 
-def renderFPS(surface, FPSLOOPCOUNT, averageFPS, last_time):
-    delta_t = time.time() - last_time
-    delta_t *= FPS
-    takeaverage = int(FPS/delta_t)
-  
-    # Update framerate string every second
-    if FPSLOOPCOUNT == 60:
-        averageFPS = takeaverage
-        FPSLOOPCOUNT = 0
-        takeaverage = 0
-    FPSLOOPCOUNT+=1
+def renderFPS(surface, FPS, ):
     # Show FPS count
-    draw_text(text=str(averageFPS),font=pygame.font.Font(font, 20),color=WHITE, surface=surface, x=15,y=15)
+    draw_text(text=str(FPS),font=pygame.font.Font(font, 20),color=WHITE, surface=surface, x=15,y=15)
 
     
 def circle_surf(radius, color):
@@ -155,7 +140,7 @@ def circle_surf(radius, color):
     serf.set_colorkey((0,0,0))
     return serf
 
-def drawParticles(posx, posy, color, initial_x_velocity, initial_y_velocity, radius):
+def drawParticles(surface, posx, posy, color, initial_x_velocity, initial_y_velocity, radius):
     particles.append([[posx, posy], [initial_x_velocity*-1, initial_y_velocity*-1], radius])
     # draw a circle where the mouse is
     #[0] = postition (x,y)
@@ -165,10 +150,10 @@ def drawParticles(posx, posy, color, initial_x_velocity, initial_y_velocity, rad
         particle[0][1] += particle[1][1]
         particle[2] -= 0.4
         particle[1][1] += randint(0,10)/10
-        pygame.draw.circle(screen, (color), [int(particle[0][0]), int(particle[0][1])], int(particle[2]))
+        pygame.draw.circle(surface, (color), [int(particle[0][0]), int(particle[0][1])], int(particle[2]))
     
         radius = particle[2] * 2
-        screen.blit(circle_surf(radius, ('#0d0d0d')),
+        surface.blit(circle_surf(radius, ('#0d0d0d')),
             (int(particle[0][0] - radius), int(particle[0][1] - radius)), special_flags=pygame.BLEND_RGB_ADD)
         if particle[2] <= 0:
             particles.remove(particle)
@@ -186,7 +171,7 @@ def gravity():
     gravity -= 0.3
 
 
-def controlBinding():
+def checkControllerInput():
     # Get mouse coordinates
     Mouse_x, Mouse_y = pygame.mouse.get_pos()
     for event in pygame.event.get():
@@ -278,7 +263,7 @@ def drawSprites(surface):
     # Copy image to display
     allSprites.update()
     allSprites.draw(surface)    
-    #self.screen.blit(self.playerList[self.i],self.playerRect)
+
         
 def clockTick():
     last_time = time.time()
@@ -317,28 +302,43 @@ def mainGameLoop():
     PRESSED_RIGHTKEY  = False
     PRESSED_LEFTKEY  = False
     PRESSED_SELECTKEY = False
+
+    FPSLOOPCOUNT = 0
+    averageFPS = FPS
     
-    # ------------------------------------------------------------------------------------------
+
     # MAIN GAME LOOP (Should be function calls only, keep as clean as possible)
     while True:
+        last_time = time.time()
+
         # Draw background
         renderBackground(screen)
         
         # Check for key input
-        controlBinding()
+        checkControllerInput()
         
         # Draw Sprites
         drawSprites(screen)
 
         # Display current FPS in top left corner
-        renderFPS(screen, FPSLOOPCOUNT, averageFPS, last_time)
+        renderFPS(screen, averageFPS)
 
         # Run limitor to lock in set frame rate (loop will only iterate whatever FPS is set to)
         clockTick()
 
+        delta_t = time.time() - last_time
+        delta_t *= FPS
+        takeaverage = int(FPS/delta_t)
+  
+        # Update framerate string every second
+        if FPSLOOPCOUNT == 60:
+            averageFPS = takeaverage
+            FPSLOOPCOUNT = 0
+            takeaverage = 0
+        FPSLOOPCOUNT+=1
+
         # Update to next frame
         pygame.display.flip()
-    # ------------------------------------------------------------------------------------------
 
 
 if __name__ == '__main__':

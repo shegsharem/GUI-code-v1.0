@@ -69,19 +69,24 @@ class Text:
 
 
 pygame.quit()
-#settings.getScreenData()
+
 pygame.init()
 pygame.freetype.init()
 pygame.freetype.set_default_resolution(72)
+
 width = 400
 height = 500
+
 flags = NOFRAME
+
 windowTitle = pygame.display.set_caption('game') # Window Title
 screen = pygame.display.set_mode((width, height), flags, vsync=1)
 manager = pygame_gui.UIManager((width, height), 'data/settings/theme.json',)
 titleImage = pygame.image.load('data/images/image.png').convert()
 background = pygame.Surface((width, height)) # Set to maximum possible resolution
+
 title = Text("game", fontcolor=Color('white'), pos=(30,30), fontsize=48, fontname="Consolas")
+
 settings_button = UIButton(relative_rect=pygame.Rect(((width/2)+50, 400), (125,75)), text='settings',
             manager=manager, object_id=ObjectID(class_id='default'), 
             anchors={'left': 'left','right': 'right','top': 'top','bottom': 'bottom'})
@@ -89,11 +94,10 @@ settings_button = UIButton(relative_rect=pygame.Rect(((width/2)+50, 400), (125,7
 play_button = UIButton(relative_rect=pygame.Rect((25, 380), (200,100)), text='play',
             manager=manager, object_id=ObjectID(class_id='buttons'), 
             anchors={'left': 'left','right': 'right','top': 'top','bottom': 'bottom'})
+
 exit_button = UIButton(relative_rect=pygame.Rect((350, 10), (40,40)), text='X',
             manager=manager, object_id=ObjectID(class_id='default'), 
             anchors={'left': 'left','right': 'right','top': 'top','bottom': 'bottom'})
-
-global running
 
 
 
