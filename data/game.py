@@ -2,9 +2,11 @@ import pygame, os
 from pygame.locals import *
 import pygame.freetype
 from fileget import Files
+from terrain import Dirt
 from random import randint
 import time
 import math
+
 
 vec = pygame.math.Vector2  # 2 for two dimensional
 
@@ -79,7 +81,7 @@ class Player(pygame.sprite.Sprite):
         pygame.sprite.Sprite.__init__(self)
         self.images = []
         for i in range(0,7):
-            self.images.append(pygame.image.load('data/images/pixilart-frames/pixil-frame-'+str(i)+'.png').convert_alpha())
+            self.images.append(pygame.image.load('data/images/playerframes/player'+str(i)+'.png').convert_alpha())
             self.rect = self.images[i].get_rect()
             self.rect = self.rect.center
             # Scale the player relative to the screen size
@@ -165,17 +167,6 @@ class Player(pygame.sprite.Sprite):
         self.vel += self.acc
         self.pos += self.vel + 0.5 * self.acc
 
-
-
-class Line(pygame.sprite.Sprite):
-    def __init__(self, color, startPos, endPos):
-        super().__init__()
-        width = DISPLAY_W
-        height = DISPLAY_H
-        self.image = pygame.Surface([width,height])
-        pygame.draw.line(self.image,color, startPos, endPos)
-        self.rect = self.image.get_rect()
-
 def checkFullscreen(): 
     if FULLSCREEN == 1:
         screen = pygame.display.set_mode(((DISPLAY_W, DISPLAY_H)), pygame.FULLSCREEN | pygame.DOUBLEBUF | pygame.HWACCEL)
@@ -255,9 +246,9 @@ def mainGameLoop():
 
     # Sprite Initiation
     allSprites = pygame.sprite.Group()
-    ground = Line(('#FFFFFF'), (0,DISPLAY_H - DISPLAY_H/4),(DISPLAY_W,DISPLAY_H - DISPLAY_H/4))
     player = Player(DISPLAY_W/10,DISPLAY_W/10)
-    allSprites.add(ground,player)
+    tile = Dirt('dirt',(0,DISPLAY_H - DISPLAY_H/4), DISPLAY_W/20,DISPLAY_W/20)
+    allSprites.add(player, tile)
 
     # Hide mouse
     pygame.mouse.set_visible(False)
@@ -281,11 +272,11 @@ def mainGameLoop():
         # Draw background
         renderBackground(screen)
     
-        collide = ground.rect.collidepoint(player.pos)
+        collide = tile.rect.collidepoint(player.pos)
             
         if not collide:
-            player.pos.y = ground.rect.center[1]
-            player.moveDown()
+            player.pos.y = tile.rect.center[1]
+            player.move()
             
         # Draw Sprites
         drawSprites(allSprites, screen)
