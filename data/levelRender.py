@@ -28,16 +28,21 @@ class Level:
                     self.terrain = Dirt('dirt', (x,y), DISPLAY_W/20)
                     self.rect = self.terrain.image.get_rect()
                     self.image = self.terrain.image
+                    self.mask = pygame.mask.from_surface(self.image)
                     self.mapTerrain.add(self.terrain)
                     
                 if cell == "Y":
                     self.terrain = WhiteSquare('whitesquare', (x,y), DISPLAY_W/20)
                     self.rect = self.terrain.image.get_rect()
                     self.image = self.terrain.image
+                    self.mask = pygame.mask.from_surface(self.image)
                     self.mapTerrain.add(self.terrain)
 
-
-        self.mask = pygame.mask.from_surface(self.image)
+    def collisionCheck(self, playerSprite):
+        for sprite in self.mapTerrain.sprites():
+            if pygame.sprite.collide_mask(sprite, playerSprite):
+                return True
+        
 
 
         

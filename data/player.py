@@ -112,6 +112,3 @@ class Player(pygame.sprite.Sprite):
         self.acc.y += self.vel.y * FRICTION
         self.vel += self.acc
         self.pos += self.vel + 0.5 * self.acc
-    
-    def check_pos(self, sprite):
-        return pygame.sprite.collide_mask(self, sprite)

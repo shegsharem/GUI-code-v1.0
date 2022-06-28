@@ -216,13 +216,14 @@ def mainGameLoop():
 
 
         # This function call will return True if colliding with mapTerrain
-        player_collide = player.check_pos(levelmap)
+        player_collide = levelmap.collisionCheck(player)
 
-        if pygame.sprite.collide_mask(player, levelmap):
+        if player_collide:
             print("YEYEYE")
-            player.pos = (0,0)
             player.vel.y = 0
-            player.acc.y = 0
+        
+        if not player_collide:
+            player.acc.y = 1.5
         
         
         
@@ -280,7 +281,7 @@ def mainGameLoop():
         if PRESSED_UPKEY:
             player.moveUp()
 
-        if PRESSED_DOWNKEY:
+        if PRESSED_DOWNKEY and not player_collide:
             player.moveDown()
 
         player.move()
