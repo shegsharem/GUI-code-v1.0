@@ -1,0 +1,38 @@
+import pygame
+from fileget import Files
+from terrain import Dirt, WhiteSquare
+from player import Player
+
+# Game settings file(*.json) location
+f = Files('data/settings/gamesettings.json')
+
+# Load the game settings into a dictionary called loadedFile
+loadedFile = f.readSettingsFile()
+
+# Variables used to set window height, width, fullscreen(yes/no) from loadedFile
+DISPLAY_W = int(loadedFile['settings']['window_w'])
+DISPLAY_H = int(loadedFile['settings']['window_h'])
+
+class Level:
+    def __init__(self, levelMap):
+        self.levelMap = levelMap
+        self.mapTerrain = pygame.sprite.Group()
+        self.worldShift = 0
+
+        for row_index,row in enumerate(self.levelMap):
+            for col_index,cell in enumerate(row):
+                x = col_index * DISPLAY_W/30
+                y = row_index * DISPLAY_W/30
+
+                if cell == "X":
+                    self.terrain = Dirt('dirt', (x,y), DISPLAY_W/20)
+                    self.mapTerrain.add(self.terrain)
+                    
+                if cell == "Y":
+                    self.terrain = WhiteSquare('whitesquare', (x,y), DISPLAY_W/20)
+                    self.mapTerrain.add(self.terrain)
+
+        self.rect = self.terrain.rect
+
+    def check_pos(self, enemies):
+        return pygame.sprite.spritecollideany(self, enemies)

@@ -79,13 +79,16 @@ height = 500
 
 flags = NOFRAME
 
-windowTitle = pygame.display.set_caption('game') # Window Title
+windowTitle = pygame.display.set_caption('bloot') # Window Title
 screen = pygame.display.set_mode((width, height), flags, vsync=1)
 manager = pygame_gui.UIManager((width, height), 'data/settings/theme.json',)
-titleImage = pygame.image.load('data/images/image.png').convert()
+titleImage = pygame.image.load('data/images/playerframes/player0.png').convert_alpha()
+titleImageRect = titleImage.get_rect()
+titleImageRect = titleImageRect.center
+titleImage = pygame.transform.scale(titleImage, (width*0.7, width*0.7))
 background = pygame.Surface((width, height)) # Set to maximum possible resolution
 
-title = Text("game", fontcolor=Color('white'), pos=(30,30), fontsize=48, fontname="Consolas")
+title = Text("bloot", fontcolor=Color('white'), pos=(30,30), fontsize=48, fontname="Consolas")
 
 settings_button = UIButton(relative_rect=pygame.Rect(((width/2)+50, 400), (125,75)), text='settings',
             manager=manager, object_id=ObjectID(class_id='default'), 
@@ -102,7 +105,7 @@ exit_button = UIButton(relative_rect=pygame.Rect((350, 10), (40,40)), text='X',
 
 
 def titlePicture():
-    screen.blit(titleImage, (50,125))
+    screen.blit(titleImage, (10,80))
 
     
 def run():

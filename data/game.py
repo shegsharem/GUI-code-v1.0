@@ -2,13 +2,12 @@ import pygame, os
 from pygame.locals import *
 import pygame.freetype
 from fileget import Files
-from terrain import Dirt
+from terrain import Dirt, WhiteSquare
+from player import Player
+from levelRender import Level
 from random import randint
 import time
 import math
-
-
-vec = pygame.math.Vector2  # 2 for two dimensional
 
 # Game settings file(*.json) location
 f = Files('data/settings/gamesettings.json')
@@ -73,99 +72,7 @@ FPSLOOPCOUNT = 0
 last_time = time.time()
 averageFPS = ''
 
-ACCELERATION = 1.5
-FRICTION = -0.09
 
-class Player(pygame.sprite.Sprite):
-    def __init__(self, scaledWidth, scaledHeight):
-        pygame.sprite.Sprite.__init__(self)
-        self.images = []
-        for i in range(0,7):
-            self.images.append(pygame.image.load('data/images/playerframes/player'+str(i)+'.png').convert_alpha())
-            self.rect = self.images[i].get_rect()
-            self.rect = self.rect.center
-            # Scale the player relative to the screen size
-            self.images[i] = pygame.transform.scale(self.images[i],(scaledWidth,scaledHeight))
-
-        self.pos = vec((0, DISPLAY_H-(DISPLAY_H/4 + int(self.images[1].get_rect()[3])*0.76)))
-        self.vel = vec(0,0)
-        self.acc = vec(0,0)
-
-        self.index = 0
-
-        self.image = self.images[self.index]
-    
-    def update(self):
-        #when the update method is called, we will increment the index
-        #self.index += 1
- 
-        #if the index is larger than the total images
-        if self.index >= len(self.images):
-            #we will make the index to 0 again
-            self.index = 0
-        
-        #finally we will update the image that will be displayed
-        self.image = self.images[self.index]
-   
-    def move(self):
-        top = -int(self.image.get_rect()[3]*0.25)
-        # top = self.playerPosY = -int(self.playerList[1].get_rect()[3]*0.25)
-        bottom = DISPLAY_H-(DISPLAY_H/4 + int(self.images[1].get_rect()[3])*0.76)
-        self.acc = vec(0,0)
-        
-        # X-AXIS MOVEMENT
-        self.acc.x += self.vel.x * FRICTION
-    
-        # Y-AXIS MOVEMENT
-        self.acc.y +=  0.5
-
-        self.vel += self.acc
-        self.pos += self.vel + 0.5 * self.acc
-
-        if self.pos.x > DISPLAY_W:
-            self.pos.x = 0
-
-        if self.pos.x < 0:
-            self.pos.x = DISPLAY_W
-
-        if self.pos.y < top:
-            self.pos.y = top
-        
-        if self.pos.y > bottom:
-            self.pos.y = bottom
-
-        self.rect = self.pos
-    
-    def moveLeft(self):
-        self.acc = vec(0,0)
-        self.acc.x = -ACCELERATION
-        
-        self.acc.x += self.vel.x * FRICTION
-        self.vel += self.acc
-        self.pos += self.vel + 0.5 * self.acc
-
-    def moveRight(self):
-        self.acc = vec(0,0)
-        self.acc.x = ACCELERATION
-        
-        self.acc.x += self.vel.x * FRICTION
-        self.vel += self.acc
-        self.pos += self.vel + 0.5 * self.acc
-
-    def moveUp(self):
-        self.acc = vec(0,0)
-        self.acc.y = -4
-        
-        self.vel += self.acc
-        self.pos += self.vel + 0.5 * -self.acc
-    
-    def moveDown(self):
-        self.acc = vec(0,0)
-        self.acc.y = ACCELERATION
-        
-        self.acc.y += self.vel.y * FRICTION
-        self.vel += self.acc
-        self.pos += self.vel + 0.5 * self.acc
 
 def checkFullscreen(): 
     if FULLSCREEN == 1:
@@ -212,12 +119,7 @@ def draw_text(text, font, color, surface, x, y):
     textObj = font.render(text, True, color) # Set boolean (True/False) for antialiasing
     textRect = textObj.get_rect() # Get text's occupied space size
     textRect.topleft = (x-1,y-8) # Set the text's position to the x and y position
-    surface.blit(textObj, textRect) # Render the text to the surface
-
-def drawSprites(sprite, surface):
-    # Copy image to display
-    sprite.update()
-    sprite.draw(surface)  
+    surface.blit(textObj, textRect) # Render the text to the surface 
   
 def clockTick():
     last_time = time.time()
@@ -243,12 +145,45 @@ def mainGameLoop():
     # Get space occupied by the screen
     screenRect = screen.get_rect()
     # ----------------------------------------------
+    level_map = [
+    '                                                                  ',
+    '                                                                        ',
+    '                                                                        ',
+    '                                                                  ',
+    'XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX',
+    '                                                                        ',
+    '                                                                        ',
+    '                                                                        ',
+    '     XXXXX                                                              ',
+    'XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX',
+    '',
+    '                                                                        ',
+    '                                                                        ',
+    'XXXXXXXXXXXXXXXXXXXXXXXX                                                ',
+    '                                                                        ',
+    '                                                                        ',
+    '                                                                        ',
+    '                                                                        ',
+    '                                                                        ',
+    '                                                                        ',
+    '                                                                        ',
+    'XXXXXX                                                                  ',
+    'XX                                                                      ',
+    '                                                                        ',
+    'XX                                                                      ',
+    'XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX',
+    'XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX',
+    'XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX',
+    'XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX',
+    'XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX'
+    ]
 
     # Sprite Initiation
-    allSprites = pygame.sprite.Group()
+    playerSprite = pygame.sprite.Group()
     player = Player(DISPLAY_W/10,DISPLAY_W/10)
-    tile = Dirt('dirt',(0,DISPLAY_H - DISPLAY_H/4), DISPLAY_W/20,DISPLAY_W/20)
-    allSprites.add(player, tile)
+    levelmap = Level(level_map)
+
+    playerSprite.add(player)
 
     # Hide mouse
     pygame.mouse.set_visible(False)
@@ -271,18 +206,26 @@ def mainGameLoop():
 
         # Draw background
         renderBackground(screen)
-    
-        collide = tile.rect.collidepoint(player.pos)
-            
-        if not collide:
-            player.pos.y = tile.rect.center[1]
-            player.move()
-            
-        # Draw Sprites
-        drawSprites(allSprites, screen)
 
+        # Draw level map
+        levelmap.mapTerrain.draw(screen)
 
+        # Draw player
+        player.update()
+        playerSprite.draw(screen)
 
+        print(player.rect)
+
+        # This function call will return True if colliding with mapTerrain
+        player_collide = levelmap.check_pos(playerSprite)
+
+        if player_collide:
+            player.pos.y = player.pos.y
+            player.vel.y = 0
+            player.acc.y = 0
+        
+        
+        
         # Get mouse coordinates
         Mouse_x, Mouse_y = pygame.mouse.get_pos()
         for event in pygame.event.get():
@@ -341,6 +284,7 @@ def mainGameLoop():
             player.moveDown()
 
         player.move()
+
 
         # Display current FPS in top left corner
         renderFPS(screen, averageFPS, 15,15)
