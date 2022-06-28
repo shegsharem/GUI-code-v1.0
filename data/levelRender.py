@@ -26,13 +26,18 @@ class Level:
 
                 if cell == "X":
                     self.terrain = Dirt('dirt', (x,y), DISPLAY_W/20)
+                    self.rect = self.terrain.image.get_rect()
+                    self.image = self.terrain.image
                     self.mapTerrain.add(self.terrain)
                     
                 if cell == "Y":
                     self.terrain = WhiteSquare('whitesquare', (x,y), DISPLAY_W/20)
+                    self.rect = self.terrain.image.get_rect()
+                    self.image = self.terrain.image
                     self.mapTerrain.add(self.terrain)
 
-        self.rect = self.terrain.rect
 
-    def check_pos(self, enemies):
-        return pygame.sprite.spritecollideany(self, enemies)
+        self.mask = pygame.mask.from_surface(self.image)
+
+
+        

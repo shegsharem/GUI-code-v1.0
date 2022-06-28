@@ -214,13 +214,13 @@ def mainGameLoop():
         player.update()
         playerSprite.draw(screen)
 
-        print(player.rect)
 
         # This function call will return True if colliding with mapTerrain
-        player_collide = levelmap.check_pos(playerSprite)
+        player_collide = player.check_pos(levelmap)
 
-        if player_collide:
-            player.pos.y = player.pos.y
+        if pygame.sprite.collide_mask(player, levelmap):
+            print("YEYEYE")
+            player.pos = (0,0)
             player.vel.y = 0
             player.acc.y = 0
         

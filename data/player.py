@@ -38,6 +38,7 @@ class Player(pygame.sprite.Sprite):
         self.index = 0
 
         self.image = self.images[self.index]
+        self.mask = pygame.mask.from_surface(self.image)
     
     def update(self):
 
@@ -112,5 +113,5 @@ class Player(pygame.sprite.Sprite):
         self.vel += self.acc
         self.pos += self.vel + 0.5 * self.acc
     
-    def check_pos(self, enemies):
-        return pygame.sprite.spritecollideany(self, enemies)
+    def check_pos(self, sprite):
+        return pygame.sprite.collide_mask(self, sprite)
