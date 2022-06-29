@@ -1,7 +1,6 @@
 import pygame
 from fileget import Files
 from terrain import Dirt, WhiteSquare
-from player import Player
 
 # Game settings file(*.json) location
 f = Files('data/settings/gamesettings.json')
@@ -42,6 +41,11 @@ class Level:
         for sprite in self.mapTerrain.sprites():
             if pygame.sprite.collide_mask(sprite, playerSprite):
                 return True
+
+    def cameraMove(self, xShift, yShift):
+        for sprite in self.mapTerrain.sprites():
+            sprite.rect.x -= xShift
+            sprite.rect.y += yShift
         
 
 

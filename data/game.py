@@ -55,6 +55,7 @@ user_RIGHTKEY = loadedFile['settings']['button_right']
 user_SELECTKEY = loadedFile['settings']['button_select']
 
 # Narrow down the loadedFile dictionary to values nested under settings
+
 narrowedDownDict = loadedFile['settings']
 
 # Colors
@@ -72,6 +73,8 @@ FPSLOOPCOUNT = 0
 last_time = time.time()
 averageFPS = ''
 
+DEBUGMODE = True
+
 
 
 def checkFullscreen(): 
@@ -84,7 +87,7 @@ def checkFullscreen():
 def renderBackground(surface):
     surface.fill(BLACK)
 
-def renderFPS(surface, FPS, x, y):
+def renderText(surface, FPS, x, y):
     # Show FPS count
     draw_text(text=str(FPS),font=pygame.font.Font(font, 20),color=WHITE, surface=surface, x=x ,y=y)
 
@@ -180,7 +183,7 @@ def mainGameLoop():
 
     # Sprite Initiation
     playerSprite = pygame.sprite.Group()
-    player = Player(DISPLAY_W/10,DISPLAY_W/10)
+    player = Player(DISPLAY_W/15,DISPLAY_W/15)
     levelmap = Level(level_map)
 
     playerSprite.add(player)
@@ -198,32 +201,37 @@ def mainGameLoop():
     PRESSED_RIGHTKEY  = False
     PRESSED_LEFTKEY  = False
     PRESSED_SELECTKEY = False
+
     
 
     # MAIN GAME LOOP (keep as clean as possible)
     while True:
         last_time = time.time()
 
+        # Camera movement
+        cameraX = player.cameraX
+        cameraY = player.cameraY
+
         # Draw background
         renderBackground(screen)
 
         # Draw level map
+        levelmap.cameraMove(cameraX,cameraY)
         levelmap.mapTerrain.draw(screen)
 
         # Draw player
         player.update()
         playerSprite.draw(screen)
 
+        
 
         # This function call will return True if colliding with mapTerrain
         player_collide = levelmap.collisionCheck(player)
 
         if player_collide:
             print("YEYEYE")
-            player.vel.y = 0
-        
-        if not player_collide:
-            player.acc.y = 1.5
+            player.pos.y = player.pos.y
+
         
         
         
@@ -281,14 +289,21 @@ def mainGameLoop():
         if PRESSED_UPKEY:
             player.moveUp()
 
-        if PRESSED_DOWNKEY and not player_collide:
+        if PRESSED_DOWNKEY:
             player.moveDown()
 
         player.move()
 
+        
 
-        # Display current FPS in top left corner
-        renderFPS(screen, averageFPS, 15,15)
+        if DEBUGMODE:
+            # Display current FPS in top left corner
+            renderText(screen, str(averageFPS)+' FPS', 15,15)
+            renderText(screen, ("Player Position: ("+str(int(player.pos.x))+", "+str(int(player.pos.y))+')'),15,30)
+            renderText(screen, ("Player Velocity: ("+str(int(player.vel.x))+", "+str(int(player.vel.y))+')'),15,45)
+            renderText(screen, ("Player Acceleration: ("+str(int(player.acc.x))+", "+str(int(player.acc.y))+')'),15,60)
+            renderText(screen, ("Camera Acceleration: ("+str(int(player.cameraX))+", "+str(int(player.cameraY))+')'),15,75)
+            renderText(screen, ("Touching Terrain = "+ str(player_collide)), 15,90)
 
         # Run limitor to lock in set frame rate (loop will only iterate whatever FPS is set to)
         clockTick()

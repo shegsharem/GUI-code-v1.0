@@ -1,6 +1,7 @@
 import pygame
 from pygame.locals import *
 from fileget import Files
+from physicsengine import accelerate, deaccelerate
 
 vec = pygame.math.Vector2  # 2 for two dimensional
 
@@ -16,12 +17,26 @@ DISPLAY_W = int(loadedFile['settings']['window_w'])
 DISPLAY_H = int(loadedFile['settings']['window_h'])
 
 
-ACCELERATION = 0.5
-FRICTION = -0.09
+ACCELERATION = 2
+FRICTION = 0.5
 
 
 class Player(pygame.sprite.Sprite):
     def __init__(self, scaledWidth, scaledHeight):
+        # Empty space from edges of image
+        self.leftalpha = -3
+        self.rightalpha = 2 + DISPLAY_W
+        self.topalpha = -7
+        self.bottomalpha = 7 + DISPLAY_H
+
+        self.minxpos = self.leftalpha
+        self.maxxpos = self.rightalpha 
+        self.minypos = self.topalpha
+        self.maxypos = self.bottomalpha
+
+        self.cameraX = 0
+        self.cameraY = 0
+
         pygame.sprite.Sprite.__init__(self)
         self.images = []
         for i in range(0,7):
@@ -31,14 +46,18 @@ class Player(pygame.sprite.Sprite):
             # Scale the player relative to the screen size
             self.images[i] = pygame.transform.scale(self.images[i],(scaledWidth,scaledHeight))
 
-        self.pos = vec((0, DISPLAY_H-(DISPLAY_H/4 + int(self.images[1].get_rect()[3])*0.76)))
-        self.vel = vec(0,0)
-        self.acc = vec(0,0)
-
         self.index = 0
+
+        self.originalPos = (DISPLAY_W/7, DISPLAY_H-(DISPLAY_H/4 + int(self.images[1].get_rect()[3])*0.76))
 
         self.image = self.images[self.index]
         self.mask = pygame.mask.from_surface(self.image)
+
+        self.pos = vec(self.originalPos)
+        self.vel = vec(0,0)
+        self.acc = vec(0,0)
+
+        print(self.pos)
     
     def update(self):
 
@@ -52,26 +71,32 @@ class Player(pygame.sprite.Sprite):
    
     def move(self):
         top = -int(self.image.get_rect()[3]*0.25)
-        # top = self.playerPosY = -int(self.playerList[1].get_rect()[3]*0.25)
         bottom = DISPLAY_H-(DISPLAY_H/4 + int(self.images[1].get_rect()[3])*0.76)
-        self.acc = vec(0,0)
-        
-        # X-AXIS MOVEMENT
-        self.acc.x += self.vel.x * FRICTION
     
+        self.pos.x += self.vel.x * 0.5 * self.acc.x
+        self.pos.y += self.vel.y * 0.5 * self.acc.y
+        
         # Y-AXIS MOVEMENT
-        self.acc.y =  -1.5
-        if self.acc.y < 0:
-            self.acc.y = 0
-
+        if self.pos.y > bottom:
+            self.pos.y = bottom
+        
         self.vel += self.acc
-        self.pos += self.vel + 0.5 * self.acc
 
-        if self.pos.x > DISPLAY_W:
-            self.pos.x = 0
+        if self.pos.x == self.originalPos[0]:
+            if self.cameraX != 0:
+                self.cameraX = deaccelerate(self.cameraX, FRICTION)
 
-        if self.pos.x < 0:
-            self.pos.x = DISPLAY_W
+        # Friction
+        if self.acc.x != 0:
+            self.acc.x = 0
+
+
+        if self.cameraX != 0:
+            if self.cameraX > 0:
+                self.cameraX -= 0.5
+            if self.cameraX < 0:
+                self.cameraX += 0.5
+            
 
         if self.pos.y < top:
             self.pos.y = top
@@ -83,32 +108,24 @@ class Player(pygame.sprite.Sprite):
         self.rect[1] = self.pos.y
     
     def moveLeft(self):
-        self.acc = vec(0,0)
-        self.acc.x = -ACCELERATION
-        
-        #self.acc.x += self.vel.x * FRICTION
-        self.vel += self.acc
-        self.pos += self.vel + 0.5 * self.acc
+        if self.pos.x < self.originalPos[0] + 10:
+            if self.cameraX != self.vel.x:
+                self.cameraX = accelerate(self.cameraX, -FRICTION, self.vel.x)
+        self.acc.x = ACCELERATION
 
     def moveRight(self):
-        self.acc = vec(0,0)
-        self.acc.x = ACCELERATION
-        
-        self.acc.x += self.vel.x * FRICTION
-        self.vel += self.acc
-        self.pos += self.vel + 0.5 * self.acc
+        # WORKS
+        if self.pos.x > self.originalPos[0] - 10:
+            if self.cameraX != self.vel.x:
+                self.cameraX = accelerate(self.cameraX, FRICTION, self.vel.x)
+        self.acc.x = -ACCELERATION
+
 
     def moveUp(self):
-        self.acc = vec(0,0)
-        self.acc.y = -4
-        
-        self.vel += self.acc
-        self.pos += self.vel + 0.5 * -self.acc
+        self.acc.y = -ACCELERATION
+
     
     def moveDown(self):
-        self.acc = vec(0,0)
         self.acc.y = ACCELERATION
-        
-        self.acc.y += self.vel.y * FRICTION
-        self.vel += self.acc
-        self.pos += self.vel + 0.5 * self.acc
+
+

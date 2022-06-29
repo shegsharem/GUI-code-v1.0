@@ -1,5 +1,4 @@
-# Written by Logan Amos
-
+# Written by Logan Amos\
 import math
 
 class ProjectileMotion():
@@ -42,7 +41,18 @@ class ProjectileMotion():
             time = (-b+math.sqrt(math.pow(b,2)-(4*a*c)))/2*a
             return time
             
+def deaccelerate(velocity, rate):
+    if velocity != 0:
+        velocity -= rate
+    return velocity
 
+def accelerate(velocity, rate, ceiling=None):
+    if ceiling == None:
+        velocity += rate
+        return velocity
+    if ceiling != 0:
+        velocity += rate
+        return velocity
             
 
 if __name__ == "__main__":
