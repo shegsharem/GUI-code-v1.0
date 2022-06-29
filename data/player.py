@@ -55,7 +55,6 @@ class Player(pygame.sprite.Sprite):
 
         self.pos = vec(self.originalPos)
         self.vel = vec(0,0)
-        self.acc = vec(0,0)
 
         print(self.pos)
     
@@ -73,59 +72,61 @@ class Player(pygame.sprite.Sprite):
         top = -int(self.image.get_rect()[3]*0.25)
         bottom = DISPLAY_H-(DISPLAY_H/4 + int(self.images[1].get_rect()[3])*0.76)
     
-        self.pos.x += self.vel.x * 0.5 * self.acc.x
-        self.pos.y += self.vel.y * 0.5 * self.acc.y
         
-        # Y-AXIS MOVEMENT
-        if self.pos.y > bottom:
-            self.pos.y = bottom
-        
-        self.vel += self.acc
-
-        if self.pos.x == self.originalPos[0]:
-            if self.cameraX != 0:
-                self.cameraX = deaccelerate(self.cameraX, FRICTION)
+        self.cameraX = self.vel.x
+        self.cameraY = self.vel.y
 
         # Friction
-        if self.acc.x != 0:
-            self.acc.x = 0
+        if self.vel.x != 0:
+            if self.vel.x > 0:
+                self.vel.x -= 1
+            if self.vel.x < 0:
+                self.vel.x += 1
+
+        if self.vel.y != 0:
+            if self.vel.y > 0:
+                self.vel.y -= 1
+            if self.vel.y < 0:
+                self.vel.y += 1
+        
 
 
         if self.cameraX != 0:
             if self.cameraX > 0:
-                self.cameraX -= 0.5
+                self.cameraX -= 0.1
             if self.cameraX < 0:
-                self.cameraX += 0.5
-            
+                self.cameraX += 0.1
+        
+        if self.cameraY != 0:
+            if self.cameraY > 0:
+                self.cameraY -= 0.1
+            if self.cameraY < 0:
+                self.cameraY += 0.1
 
         if self.pos.y < top:
             self.pos.y = top
-        
-        #if self.pos.y > bottom:
-        #    self.pos.y = bottom
+    
 
         self.rect[0] = self.pos.x
         self.rect[1] = self.pos.y
+
+        #self.pos.x += self.vel.x
+        #if self.vel.y > 0:
+        #    self.pos.y += self.vel.y
     
     def moveLeft(self):
-        if self.pos.x < self.originalPos[0] + 10:
-            if self.cameraX != self.vel.x:
-                self.cameraX = accelerate(self.cameraX, -FRICTION, self.vel.x)
-        self.acc.x = ACCELERATION
+        self.vel.x += -ACCELERATION
+
 
     def moveRight(self):
-        # WORKS
-        if self.pos.x > self.originalPos[0] - 10:
-            if self.cameraX != self.vel.x:
-                self.cameraX = accelerate(self.cameraX, FRICTION, self.vel.x)
-        self.acc.x = -ACCELERATION
+        self.vel.x += ACCELERATION
 
 
     def moveUp(self):
-        self.acc.y = -ACCELERATION
+        self.vel.y += ACCELERATION
 
     
     def moveDown(self):
-        self.acc.y = ACCELERATION
+        self.vel.y -= ACCELERATION
 
 

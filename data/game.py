@@ -171,9 +171,9 @@ def mainGameLoop():
     '                                                                        ',
     '                                                                        ',
     'XXXXXX                                                                  ',
-    'XX                                                                      ',
-    '                                                                        ',
-    'XX                                                                      ',
+    'XXXXXX                                                                      ',
+    'XXXXXX                                                                        ',
+    'XXXXXX                                                                      ',
     'XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX',
     'XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX',
     'XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX',
@@ -229,10 +229,7 @@ def mainGameLoop():
         player_collide = levelmap.collisionCheck(player)
 
         if player_collide:
-            print("YEYEYE")
-            player.pos.y = player.pos.y
-
-        
+            player.vel.y = 0
         
         
         # Get mouse coordinates
@@ -278,6 +275,7 @@ def mainGameLoop():
             if player.index == 6:
                 player.index = 6
             player.moveRight()
+            player.cameraX = 2
         
         if PRESSED_LEFTKEY:
             if player.index > 2:
@@ -285,12 +283,17 @@ def mainGameLoop():
             if player.index == 2:
                 player.index = 2
             player.moveLeft()
+            player.cameraX = -2
 
         if PRESSED_UPKEY:
-            player.moveUp()
+            if not player_collide:
+                player.moveUp()
+                player.cameraY = 2
 
         if PRESSED_DOWNKEY:
-            player.moveDown()
+            if not player_collide:
+                player.moveDown()
+                player.cameraY = -2
 
         player.move()
 
@@ -301,9 +304,8 @@ def mainGameLoop():
             renderText(screen, str(averageFPS)+' FPS', 15,15)
             renderText(screen, ("Player Position: ("+str(int(player.pos.x))+", "+str(int(player.pos.y))+')'),15,30)
             renderText(screen, ("Player Velocity: ("+str(int(player.vel.x))+", "+str(int(player.vel.y))+')'),15,45)
-            renderText(screen, ("Player Acceleration: ("+str(int(player.acc.x))+", "+str(int(player.acc.y))+')'),15,60)
-            renderText(screen, ("Camera Acceleration: ("+str(int(player.cameraX))+", "+str(int(player.cameraY))+')'),15,75)
-            renderText(screen, ("Touching Terrain = "+ str(player_collide)), 15,90)
+            renderText(screen, ("Camera Acceleration: ("+str(int(player.cameraX))+", "+str(int(player.cameraY))+')'),15,60)
+            renderText(screen, ("Touching Terrain = "+ str(player_collide)), 15,75)
 
         # Run limitor to lock in set frame rate (loop will only iterate whatever FPS is set to)
         clockTick()
