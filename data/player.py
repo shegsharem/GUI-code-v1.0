@@ -41,11 +41,11 @@ class Player(pygame.sprite.Sprite):
         self.images = []
         for i in range(0,7):
             self.images.append(pygame.image.load('data/images/playerframes/player'+str(i)+'.png').convert_alpha())
-            self.rect = self.images[i].get_rect()
             # Scale the player relative to the screen size
             self.images[i] = pygame.transform.scale(self.images[i],(scaledWidth,scaledHeight))
+            self.rect = self.images[i].get_rect()
 
-        self.index = 0
+        self.index = 3
 
         self.originalPos = (DISPLAY_W/2, DISPLAY_H/4)
 
@@ -55,15 +55,23 @@ class Player(pygame.sprite.Sprite):
         self.pos = vec(self.originalPos)
         self.vel = vec(0,0)
 
+        self.rect.center = self.pos
+
         self.direction = "right"
         self.pressingkeyx = False
         self.pressingkeyy = False
 
         print(self.pos)
     
-    def update(self):
-        
+    def outlineMask(self, surface):
+        self.mask_outline = self.mask.outline()
+        n = 0
+        for point in self.mask_outline:
+            self.mask_outline[n] = (point[0] + self.pos[0], point[1] + self.pos[1])
+            n += 1
+        pygame.draw.polygon(surface,(255,255,255),self.mask_outline,3)
 
+    def update(self):
         #if the index is larger than the total images
         if self.index >= len(self.images):
             #we will make the index to 0 again

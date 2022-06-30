@@ -31,7 +31,7 @@ class Level:
                     self.mapTerrain.add(self.terrain)
                     
                 if cell == "Y":
-                    self.terrain = WhiteSquare('whitesquare', (x,y), DISPLAY_W/20)
+                    self.terrain = WhiteSquare('whitesquare', (x,y),DISPLAY_W/20, DISPLAY_W/50)
                     self.rect = self.terrain.image.get_rect()
                     self.image = self.terrain.image
                     self.mask = pygame.mask.from_surface(self.image)

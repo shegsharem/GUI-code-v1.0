@@ -228,6 +228,9 @@ def mainGameLoop():
         player.update()
         playerSprite.draw(screen)
 
+        pygame.draw.rect(screen, BLUE, player.rect, width=5)
+        #screen.blit(player.mask_surf,player.rect)
+        #player.outlineMask(screen)
         
 
         # This function call will return True if colliding with mapTerrain
@@ -276,18 +279,22 @@ def mainGameLoop():
                     PRESSED_UPKEY = True
 
         if PRESSED_RIGHTKEY:
-            #if player.index < 6:
-            #    player.index += 1
-            #if player.index == 6:
-            #    player.index -= 1
+            if player.index < 6:
+                player.index += 1
+                player.outlineMask(screen)
+            if player.index == 6:
+                player.index -= 1
+                player.outlineMask(screen)
                 
             player.moveRight()
         
         if PRESSED_LEFTKEY:
-            #if player.index > 2:
-            #    player.index -= 1
-            #if player.index == 2:
-            #    player.index = 2
+            if player.index > 2:
+                player.index -= 1
+                player.outlineMask(screen)
+            if player.index == 2:
+                player.index = 2
+                player.outlineMask(screen)
             player.moveLeft()
 
         if PRESSED_UPKEY:
