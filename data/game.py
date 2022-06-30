@@ -80,17 +80,19 @@ DEBUGMODE = True
 def checkFullscreen(): 
     if FULLSCREEN == 1:
         screen = pygame.display.set_mode(((DISPLAY_W, DISPLAY_H)), pygame.FULLSCREEN | pygame.DOUBLEBUF | pygame.HWACCEL)
+        background_image = pygame.image.load('data/images/background.png').convert_alpha()
+        background_image = pygame.transform.scale(background_image, (DISPLAY_W, DISPLAY_W))
+        background_rect = background_image.get_rect()
     else:
         screen = pygame.display.set_mode(((DISPLAY_W, DISPLAY_H)),pygame.NOFRAME | pygame.DOUBLEBUF | pygame.HWACCEL)
+        background_image = pygame.image.load('data/images/background.png').convert_alpha()
+        background_image = pygame.transform.scale(background_image, (DISPLAY_W, DISPLAY_W))
     return screen
-    
-def renderBackground(surface):
-    surface.fill(BLACK)
 
-def renderText(surface, FPS, x, y):
+def renderText(surface, text, x, y):
     # Show FPS count
-    draw_text(text=str(FPS),font=pygame.font.Font(font, 20),color=WHITE, surface=surface, x=x ,y=y)
-
+    draw_text(text=str(text), font=pygame.font.Font(font, 20), color=BLACK, surface=surface, x=x+2, y=y+2)
+    draw_text(text=str(text),font=pygame.font.Font(font, 20),color=WHITE, surface=surface, x=x ,y=y)
     
 def circle_surf(radius, color):
     serf = pygame.Surface((radius * 2, radius * 2))
@@ -152,7 +154,7 @@ def mainGameLoop():
     '                                                                  ',
     '                                                                        ',
     '                                                                        ',
-    '                                                                  ',
+    'YYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYY',
     'XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX',
     '                                                                        ',
     '                                                                        ',
@@ -183,7 +185,7 @@ def mainGameLoop():
 
     # Sprite Initiation
     playerSprite = pygame.sprite.Group()
-    player = Player(DISPLAY_W/15,DISPLAY_W/15)
+    player = Player(DISPLAY_W/10,DISPLAY_W/10)
     levelmap = Level(level_map)
 
     playerSprite.add(player)
@@ -202,6 +204,9 @@ def mainGameLoop():
     PRESSED_LEFTKEY  = False
     PRESSED_SELECTKEY = False
 
+    background_image = pygame.image.load('data/images/background.png').convert_alpha()
+    background_rect = background_image.get_rect()
+    background_image = pygame.transform.scale(background_image, (DISPLAY_W, DISPLAY_W))
     
 
     # MAIN GAME LOOP (keep as clean as possible)
@@ -213,7 +218,7 @@ def mainGameLoop():
         cameraY = player.cameraY
 
         # Draw background
-        renderBackground(screen)
+        screen.blit(background_image,background_rect)
 
         # Draw level map
         levelmap.cameraMove(cameraX,cameraY)
@@ -227,9 +232,6 @@ def mainGameLoop():
 
         # This function call will return True if colliding with mapTerrain
         player_collide = levelmap.collisionCheck(player)
-
-        if player_collide:
-            player.vel.y = 0
         
         
         # Get mouse coordinates
@@ -261,39 +263,45 @@ def mainGameLoop():
                 if event.key == pygame.key.key_code(str(user_SELECTKEY)):
                     PRESSED_SELECTKEY = True
                 if event.key == pygame.key.key_code(str(user_RIGHTKEY)):
+                    player.pressingkeyx = True
                     PRESSED_RIGHTKEY = True
                 if event.key == pygame.key.key_code(str(user_LEFTKEY)):
+                    player.pressingkeyx = True
                     PRESSED_LEFTKEY = True
                 if event.key == pygame.key.key_code(str(user_DOWNKEY)):
+                    player.pressingkeyy = True
                     PRESSED_DOWNKEY = True
                 if event.key == pygame.key.key_code(str(user_UPKEY)):
+                    player.pressingkeyy = True
                     PRESSED_UPKEY = True
 
         if PRESSED_RIGHTKEY:
-            if player.index < 6:
-                player.index += 1
-            if player.index == 6:
-                player.index = 6
+            #if player.index < 6:
+            #    player.index += 1
+            #if player.index == 6:
+            #    player.index -= 1
+                
             player.moveRight()
-            player.cameraX = 2
         
         if PRESSED_LEFTKEY:
-            if player.index > 2:
-                player.index -= 1
-            if player.index == 2:
-                player.index = 2
+            #if player.index > 2:
+            #    player.index -= 1
+            #if player.index == 2:
+            #    player.index = 2
             player.moveLeft()
-            player.cameraX = -2
 
         if PRESSED_UPKEY:
-            if not player_collide:
-                player.moveUp()
-                player.cameraY = 2
+            player.moveUp()
 
         if PRESSED_DOWNKEY:
-            if not player_collide:
-                player.moveDown()
-                player.cameraY = -2
+            player.moveDown()
+
+        if not PRESSED_RIGHTKEY and not PRESSED_LEFTKEY:
+            player.pressingkeyx = False
+        
+        if not PRESSED_UPKEY and not PRESSED_DOWNKEY:
+            player.pressingkeyy = False
+
 
         player.move()
 
@@ -302,10 +310,10 @@ def mainGameLoop():
         if DEBUGMODE:
             # Display current FPS in top left corner
             renderText(screen, str(averageFPS)+' FPS', 15,15)
-            renderText(screen, ("Player Position: ("+str(int(player.pos.x))+", "+str(int(player.pos.y))+')'),15,30)
-            renderText(screen, ("Player Velocity: ("+str(int(player.vel.x))+", "+str(int(player.vel.y))+')'),15,45)
-            renderText(screen, ("Camera Acceleration: ("+str(int(player.cameraX))+", "+str(int(player.cameraY))+')'),15,60)
-            renderText(screen, ("Touching Terrain = "+ str(player_collide)), 15,75)
+            renderText(screen, ("Player Position: ("+str(float(player.pos.x))+", "+str(float(player.pos.y))+')'),15,30)
+            renderText(screen, ("Camera Velocity: ("+str(float(player.cameraX))+", "+str(float(player.cameraY))+')'),15,45)
+            renderText(screen, ("Touching Terrain = "+ str(player_collide)), 15,60)
+            renderText(screen, ("Player Direction = "+str(player.direction)), 15,75)
 
         # Run limitor to lock in set frame rate (loop will only iterate whatever FPS is set to)
         clockTick()

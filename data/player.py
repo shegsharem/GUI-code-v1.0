@@ -17,7 +17,7 @@ DISPLAY_W = int(loadedFile['settings']['window_w'])
 DISPLAY_H = int(loadedFile['settings']['window_h'])
 
 
-ACCELERATION = 2
+ACCELERATION = 0.5
 FRICTION = 0.5
 
 
@@ -42,13 +42,12 @@ class Player(pygame.sprite.Sprite):
         for i in range(0,7):
             self.images.append(pygame.image.load('data/images/playerframes/player'+str(i)+'.png').convert_alpha())
             self.rect = self.images[i].get_rect()
-            #self.rect = self.rect.
             # Scale the player relative to the screen size
             self.images[i] = pygame.transform.scale(self.images[i],(scaledWidth,scaledHeight))
 
         self.index = 0
 
-        self.originalPos = (DISPLAY_W/7, DISPLAY_H-(DISPLAY_H/4 + int(self.images[1].get_rect()[3])*0.76))
+        self.originalPos = (DISPLAY_W/2, DISPLAY_H/4)
 
         self.image = self.images[self.index]
         self.mask = pygame.mask.from_surface(self.image)
@@ -56,9 +55,14 @@ class Player(pygame.sprite.Sprite):
         self.pos = vec(self.originalPos)
         self.vel = vec(0,0)
 
+        self.direction = "right"
+        self.pressingkeyx = False
+        self.pressingkeyy = False
+
         print(self.pos)
     
     def update(self):
+        
 
         #if the index is larger than the total images
         if self.index >= len(self.images):
@@ -66,42 +70,37 @@ class Player(pygame.sprite.Sprite):
             self.index = 0
         
         #finally we will update the image that will be displayed
-        self.image = self.images[self.index]
+        if self.direction == 'right':
+            # Keep original image orientation
+            self.image = self.images[self.index]
+
+        if self.direction == 'left':
+            # Flip the image
+            self.image = pygame.transform.flip(self.images[self.index], True, False)
    
     def move(self):
         top = -int(self.image.get_rect()[3]*0.25)
         bottom = DISPLAY_H-(DISPLAY_H/4 + int(self.images[1].get_rect()[3])*0.76)
-    
-        
-        self.cameraX = self.vel.x
-        self.cameraY = self.vel.y
+
 
         # Friction
-        if self.vel.x != 0:
-            if self.vel.x > 0:
-                self.vel.x -= 1
-            if self.vel.x < 0:
-                self.vel.x += 1
-
-        if self.vel.y != 0:
-            if self.vel.y > 0:
-                self.vel.y -= 1
-            if self.vel.y < 0:
-                self.vel.y += 1
         
-
-
-        if self.cameraX != 0:
+        if self.cameraX != 0 and not self.pressingkeyx:
             if self.cameraX > 0:
-                self.cameraX -= 0.1
+                self.cameraX -= 1
             if self.cameraX < 0:
-                self.cameraX += 0.1
+                self.cameraX += 1
+            if -1 < self.cameraX < 1:
+                self.cameraX = 0
         
-        if self.cameraY != 0:
+        if self.cameraY != 0 and not self.pressingkeyy:
             if self.cameraY > 0:
-                self.cameraY -= 0.1
+                self.cameraY -= 1
             if self.cameraY < 0:
-                self.cameraY += 0.1
+                self.cameraY += 1
+            if -1 < self.cameraY < 1:
+                self.cameraY = 0
+
 
         if self.pos.y < top:
             self.pos.y = top
@@ -110,23 +109,38 @@ class Player(pygame.sprite.Sprite):
         self.rect[0] = self.pos.x
         self.rect[1] = self.pos.y
 
-        #self.pos.x += self.vel.x
-        #if self.vel.y > 0:
-        #    self.pos.y += self.vel.y
     
     def moveLeft(self):
-        self.vel.x += -ACCELERATION
+        self.direction = 'left'
+        if self.pos.x < (DISPLAY_W/2)+(DISPLAY_W/8):
+            self.pos.x += 5
+            if self.cameraX != -10:
+                self.cameraX = -10
+        if self.pos.x >= (DISPLAY_W/2)+(DISPLAY_W/8):
+            if self.cameraX != -5:
+                self.cameraX = -5
 
+        
 
     def moveRight(self):
-        self.vel.x += ACCELERATION
-
+        self.direction = 'right'
+        if self.pos.x > (DISPLAY_W/2)-(DISPLAY_W/8):
+            self.pos.x -= 5
+            if self.cameraX != 10:
+                self.cameraX = 10
+        if self.pos.x <= (DISPLAY_W/2)-(DISPLAY_W/8):
+            if self.cameraX != 5:
+                self.cameraX = 5
+        
 
     def moveUp(self):
-        self.vel.y += ACCELERATION
+        if self.cameraY != -20 and self.pos.y > 0:
+            self.cameraY = 10
+
 
     
     def moveDown(self):
-        self.vel.y -= ACCELERATION
+        if self.cameraY != 20 and self.pos.y < DISPLAY_H:
+            self.cameraY = -10
 
 
