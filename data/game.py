@@ -13,26 +13,6 @@ f = Files('data/settings/gamesettings.json')
 # Load the game settings into a dictionary called loadedFile
 loadedFile = f.readSettingsFile()
 
-# "Global" variables, usable in any part of the program
-# ---------------------
-global DISPLAY_W
-global DISPLAY_H
-global FPS
-global user_DOWNKEY
-global user_UPKEY
-global user_ESCAPEKEY
-global user_LEFTKEY
-global user_RIGHTKE
-global user_SELECTKEY
-global narrowedDownDict
-global PRESSED_DOWNKEY
-global PRESSED_UPKEY
-global PRESSED_ESCAPEKEY
-global PRESSED_LEFTKEY
-global PRESSED_RIGHTKEY
-global PRESSED_SELECTKEY
-# -----------------------
-
 # Variables used to set window height, width, fullscreen(yes/no) from loadedFile
 DISPLAY_W = int(loadedFile['settings']['window_w'])
 DISPLAY_H = int(loadedFile['settings']['window_h'])
