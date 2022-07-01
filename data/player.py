@@ -39,18 +39,23 @@ class Player(pygame.sprite.Sprite):
 
         pygame.sprite.Sprite.__init__(self)
         self.images = []
+        self.masks = []
+
         for i in range(0,7):
             self.images.append(pygame.image.load('data/images/playerframes/player'+str(i)+'.png').convert_alpha())
             # Scale the player relative to the screen size
             self.images[i] = pygame.transform.scale(self.images[i],(scaledWidth,scaledHeight))
+            self.masks.append(pygame.mask.from_surface(self.images[i]))
             self.rect = self.images[i].get_rect()
+            
 
         self.index = 3
 
         self.originalPos = (DISPLAY_W/2, DISPLAY_H/4)
 
         self.image = self.images[self.index]
-        self.mask = pygame.mask.from_surface(self.image)
+        self.mask = self.masks[self.index]
+        
 
         self.pos = vec(self.originalPos)
         self.vel = vec(0,0)
@@ -63,19 +68,20 @@ class Player(pygame.sprite.Sprite):
 
         print(self.pos)
     
-    def outlineMask(self, surface):
-        self.mask_outline = self.mask.outline()
+    def getOutlineMask(self, mask):
+        self.mask_outline = mask.outline()
         n = 0
         for point in self.mask_outline:
             self.mask_outline[n] = (point[0] + self.pos[0], point[1] + self.pos[1])
             n += 1
-        pygame.draw.polygon(surface,(255,255,255),self.mask_outline,3)
+        return self.mask_outline
 
     def update(self):
         #if the index is larger than the total images
         if self.index >= len(self.images):
             #we will make the index to 0 again
             self.index = 0
+        self.mask = self.masks[self.index]
         
         #finally we will update the image that will be displayed
         if self.direction == 'right':
@@ -116,7 +122,6 @@ class Player(pygame.sprite.Sprite):
 
         self.rect[0] = self.pos.x
         self.rect[1] = self.pos.y
-
     
     def moveLeft(self):
         self.direction = 'left'
@@ -150,5 +155,4 @@ class Player(pygame.sprite.Sprite):
     def moveDown(self):
         if self.cameraY != 20 and self.pos.y < DISPLAY_H:
             self.cameraY = -10
-
 

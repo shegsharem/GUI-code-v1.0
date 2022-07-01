@@ -2,12 +2,10 @@ import pygame, os
 from pygame.locals import *
 import pygame.freetype
 from fileget import Files
-from terrain import Dirt, WhiteSquare
 from player import Player
 from levelRender import Level
 from random import randint
 import time
-import math
 
 # Game settings file(*.json) location
 f = Files('data/settings/gamesettings.json')
@@ -228,15 +226,15 @@ def mainGameLoop():
         player.update()
         playerSprite.draw(screen)
 
-        pygame.draw.rect(screen, BLUE, player.rect, width=5)
-        #screen.blit(player.mask_surf,player.rect)
-        #player.outlineMask(screen)
-        
+        # Get player outline border
+        player_outline = player.getOutlineMask(player.mask)
 
         # This function call will return True if colliding with mapTerrain
-        player_collide = levelmap.collisionCheck(player)
-        
-        
+        #player_collide = levelmap.collisionCheck(player_outline)
+
+        # Draw player outline border
+        player_outline = pygame.draw.polygon(screen, (255,255,255), player_outline,5)
+
         # Get mouse coordinates
         Mouse_x, Mouse_y = pygame.mouse.get_pos()
         for event in pygame.event.get():
@@ -281,20 +279,18 @@ def mainGameLoop():
         if PRESSED_RIGHTKEY:
             if player.index < 6:
                 player.index += 1
-                player.outlineMask(screen)
+                
             if player.index == 6:
                 player.index -= 1
-                player.outlineMask(screen)
                 
             player.moveRight()
         
         if PRESSED_LEFTKEY:
             if player.index > 2:
                 player.index -= 1
-                player.outlineMask(screen)
+                
             if player.index == 2:
                 player.index = 2
-                player.outlineMask(screen)
             player.moveLeft()
 
         if PRESSED_UPKEY:
@@ -319,7 +315,7 @@ def mainGameLoop():
             renderText(screen, str(averageFPS)+' FPS', 15,15)
             renderText(screen, ("Player Position: ("+str(float(player.pos.x))+", "+str(float(player.pos.y))+')'),15,30)
             renderText(screen, ("Camera Velocity: ("+str(float(player.cameraX))+", "+str(float(player.cameraY))+')'),15,45)
-            renderText(screen, ("Touching Terrain = "+ str(player_collide)), 15,60)
+            #renderText(screen, ("Touching Terrain = "+ str(player_collide)), 15,60)
             renderText(screen, ("Player Direction = "+str(player.direction)), 15,75)
 
         # Run limitor to lock in set frame rate (loop will only iterate whatever FPS is set to)
@@ -342,3 +338,4 @@ def mainGameLoop():
 
 if __name__ == '__main__':
     mainGameLoop()
+    

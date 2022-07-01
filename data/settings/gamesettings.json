@@ -1,10 +1,10 @@
 {
     "settings": {
-        "window_w": "1493",
-        "window_h": "933",
+        "window_w": "1152",
+        "window_h": "648",
         "max_window_w": "1493",
         "max_window_h": "933",
-        "fullscreen": "1",
+        "fullscreen": "0",
         "button_up": "w",
         "button_left": "a",
         "button_down": "s",

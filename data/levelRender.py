@@ -1,6 +1,7 @@
 import pygame
 from fileget import Files
 from terrain import Dirt, WhiteSquare
+import collisionCalculus
 
 # Game settings file(*.json) location
 f = Files('data/settings/gamesettings.json')
@@ -37,9 +38,9 @@ class Level:
                     self.mask = pygame.mask.from_surface(self.image)
                     self.mapTerrain.add(self.terrain)
 
-    def collisionCheck(self, playerSprite):
+    def collisionCheck(self, playerMaskPolygon):
         for sprite in self.mapTerrain.sprites():
-            if pygame.sprite.collide_mask(sprite, playerSprite):
+            if collisionCalculus.collideRectPolygon(sprite.rect, playerMaskPolygon):
                 return True
 
     def cameraMove(self, xShift, yShift):

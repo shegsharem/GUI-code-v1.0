@@ -85,7 +85,7 @@ manager = pygame_gui.UIManager((width, height), 'data/settings/theme.json',)
 titleImage = pygame.image.load('data/images/playerframes/player0.png').convert_alpha()
 titleImageRect = titleImage.get_rect()
 titleImageRect = titleImageRect.center
-titleImage = pygame.transform.scale(titleImage, (width*0.7, width*0.7))
+titleImage = pygame.transform.scale(titleImage, (width*0.9, width*0.9))
 background = pygame.Surface((width, height)) # Set to maximum possible resolution
 
 title = Text("bloot", fontcolor=Color('white'), pos=(30,30), fontsize=48, fontname="Consolas")
@@ -105,7 +105,7 @@ exit_button = UIButton(relative_rect=pygame.Rect((350, 10), (40,40)), text='X',
 
 
 def titlePicture():
-    screen.blit(titleImage, (10,80))
+    screen.blit(titleImage, (14,30))
 
     
 def run():
