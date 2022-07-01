@@ -40,13 +40,16 @@ class Player(pygame.sprite.Sprite):
         pygame.sprite.Sprite.__init__(self)
         self.images = []
         self.masks = []
+        self.maskRects = []
 
         for i in range(0,7):
             self.images.append(pygame.image.load('data/images/playerframes/player'+str(i)+'.png').convert_alpha())
             # Scale the player relative to the screen size
             self.images[i] = pygame.transform.scale(self.images[i],(scaledWidth,scaledHeight))
             self.masks.append(pygame.mask.from_surface(self.images[i]))
+            self.maskRects.append(self.masks[i].get_rect())
             self.rect = self.images[i].get_rect()
+            
             
 
         self.index = 3
@@ -55,12 +58,14 @@ class Player(pygame.sprite.Sprite):
 
         self.image = self.images[self.index]
         self.mask = self.masks[self.index]
+        self.maskRect = self.maskRects[self.index]
         
 
         self.pos = vec(self.originalPos)
         self.vel = vec(0,0)
 
-        self.rect.center = self.pos
+        self.maskRect.topleft = self.pos
+        self.rect.topleft = self.pos
 
         self.direction = "right"
         self.pressingkeyx = False
@@ -81,7 +86,11 @@ class Player(pygame.sprite.Sprite):
         if self.index >= len(self.images):
             #we will make the index to 0 again
             self.index = 0
+
         self.mask = self.masks[self.index]
+        self.maskRect = self.maskRects[self.index]
+        self.maskRect.topleft = self.pos
+        self.rect.topleft = self.pos
         
         #finally we will update the image that will be displayed
         if self.direction == 'right':

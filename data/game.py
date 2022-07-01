@@ -230,10 +230,14 @@ def mainGameLoop():
         player_outline = player.getOutlineMask(player.mask)
 
         # This function call will return True if colliding with mapTerrain
-        #player_collide = levelmap.collisionCheck(player_outline)
+        player_collide = levelmap.collisionCheck(player.maskRect)
 
         # Draw player outline border
         player_outline = pygame.draw.polygon(screen, (255,255,255), player_outline,5)
+
+        if DEBUGMODE:
+            # Draw player hitbox
+            pygame.draw.rect(screen, WHITE, player.maskRect,width=1)
 
         # Get mouse coordinates
         Mouse_x, Mouse_y = pygame.mouse.get_pos()
@@ -315,7 +319,7 @@ def mainGameLoop():
             renderText(screen, str(averageFPS)+' FPS', 15,15)
             renderText(screen, ("Player Position: ("+str(float(player.pos.x))+", "+str(float(player.pos.y))+')'),15,30)
             renderText(screen, ("Camera Velocity: ("+str(float(player.cameraX))+", "+str(float(player.cameraY))+')'),15,45)
-            #renderText(screen, ("Touching Terrain = "+ str(player_collide)), 15,60)
+            renderText(screen, ("Touching Terrain = "+ str(player_collide)), 15,60)
             renderText(screen, ("Player Direction = "+str(player.direction)), 15,75)
 
         # Run limitor to lock in set frame rate (loop will only iterate whatever FPS is set to)
