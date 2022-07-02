@@ -39,58 +39,44 @@ class Player(pygame.sprite.Sprite):
 
         pygame.sprite.Sprite.__init__(self)
         self.images = []
-        self.masks = []
-        self.maskRects = []
+        self.boundingRects = []
 
         for i in range(0,7):
             self.images.append(pygame.image.load('data/images/playerframes/player'+str(i)+'.png').convert_alpha())
             # Scale the player relative to the screen size
             self.images[i] = pygame.transform.scale(self.images[i],(scaledWidth,scaledHeight))
-            self.masks.append(pygame.mask.from_surface(self.images[i]))
-            self.maskRects.append(self.masks[i].get_rect())
+            self.boundingRects.append(self.images[i].get_bounding_rect())
             self.rect = self.images[i].get_rect()
             
-            
-
         self.index = 3
 
-        self.originalPos = (DISPLAY_W/2, DISPLAY_H/4)
+        self.originalPos = (DISPLAY_W/4-(self.rect[2]/2), DISPLAY_H/4+(self.rect[3]/2))
 
         self.image = self.images[self.index]
-        self.mask = self.masks[self.index]
-        self.maskRect = self.maskRects[self.index]
+        self.boundingRect = self.boundingRects[self.index]
         
-
+        
         self.pos = vec(self.originalPos)
         self.vel = vec(0,0)
 
-        self.maskRect.topleft = self.pos
-        self.rect.topleft = self.pos
+        self.rect.center = self.pos
 
         self.direction = "right"
         self.pressingkeyx = False
         self.pressingkeyy = False
+        self.gravity = 4
 
         print(self.pos)
-    
-    def getOutlineMask(self, mask):
-        self.mask_outline = mask.outline()
-        n = 0
-        for point in self.mask_outline:
-            self.mask_outline[n] = (point[0] + self.pos[0], point[1] + self.pos[1])
-            n += 1
-        return self.mask_outline
 
     def update(self):
+        self.boundingRect = self.boundingRects[self.index]
+        self.rect.center = self.pos
+        self.boundingRect.center = (self.pos[0], self.pos[1]+5)
+
         #if the index is larger than the total images
         if self.index >= len(self.images):
             #we will make the index to 0 again
             self.index = 0
-
-        self.mask = self.masks[self.index]
-        self.maskRect = self.maskRects[self.index]
-        self.maskRect.topleft = self.pos
-        self.rect.topleft = self.pos
         
         #finally we will update the image that will be displayed
         if self.direction == 'right':
@@ -100,6 +86,7 @@ class Player(pygame.sprite.Sprite):
         if self.direction == 'left':
             # Flip the image
             self.image = pygame.transform.flip(self.images[self.index], True, False)
+
    
     def move(self):
         top = -int(self.image.get_rect()[3]*0.25)
@@ -107,58 +94,65 @@ class Player(pygame.sprite.Sprite):
 
 
         # Friction
-        
         if self.cameraX != 0 and not self.pressingkeyx:
-            if self.cameraX > 0:
-                self.cameraX -= 1
-            if self.cameraX < 0:
-                self.cameraX += 1
-            if -1 < self.cameraX < 1:
-                self.cameraX = 0
+            self.cameraX = 0
+            #if self.cameraX > 0:
+            #    self.cameraX -= 0.2
+            #if self.cameraX < 0:
+            #    self.cameraX += 0.2
+            #if -0.2 < self.cameraX < 0.2:
+            #    self.cameraX = 0
         
         if self.cameraY != 0 and not self.pressingkeyy:
-            if self.cameraY > 0:
-                self.cameraY -= 1
-            if self.cameraY < 0:
-                self.cameraY += 1
-            if -1 < self.cameraY < 1:
-                self.cameraY = 0
+            self.cameraY = 0
+            #if self.cameraY > 0:
+            #    self.cameraY -= 0.2
+            #if self.cameraY < 0:
+            #    self.cameraY += 0.2
+            #if -0.2 < self.cameraY < 0.2:
+            #    self.cameraY = 0
 
 
         if self.pos.y < top:
             self.pos.y = top
     
-
-        self.rect[0] = self.pos.x
-        self.rect[1] = self.pos.y
+        #self.rect[0] = self.pos.x
+        #self.rect[1] = self.pos.y
     
     def moveLeft(self):
         self.direction = 'left'
-        if self.pos.x < (DISPLAY_W/2)+(DISPLAY_W/8):
-            self.pos.x += 5
-            if self.cameraX != -10:
-                self.cameraX = -10
-        if self.pos.x >= (DISPLAY_W/2)+(DISPLAY_W/8):
-            if self.cameraX != -5:
-                self.cameraX = -5
-
+        if self.pos.x < (DISPLAY_W/2)-(DISPLAY_W/8):
+            #self.pos.x += 5
+            if self.cameraX != -3:
+                self.cameraX = -3
+        else:
+            self.pos.x -= 3
+            self.cameraX = 0
         
 
     def moveRight(self):
         self.direction = 'right'
-        if self.pos.x > (DISPLAY_W/2)-(DISPLAY_W/8):
-            self.pos.x -= 5
-            if self.cameraX != 10:
-                self.cameraX = 10
         if self.pos.x <= (DISPLAY_W/2)-(DISPLAY_W/8):
-            if self.cameraX != 5:
-                self.cameraX = 5
+            if self.cameraX != 3:
+                self.cameraX = 3
+        else:
+            self.pos.x += 3
+            self.cameraX = 0
         
 
-    def moveUp(self):
-        if self.cameraY != -20 and self.pos.y > 0:
+    def jump(self):
+        if self.gravity != -4:
+            self.gravity += 2
+        #if gravity != 4.9:
+        #    gravity += 0.1
+        if self.cameraY != 10 and self.pos.y > DISPLAY_H/4:
+            self.pos.y -= 10
+        if self.pos.y <= DISPLAY_H/4:
             self.cameraY = 10
 
+    def gravity(self):
+        self.vel.y = self.vel.y + ACCELERATION
+        self.pos.y = self.pos.y + self.vel.y
 
     
     def moveDown(self):

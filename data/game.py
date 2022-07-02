@@ -53,8 +53,6 @@ averageFPS = ''
 
 DEBUGMODE = True
 
-
-
 def checkFullscreen(): 
     if FULLSCREEN == 1:
         screen = pygame.display.set_mode(((DISPLAY_W, DISPLAY_H)), pygame.FULLSCREEN | pygame.DOUBLEBUF | pygame.HWACCEL)
@@ -135,35 +133,12 @@ def mainGameLoop():
     'YYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYY',
     'XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX',
     '                                                                        ',
-    '                                                                        ',
-    '                                                                        ',
-    '     XXXXX                                                              ',
-    'XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX',
-    '',
-    '                                                                        ',
-    '                                                                        ',
-    'XXXXXXXXXXXXXXXXXXXXXXXX                                                ',
-    '                                                                        ',
-    '                                                                        ',
-    '                                                                        ',
-    '                                                                        ',
-    '                                                                        ',
-    '                                                                        ',
-    '                                                                        ',
-    'XXXXXX                                                                  ',
-    'XXXXXX                                                                      ',
-    'XXXXXX                                                                        ',
-    'XXXXXX                                                                      ',
-    'XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX',
-    'XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX',
-    'XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX',
-    'XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX',
-    'XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX'
+    '                                                                        '
     ]
 
     # Sprite Initiation
     playerSprite = pygame.sprite.Group()
-    player = Player(DISPLAY_W/10,DISPLAY_W/10)
+    player = Player(DISPLAY_W/12,DISPLAY_W/12)
     levelmap = Level(level_map)
 
     playerSprite.add(player)
@@ -206,18 +181,8 @@ def mainGameLoop():
         player.update()
         playerSprite.draw(screen)
 
-        # Get player outline border
-        player_outline = player.getOutlineMask(player.mask)
-
         # This function call will return True if colliding with mapTerrain
-        player_collide = levelmap.collisionCheck(player.maskRect)
-
-        # Draw player outline border
-        player_outline = pygame.draw.polygon(screen, (255,255,255), player_outline,5)
-
-        if DEBUGMODE:
-            # Draw player hitbox
-            pygame.draw.rect(screen, WHITE, player.maskRect,width=1)
+        player_collide = levelmap.collisionCheck(player.boundingRect)
 
         # Get mouse coordinates
         Mouse_x, Mouse_y = pygame.mouse.get_pos()
@@ -260,27 +225,27 @@ def mainGameLoop():
                     player.pressingkeyy = True
                     PRESSED_UPKEY = True
 
-        if PRESSED_RIGHTKEY:
-            if player.index < 6:
-                player.index += 1
-                
-            if player.index == 6:
-                player.index -= 1
-                
+        if PRESSED_RIGHTKEY and not player_collide:
+            #if player.index < 6:
+            #    player.index += 1
+            #    
+            #if player.index == 6:
+            #    player.index -= 1
+            #    
             player.moveRight()
         
-        if PRESSED_LEFTKEY:
-            if player.index > 2:
-                player.index -= 1
-                
-            if player.index == 2:
-                player.index = 2
+        if PRESSED_LEFTKEY and not player_collide:
+            #if player.index > 2:
+            #    player.index -= 1
+            #    
+            #if player.index == 2:
+            #    player.index = 2
             player.moveLeft()
 
-        if PRESSED_UPKEY:
-            player.moveUp()
+        if PRESSED_UPKEY and not player_collide:
+            player.jump()
 
-        if PRESSED_DOWNKEY:
+        if PRESSED_DOWNKEY and not player_collide:
             player.moveDown()
 
         if not PRESSED_RIGHTKEY and not PRESSED_LEFTKEY:
@@ -289,11 +254,16 @@ def mainGameLoop():
         if not PRESSED_UPKEY and not PRESSED_DOWNKEY:
             player.pressingkeyy = False
 
+        if player.pressingkeyy == False and not player_collide:
+            if player.index < 6:
+                player.index += 1
+            if player.index == 6:
+                player.index = 1
+
 
         player.move()
 
-        
-
+        # If debug mode is on
         if DEBUGMODE:
             # Display current FPS in top left corner
             renderText(screen, str(averageFPS)+' FPS', 15,15)
@@ -301,6 +271,31 @@ def mainGameLoop():
             renderText(screen, ("Camera Velocity: ("+str(float(player.cameraX))+", "+str(float(player.cameraY))+')'),15,45)
             renderText(screen, ("Touching Terrain = "+ str(player_collide)), 15,60)
             renderText(screen, ("Player Direction = "+str(player.direction)), 15,75)
+
+            # Draw player outline border
+            pygame.draw.rect(screen, WHITE, player.boundingRect,width=1)
+
+            # KEYPRESS
+            if PRESSED_UPKEY:
+                upbutton=pygame.draw.rect(screen, BLACK, ((DISPLAY_W+40)-DISPLAY_W,DISPLAY_H-70, 30,30),border_radius=4)
+            renderText(screen, str(user_UPKEY).upper(), (DISPLAY_W+50)-DISPLAY_W, DISPLAY_H-61)
+            if PRESSED_LEFTKEY:
+                leftbutton=pygame.draw.rect(screen, BLACK, ((DISPLAY_W+5)-DISPLAY_W,DISPLAY_H-35, 30,30),border_radius=4)
+            renderText(screen, str(user_LEFTKEY).upper(), (DISPLAY_W+15)-DISPLAY_W, DISPLAY_H-26)
+            if PRESSED_DOWNKEY:
+                downbutton=pygame.draw.rect(screen, BLACK, ((DISPLAY_W+40)-DISPLAY_W,DISPLAY_H-35, 30,30),border_radius=4)
+            renderText(screen, str(user_DOWNKEY).upper(), (DISPLAY_W+51)-DISPLAY_W, DISPLAY_H-26)
+            if PRESSED_RIGHTKEY:
+                rightbutton=pygame.draw.rect(screen, BLACK, ((DISPLAY_W+75)-DISPLAY_W,DISPLAY_H-35, 30,30),border_radius=4)
+            if not PRESSED_UPKEY:
+                upbutton=pygame.draw.rect(screen, BLACK, ((DISPLAY_W+40)-DISPLAY_W,DISPLAY_H-70, 30,30),width=2,border_radius=4)
+            if not PRESSED_LEFTKEY:
+                leftbutton=pygame.draw.rect(screen, BLACK, ((DISPLAY_W+5)-DISPLAY_W,DISPLAY_H-35, 30,30),width=2,border_radius=4)
+            if not PRESSED_DOWNKEY:
+                downbutton=pygame.draw.rect(screen, BLACK, ((DISPLAY_W+40)-DISPLAY_W,DISPLAY_H-35, 30,30),width=2,border_radius=4)
+            if not PRESSED_RIGHTKEY:
+                rightbutton=pygame.draw.rect(screen, BLACK, ((DISPLAY_W+75)-DISPLAY_W,DISPLAY_H-35, 30,30),width=2,border_radius=4)
+            renderText(screen, str(user_RIGHTKEY).upper(), (DISPLAY_W+86)-DISPLAY_W, DISPLAY_H-26)
 
         # Run limitor to lock in set frame rate (loop will only iterate whatever FPS is set to)
         clockTick()
