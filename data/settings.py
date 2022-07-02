@@ -1,3 +1,4 @@
+from platform import win32_ver
 import tkinter as tk
 from tkinter import RAISED
 from tkinter import ttk
@@ -51,13 +52,13 @@ class Settings(tk.Frame):
         self.root.configure(bg="#FFFFFF")
 
         # Define window dimensions
-        self.window_width = 400
-        self.window_height = 275
+        self.window_width = 400 #400
+        self.window_height = 275 #275
 
         # Get centered coordinates of the display
-        self.root.eval('tk::PlaceWindow . center')
         # Set resolution
-        self.root.geometry((str(self.window_width)+"x"+str(self.window_height)))
+        pygame.init()
+        self.root.geometry((str(self.window_width)+"x"+str(self.window_height)+'+'+(str(int((pygame.display.Info().current_w/2)-self.window_width/2)))+"+"+str(int((pygame.display.Info().current_h/2)-self.window_height/2))))
 
         self.root.attributes('-top') # Launch on top layer
         
@@ -72,7 +73,7 @@ class Settings(tk.Frame):
         
         self.notebook.add(self.frame1, text="Graphics")
         self.notebook.add(self.frame3, text="Controls")
-        self.notebook.pack(expand=True,fill='x')
+        self.notebook.pack(expand=True,fill='both')
 
         self.create_widgets()
         # ---------------------------------------- GUI OBJECTS -----------------------------------------------------------------

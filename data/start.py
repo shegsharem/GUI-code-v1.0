@@ -82,7 +82,7 @@ flags = NOFRAME
 windowTitle = pygame.display.set_caption('bloot') # Window Title
 screen = pygame.display.set_mode((width, height), flags, vsync=1)
 manager = pygame_gui.UIManager((width, height), 'data/settings/theme.json',)
-titleImage = pygame.image.load('data/images/playerframes/player0.png').convert_alpha()
+titleImage = pygame.image.load('data/images/playerframes/player1.png').convert_alpha()
 titleImageRect = titleImage.get_rect()
 titleImageRect = titleImageRect.center
 titleImage = pygame.transform.scale(titleImage, (width*0.9, width*0.9))
@@ -101,7 +101,6 @@ play_button = UIButton(relative_rect=pygame.Rect((25, 380), (200,100)), text='pl
 exit_button = UIButton(relative_rect=pygame.Rect((350, 10), (40,40)), text='X',
             manager=manager, object_id=ObjectID(class_id='default'), 
             anchors={'left': 'left','right': 'right','top': 'top','bottom': 'bottom'})
-
 
 
 def titlePicture():
