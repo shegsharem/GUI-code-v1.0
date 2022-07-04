@@ -37,12 +37,6 @@ class Level:
                     self.mask = pygame.mask.from_surface(self.image)
                     self.mapTerrain.add(self.terrain)
 
-    def collisionCheck(self, playerMaskRect):
-        for sprite in self.mapTerrain.sprites():
-            collide = pygame.rect.Rect.colliderect(playerMaskRect, sprite.rect)
-            if collide:
-                return True
-
     def cameraMove(self, xShift, yShift):
         for sprite in self.mapTerrain.sprites():
             sprite.rect.x -= xShift

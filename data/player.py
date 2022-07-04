@@ -37,6 +37,16 @@ class Player(pygame.sprite.Sprite):
         self.cameraX = 0
         self.cameraY = 0
 
+        self.movingRight = False
+        self.movingLeft = False
+
+        self.pressingkeyx = False
+        self.pressingkeyy = False
+
+        self.airTimer = 0
+
+        self.momentumY = 0
+
         pygame.sprite.Sprite.__init__(self)
         self.images = []
         self.boundingRects = []
@@ -55,23 +65,14 @@ class Player(pygame.sprite.Sprite):
         self.image = self.images[self.index]
         self.boundingRect = self.boundingRects[self.index]
         
-        
         self.pos = vec(self.originalPos)
         self.vel = vec(0,0)
 
         self.rect.center = self.pos
 
-        self.direction = "right"
-        self.pressingkeyx = False
-        self.pressingkeyy = False
-        self.gravity = 4
-
-        print(self.pos)
-
     def update(self):
         self.boundingRect = self.boundingRects[self.index]
-        self.rect.center = self.pos
-        self.boundingRect.center = (self.pos[0], self.pos[1]+5)
+        self.boundingRect.center = (self.rect.x+36, self.rect.y+40)
 
         #if the index is larger than the total images
         if self.index >= len(self.images):
@@ -79,19 +80,65 @@ class Player(pygame.sprite.Sprite):
             self.index = 0
         
         #finally we will update the image that will be displayed
-        if self.direction == 'right':
+        if self.movingRight:
             # Keep original image orientation
             self.image = self.images[self.index]
 
-        if self.direction == 'left':
+        if self.movingLeft:
             # Flip the image
             self.image = pygame.transform.flip(self.images[self.index], True, False)
 
-   
-    def move(self):
+    def collisionTest(self, playerBoundingRect, mapTiles):
+        hit_list = []
+        for tile in mapTiles():
+            collide = pygame.rect.Rect.colliderect(playerBoundingRect, tile.rect)
+            if collide:
+                hit_list.append(tile)
+        return hit_list
+
+    def move(self, movement, mapTiles):
         top = -int(self.image.get_rect()[3]*0.25)
         bottom = DISPLAY_H-(DISPLAY_H/4 + int(self.images[1].get_rect()[3])*0.76)
 
+        collisionTypes = {'top': False, 'bottom': False, 'right': False, 'left': False}
+        
+        self.rect.x += movement[0]
+        self.boundingRect.x += movement[0]
+        
+        hit_list = Player.collisionTest(self, self.boundingRect, mapTiles)
+        for tile in hit_list:
+            if movement[0] > 0:
+                self.boundingRect.right = tile.rect.left
+                collisionTypes['right'] = True
+            elif movement[0] < 0:
+                self.boundingRect.left = tile.rect.right
+                collisionTypes['left'] = True
+        
+        self.rect.y += movement[1]
+        self.boundingRect.y += movement[1]
+        hit_list = Player.collisionTest(self, self.boundingRect, mapTiles)
+        for tile in hit_list:
+            if movement[1] > 0:
+                self.boundingRect.bottom = tile.rect.top
+                collisionTypes['bottom'] = True
+            elif movement[0] < 0:
+                self.boundingRect.top = tile.rect.bottom
+                collisionTypes['top'] = True
+
+
+        #if self.pos.x <= (DISPLAY_W/2)-(DISPLAY_W/8):
+        #    #self.pos.x += 5
+        #    if self.cameraX != -3:
+        #        self.cameraX = -3
+        #
+        #if self.pos.x <= (DISPLAY_W/2)-(DISPLAY_W/8):
+        #    if self.cameraX != 3:
+        #        self.cameraX = 3
+        
+        else:
+            self.cameraX =0
+        
+        return self.rect, collisionTypes
 
         # Friction
         if self.cameraX != 0 and not self.pressingkeyx:
@@ -116,11 +163,8 @@ class Player(pygame.sprite.Sprite):
         if self.pos.y < top:
             self.pos.y = top
     
-        #self.rect[0] = self.pos.x
-        #self.rect[1] = self.pos.y
-    
     def moveLeft(self):
-        self.direction = 'left'
+        self.movingLeft = True
         if self.pos.x < (DISPLAY_W/2)-(DISPLAY_W/8):
             #self.pos.x += 5
             if self.cameraX != -3:
@@ -131,7 +175,7 @@ class Player(pygame.sprite.Sprite):
         
 
     def moveRight(self):
-        self.direction = 'right'
+        self.movingRight = True
         if self.pos.x <= (DISPLAY_W/2)-(DISPLAY_W/8):
             if self.cameraX != 3:
                 self.cameraX = 3
@@ -141,10 +185,6 @@ class Player(pygame.sprite.Sprite):
         
 
     def jump(self):
-        if self.gravity != -4:
-            self.gravity += 2
-        #if gravity != 4.9:
-        #    gravity += 0.1
         if self.cameraY != 10 and self.pos.y > DISPLAY_H/4:
             self.pos.y -= 10
         if self.pos.y <= DISPLAY_H/4:

@@ -51,7 +51,7 @@ FPSLOOPCOUNT = 0
 last_time = time.time()
 averageFPS = ''
 
-DEBUGMODE = True
+DEBUGMODE = False
 
 def checkFullscreen(): 
     if FULLSCREEN == 1:
@@ -127,13 +127,31 @@ def mainGameLoop():
     screenRect = screen.get_rect()
     # ----------------------------------------------
     level_map = [
-    '                                                                  ',
-    '                                                                        ',
-    '                                                                        ',
-    'YYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYY',
-    'XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX',
-    '                                                                        ',
-    '                                                                        '
+    '',
+    '',
+    '',
+    '',
+    '',
+    '',
+    '',
+    '',
+    '',
+    '',
+    '',
+    '',
+    '',
+    '',  
+    '',
+    '',
+    '',
+    '',
+    '',
+    '',
+    '',
+    '',
+    '',
+    '',                                                       
+    ' YYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYY                                                                    '
     ]
 
     # Sprite Initiation
@@ -142,6 +160,7 @@ def mainGameLoop():
     levelmap = Level(level_map)
 
     playerSprite.add(player)
+    playerMovement = [0,0]
 
     # Hide mouse
     pygame.mouse.set_visible(False)
@@ -160,7 +179,7 @@ def mainGameLoop():
     background_image = pygame.image.load('data/images/background.png').convert_alpha()
     background_rect = background_image.get_rect()
     background_image = pygame.transform.scale(background_image, (DISPLAY_W, DISPLAY_W))
-    
+
 
     # MAIN GAME LOOP (keep as clean as possible)
     while True:
@@ -177,12 +196,8 @@ def mainGameLoop():
         levelmap.cameraMove(cameraX,cameraY)
         levelmap.mapTerrain.draw(screen)
 
-        # Draw player
-        player.update()
-        playerSprite.draw(screen)
-
         # This function call will return True if colliding with mapTerrain
-        player_collide = levelmap.collisionCheck(player.boundingRect)
+        #player_collide = levelmap.collisionCheck(player.boundingRect)
 
         # Get mouse coordinates
         Mouse_x, Mouse_y = pygame.mouse.get_pos()
@@ -199,8 +214,10 @@ def mainGameLoop():
                     PRESSED_SELECTKEY = False
                 if event.key == pygame.key.key_code(str(user_RIGHTKEY)):
                     PRESSED_RIGHTKEY = False
+                    player.movingRight = False
                 if event.key == pygame.key.key_code(str(user_LEFTKEY)):
                     PRESSED_LEFTKEY = False
+                    player.movingLeft = False
                 if event.key == pygame.key.key_code(str(user_DOWNKEY)):
                     PRESSED_DOWNKEY = False
                 if event.key == pygame.key.key_code(str(user_UPKEY)):
@@ -215,9 +232,11 @@ def mainGameLoop():
                 if event.key == pygame.key.key_code(str(user_RIGHTKEY)):
                     player.pressingkeyx = True
                     PRESSED_RIGHTKEY = True
+                    player.movingRight = True
                 if event.key == pygame.key.key_code(str(user_LEFTKEY)):
                     player.pressingkeyx = True
                     PRESSED_LEFTKEY = True
+                    player.movingLeft = True
                 if event.key == pygame.key.key_code(str(user_DOWNKEY)):
                     player.pressingkeyy = True
                     PRESSED_DOWNKEY = True
@@ -225,43 +244,66 @@ def mainGameLoop():
                     player.pressingkeyy = True
                     PRESSED_UPKEY = True
 
-        if PRESSED_RIGHTKEY and not player_collide:
-            #if player.index < 6:
-            #    player.index += 1
-            #    
-            #if player.index == 6:
-            #    player.index -= 1
-            #    
-            player.moveRight()
+
+        if PRESSED_RIGHTKEY:
+            if player.index < 6:
+                player.index += 1
+                
+            if player.index == 6:
+                player.index -= 1
+
+            if collisions['bottom']:
+                playerMovement[0] += 2  
+             
+            else:
+                playerMovement[0] = 0
         
-        if PRESSED_LEFTKEY and not player_collide:
-            #if player.index > 2:
-            #    player.index -= 1
-            #    
-            #if player.index == 2:
-            #    player.index = 2
-            player.moveLeft()
+        if PRESSED_LEFTKEY:
+            if player.index > 2:
+                player.index -= 1
+            if player.index == 2:
+                player.index = 2
+            if collisions['bottom']:
+                playerMovement[0] -= 2
+            else:
+                playerMovement[0] = 0
+                player.airTimer = 7
 
-        if PRESSED_UPKEY and not player_collide:
-            player.jump()
+        if PRESSED_UPKEY:
+            if player.airTimer < 6:
+                player.momentumY = -5
 
-        if PRESSED_DOWNKEY and not player_collide:
-            player.moveDown()
+        if PRESSED_DOWNKEY:
+            pass
 
         if not PRESSED_RIGHTKEY and not PRESSED_LEFTKEY:
             player.pressingkeyx = False
+            playerMovement = [0,0]
         
         if not PRESSED_UPKEY and not PRESSED_DOWNKEY:
             player.pressingkeyy = False
 
-        if player.pressingkeyy == False and not player_collide:
-            if player.index < 6:
-                player.index += 1
-            if player.index == 6:
-                player.index = 1
+        playerMovement[1] += player.momentumY
+        player.momentumY += 0.2
+        if player.momentumY > 4:
+            player.momentumY = 4
 
+        player.rect, collisions = player.move(playerMovement, levelmap.mapTerrain.sprites)
+        
+        if collisions['top']:
+            player.momentumY = 0
+            player.airTimer = 0
 
-        player.move()
+        if collisions['bottom']:
+            player.momentumY = 0
+            player.airTimer = 0
+        
+        if not collisions['bottom'] or not collisions['top']:
+            player.airTimer += 1
+
+         # Draw player
+        player.update()
+        playerSprite.draw(screen)
 
         # If debug mode is on
         if DEBUGMODE:
@@ -269,8 +311,8 @@ def mainGameLoop():
             renderText(screen, str(averageFPS)+' FPS', 15,15)
             renderText(screen, ("Player Position: ("+str(float(player.pos.x))+", "+str(float(player.pos.y))+')'),15,30)
             renderText(screen, ("Camera Velocity: ("+str(float(player.cameraX))+", "+str(float(player.cameraY))+')'),15,45)
-            renderText(screen, ("Touching Terrain = "+ str(player_collide)), 15,60)
-            renderText(screen, ("Player Direction = "+str(player.direction)), 15,75)
+            #renderText(screen, ("Touching Terrain = "+ str(player_collide)), 15,60)
+            renderText(screen, ("Player Right = "+str(player.movingRight)), 15,75)
 
             # Draw player outline border
             pygame.draw.rect(screen, WHITE, player.boundingRect,width=1)
