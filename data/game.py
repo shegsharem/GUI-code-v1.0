@@ -51,7 +51,7 @@ FPSLOOPCOUNT = 0
 last_time = time.time()
 averageFPS = ''
 
-DEBUGMODE = False
+DEBUGMODE = True
 
 def checkFullscreen(): 
     if FULLSCREEN == 1:
@@ -127,7 +127,7 @@ def mainGameLoop():
     screenRect = screen.get_rect()
     # ----------------------------------------------
     level_map = [
-    '',
+    'XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX',
     '',
     '',
     '',
@@ -144,9 +144,9 @@ def mainGameLoop():
     '',
     '',
     '',
-    '',
-    '',
-    '',
+    '                       XXXXXX',
+    '                    XXXXXXXXX',
+    '                  XXXXXXXXXXX',
     '',
     '',
     '',
@@ -246,60 +246,63 @@ def mainGameLoop():
 
 
         if PRESSED_RIGHTKEY:
-            if player.index < 6:
-                player.index += 1
-                
-            if player.index == 6:
-                player.index -= 1
+            #if player.index < 6:
+            #    player.index += 1
+            #    
+            #if player.index == 6:
+            #    player.index -= 1
 
             if collisions['bottom']:
-                playerMovement[0] += 2  
-             
-            else:
-                playerMovement[0] = 0
+                playerMovement[0] += 5 
         
         if PRESSED_LEFTKEY:
-            if player.index > 2:
-                player.index -= 1
-            if player.index == 2:
-                player.index = 2
+            #if player.index > 2:
+            #    player.index -= 1
+            #if player.index == 2:
+            #    player.index = 2
             if collisions['bottom']:
-                playerMovement[0] -= 2
-            else:
-                playerMovement[0] = 0
-                player.airTimer = 7
+                playerMovement[0] -= 5
+                
 
         if PRESSED_UPKEY:
-            if player.airTimer < 6:
-                player.momentumY = -5
+            if player.airTimer < 2:
+                player.momentumY = -1
 
         if PRESSED_DOWNKEY:
             pass
 
         if not PRESSED_RIGHTKEY and not PRESSED_LEFTKEY:
             player.pressingkeyx = False
-            playerMovement = [0,0]
         
         if not PRESSED_UPKEY and not PRESSED_DOWNKEY:
             player.pressingkeyy = False
 
+        # Gravity
         playerMovement[1] += player.momentumY
-        player.momentumY += 0.2
-        if player.momentumY > 4:
-            player.momentumY = 4
+        player.momentumY += 0.1
+        if player.momentumY > 1:
+            player.momentumY = 1
 
         player.rect, collisions = player.move(playerMovement, levelmap.mapTerrain.sprites)
         
         if collisions['top']:
             player.momentumY = 0
-            player.airTimer = 0
+            player.airTimer += 0.5
+            playerMovement = [0,0]
 
         if collisions['bottom']:
             player.momentumY = 0
             player.airTimer = 0
+            playerMovement = [0,0]
+
+        if collisions['right']:
+            playerMovement = [0,0]
+        
+        if collisions['left']:
+            playerMovement = [0,0]
         
         if not collisions['bottom'] or not collisions['top']:
-            player.airTimer += 1
+            player.airTimer += 0.5
 
          # Draw player
         player.update()

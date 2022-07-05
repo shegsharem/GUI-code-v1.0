@@ -135,8 +135,7 @@ class Player(pygame.sprite.Sprite):
         #    if self.cameraX != 3:
         #        self.cameraX = 3
         
-        else:
-            self.cameraX =0
+        
         
         return self.rect, collisionTypes
 
