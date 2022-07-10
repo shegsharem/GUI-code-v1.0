@@ -72,7 +72,9 @@ class Player(pygame.sprite.Sprite):
 
     def update(self):
         self.boundingRect = self.boundingRects[self.index]
-        self.boundingRect.center = (self.rect.x+36, self.rect.y+40)
+        self.rect.x = self.boundingRect.x
+        self.rect.y = self.boundingRect.y
+        self.boundingRect.center = (self.rect.x+DISPLAY_W/24, self.rect.y+((DISPLAY_W/24)+6))
 
         #if the index is larger than the total images
         if self.index >= len(self.images):
@@ -94,6 +96,7 @@ class Player(pygame.sprite.Sprite):
             collide = pygame.rect.Rect.colliderect(playerBoundingRect, tile.rect)
             if collide:
                 hit_list.append(tile)
+                print(tile)
         return hit_list
 
     def move(self, movement, mapTiles):
@@ -101,27 +104,30 @@ class Player(pygame.sprite.Sprite):
         bottom = DISPLAY_H-(DISPLAY_H/4 + int(self.images[1].get_rect()[3])*0.76)
 
         collisionTypes = {'top': False, 'bottom': False, 'right': False, 'left': False}
-        
-        self.rect.x += movement[0]
+         
         self.boundingRect.x += movement[0]
         
         hit_list = Player.collisionTest(self, self.boundingRect, mapTiles)
         for tile in hit_list:
-            if movement[0] > 0:
+            if movement[0] >= 0:
+                #self.boundingRect.center = (self.rect.x+DISPLAY_W/24, self.rect.y+((DISPLAY_W/24)+6))
                 self.boundingRect.right = tile.rect.left
                 collisionTypes['right'] = True
-            elif movement[0] < 0:
+            elif movement[0] <= 0:
+                #self.boundingRect.center = (self.rect.x+DISPLAY_W/24, self.rect.y+((DISPLAY_W/24)+6))
                 self.boundingRect.left = tile.rect.right
                 collisionTypes['left'] = True
         
-        self.rect.y += movement[1]
         self.boundingRect.y += movement[1]
+
         hit_list = Player.collisionTest(self, self.boundingRect, mapTiles)
         for tile in hit_list:
-            if movement[1] > 0:
+            if movement[1] >= 0:
+                #self.boundingRect.center = (self.rect.x+DISPLAY_W/24, self.rect.y+((DISPLAY_W/24)+6))
                 self.boundingRect.bottom = tile.rect.top
                 collisionTypes['bottom'] = True
-            elif movement[0] < 0:
+            elif movement[1] <= 0:
+                #self.boundingRect.center = (self.rect.x+DISPLAY_W/24, self.rect.y+((DISPLAY_W/24)+6))
                 self.boundingRect.top = tile.rect.bottom
                 collisionTypes['top'] = True
 

@@ -144,9 +144,9 @@ def mainGameLoop():
     '',
     '',
     '',
-    '                       XXXXXX',
-    '                    XXXXXXXXX',
-    '                  XXXXXXXXXXX',
+    '                       XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX',
+    '                    XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX',
+    '         XXXXXXXXXXXXXXXXX',
     '',
     '',
     '',
@@ -245,25 +245,28 @@ def mainGameLoop():
                     PRESSED_UPKEY = True
 
 
-        if PRESSED_RIGHTKEY:
-            #if player.index < 6:
-            #    player.index += 1
-            #    
-            #if player.index == 6:
-            #    player.index -= 1
-
-            if collisions['bottom']:
-                playerMovement[0] += 5 
-        
-        if PRESSED_LEFTKEY:
-            #if player.index > 2:
-            #    player.index -= 1
-            #if player.index == 2:
-            #    player.index = 2
-            if collisions['bottom']:
-                playerMovement[0] -= 5
+        if PRESSED_RIGHTKEY and not collisions['right']:
+            if player.index < 6:
+                player.index += 1
                 
+            if player.index == 6:
+                player.index -= 1
 
+            #if collisions['bottom']:
+            playerMovement[0] += 1
+            if playerMovement[0] > 5:
+                playerMovement[0] = 5
+
+        if PRESSED_LEFTKEY and not collisions['left']:
+            if player.index > 2:
+                player.index -= 1
+            if player.index == 2:
+                player.index = 2
+            #if collisions['bottom']:
+            playerMovement[0] -= 1
+            if playerMovement[0] < -5:
+                playerMovement[0] = -5
+                       
         if PRESSED_UPKEY:
             if player.airTimer < 2:
                 player.momentumY = -1
@@ -279,9 +282,9 @@ def mainGameLoop():
 
         # Gravity
         playerMovement[1] += player.momentumY
-        player.momentumY += 0.1
-        if player.momentumY > 1:
-            player.momentumY = 1
+        player.momentumY += 0.5
+        if player.momentumY > 2:
+            player.momentumY = 2
 
         player.rect, collisions = player.move(playerMovement, levelmap.mapTerrain.sprites)
         
@@ -293,16 +296,16 @@ def mainGameLoop():
         if collisions['bottom']:
             player.momentumY = 0
             player.airTimer = 0
-            playerMovement = [0,0]
+            playerMovement[1] = 0
 
         if collisions['right']:
-            playerMovement = [0,0]
+            playerMovement[0] = 0
         
         if collisions['left']:
-            playerMovement = [0,0]
+            playerMovement[0] = 0
         
         if not collisions['bottom'] or not collisions['top']:
-            player.airTimer += 0.5
+            player.airTimer += 0.1
 
          # Draw player
         player.update()
@@ -314,8 +317,10 @@ def mainGameLoop():
             renderText(screen, str(averageFPS)+' FPS', 15,15)
             renderText(screen, ("Player Position: ("+str(float(player.pos.x))+", "+str(float(player.pos.y))+')'),15,30)
             renderText(screen, ("Camera Velocity: ("+str(float(player.cameraX))+", "+str(float(player.cameraY))+')'),15,45)
-            #renderText(screen, ("Touching Terrain = "+ str(player_collide)), 15,60)
-            renderText(screen, ("Player Right = "+str(player.movingRight)), 15,75)
+            renderText(screen, "Touching Terrain = "+ str(collisions), 15,60)
+            renderText(screen, "Player Movement = "+str(playerMovement), 15,75)
+            renderText(screen, "Air Timer: "+str(player.airTimer), 15, 90)
+            renderText(screen, "Y Axis Momentum: "+ str(player.momentumY), 15, 105)
 
             # Draw player outline border
             pygame.draw.rect(screen, WHITE, player.boundingRect,width=1)
