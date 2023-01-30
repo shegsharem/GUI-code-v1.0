@@ -160,7 +160,10 @@ def mainGameLoop():
     levelmap = Level(level_map)
 
     playerSprite.add(player)
-    playerMovement = [0,0]
+
+    playerPosition = [0,0]
+
+    playerVelocity = [0,0]
 
     # Hide mouse
     pygame.mouse.set_visible(False)
@@ -185,27 +188,46 @@ def mainGameLoop():
     while True:
         last_time = time.time()
 
+        
         # Camera movement
         cameraX = player.cameraX
         cameraY = player.cameraY
 
-        # Draw background
-        screen.blit(background_image,background_rect)
-
-        # Draw level map
-        levelmap.cameraMove(cameraX,cameraY)
-        levelmap.mapTerrain.draw(screen)
-
-        # This function call will return True if colliding with mapTerrain
-        #player_collide = levelmap.collisionCheck(player.boundingRect)
+        # Get position of player and collision status
+        player.rect = player.move(playerPosition, levelmap.mapTerrain.sprites)
+        
+        
 
         # Get mouse coordinates
         Mouse_x, Mouse_y = pygame.mouse.get_pos()
+
+        # Get Inputs --------------------------------------------------------------
         for event in pygame.event.get():
+            # If quitted game
             if event.type == pygame.QUIT:
                 pygame.quit()
 
-        
+            if event.type == pygame.KEYDOWN:
+                # IF KEY IS PRESSED DOWN
+                if event.key == pygame.key.key_code(str(user_ESCAPEKEY)):
+                    PRESSED_ESCAPEKEY = True
+                if event.key == pygame.key.key_code(str(user_SELECTKEY)):
+                    PRESSED_SELECTKEY = True
+                if event.key == pygame.key.key_code(str(user_RIGHTKEY)):
+                    player.pressingkeyx = True
+                    PRESSED_RIGHTKEY = True
+                    player.movingRight = True # To change sprite image
+                if event.key == pygame.key.key_code(str(user_LEFTKEY)):
+                    player.pressingkeyx = True
+                    PRESSED_LEFTKEY = True
+                    player.movingLeft = True # To change sprite image
+                if event.key == pygame.key.key_code(str(user_DOWNKEY)):
+                    player.pressingkeyy = True
+                    PRESSED_DOWNKEY = True
+                if event.key == pygame.key.key_code(str(user_UPKEY)):
+                    player.pressingkeyy = True
+                    PRESSED_UPKEY = True
+
             if event.type == pygame.KEYUP:
                 # If key is released
                 if event.key == pygame.key.key_code(str(user_ESCAPEKEY)):
@@ -223,111 +245,93 @@ def mainGameLoop():
                     PRESSED_DOWNKEY = False
                 if event.key == pygame.key.key_code(str(user_UPKEY)):
                     PRESSED_UPKEY = False
-            
-            if event.type == pygame.KEYDOWN:
-                # IF KEY IS PRESSED DOWN
-                if event.key == pygame.key.key_code(str(user_ESCAPEKEY)):
-                    PRESSED_ESCAPEKEY = True
-                if event.key == pygame.key.key_code(str(user_SELECTKEY)):
-                    PRESSED_SELECTKEY = True
-                if event.key == pygame.key.key_code(str(user_RIGHTKEY)):
-                    player.pressingkeyx = True
-                    PRESSED_RIGHTKEY = True
-                    player.movingRight = True
-                if event.key == pygame.key.key_code(str(user_LEFTKEY)):
-                    player.pressingkeyx = True
-                    PRESSED_LEFTKEY = True
-                    player.movingLeft = True
-                if event.key == pygame.key.key_code(str(user_DOWNKEY)):
-                    player.pressingkeyy = True
-                    PRESSED_DOWNKEY = True
-                if event.key == pygame.key.key_code(str(user_UPKEY)):
-                    player.pressingkeyy = True
-                    PRESSED_UPKEY = True
+        # ------------------------------------------------------------------------------------------
 
-        player.rect, collisions = player.move(playerMovement, levelmap.mapTerrain.sprites)
-
-        # Gravity
-        playerMovement[1] += player.momentumY
-
-        if PRESSED_RIGHTKEY and not collisions['right']:
-            if player.index < 6:
-                player.index += 1
-                
-            if player.index == 6:
-                player.index -= 1
-
-            #if collisions['bottom']:
-            playerMovement[0] += 1
-            if playerMovement[0] > 5:
-                playerMovement[0] = 5
-
-        if PRESSED_LEFTKEY and not collisions['left']:
-            if player.index > 2:
-                player.index -= 1
-            if player.index == 2:
-                player.index = 2
-            #if collisions['bottom']:
-            playerMovement[0] -= 1
-            if playerMovement[0] < -1:
-                playerMovement[0] = -1
-                       
-        if PRESSED_UPKEY:
-            if player.airTimer < 2:
-                player.momentumY = -1
-
-        if PRESSED_DOWNKEY:
-            pass
-
+        # Input Logic -----------------------------------
         if not PRESSED_RIGHTKEY and not PRESSED_LEFTKEY:
             player.pressingkeyx = False
         
         if not PRESSED_UPKEY and not PRESSED_DOWNKEY:
             player.pressingkeyy = False
+        # -----------------------------------------------
 
-        
-        
+        # Process Input -------------------------------------
+        if PRESSED_UPKEY:
+            playerVelocity[1] = 0.9
 
-        if collisions['bottom']:
-            player.momentumY = 0
-            player.airTimer = 0
-            playerMovement[1] = 0
-        
-        if not collisions['bottom']:
-            player.momentumY += 0.5
-            if player.momentumY > 2:
-                player.momentumY = 2
+        if PRESSED_DOWNKEY:
+            pass
 
-        if collisions['right']:
-            playerMovement[0] = 0
-        
-        if collisions['left']:
-            playerMovement[0] = 0
+        if PRESSED_LEFTKEY:
+            if player.index > 2:
+                player.index -= 1
+            if player.index == 2:
+                player.index = 2
 
+            playerVelocity[0] = -5
+                       
+        if PRESSED_RIGHTKEY:
+            if player.index < 6:
+                player.index += 1
+            if player.index == 6:
+                player.index -= 1
+
+            playerVelocity[0] = 5
+        # --------------------------------------------
+        collisions = player.checkCollision(levelmap.mapTerrain.sprites)
+        # Collisions ---------------------------------
         if collisions['top']:
-            player.momentumY = 0
-            player.airTimer += 0.5
-            playerMovement[0] = 0
-            playerMovement[1] = 0
+            pass
+
+        if not collisions['bottom']:
+            playerVelocity[1] = 10
+        
+        if collisions['bottom']:
+            if playerVelocity[1] != 0:
+                playerVelocity[1] = 0
+            
+            
+        if collisions['left']:
+            playerVelocity[0] = 0
+            
+        if collisions['right']:
+            playerVelocity[0] = 0
+
+        if PRESSED_UPKEY:
+            playerVelocity[1] = -13
+
+        if not player.pressingkeyx:
+            playerVelocity[0] =0
+        
+        # Draw background
+        screen.blit(background_image,background_rect)
+
+        # Draw level map
+        levelmap.cameraMove(cameraX,cameraY)
+        levelmap.mapTerrain.draw(screen)
+
+        # Final coordinate to load for update of player's position
+        playerPosition[0] += playerVelocity[0]
+        playerPosition[1] += playerVelocity[1]
+
 
         
-        if not collisions['bottom'] or not collisions['top']:
-            player.airTimer += 0.1
 
-         # Draw player
-        player.update()
+        
+        
+        # Draw player
+        playerSprite.update()
         playerSprite.draw(screen)
+
 
         # If debug mode is on
         if DEBUGMODE:
             # Display current FPS in top left corner
             renderText(screen, str(averageFPS)+' FPS', 15,15)
-            renderText(screen, ("Player Position: ("+str(float(player.pos.x))+", "+str(float(player.pos.y))+')'),15,30)
+            renderText(screen, ("Player Position: ("+str(float(player.rect.x))+", "+str(float(player.rect.y))+')'),15,30)
             renderText(screen, ("Camera Velocity: ("+str(float(player.cameraX))+", "+str(float(player.cameraY))+')'),15,45)
             renderText(screen, "Touching Terrain = "+ str(collisions), 15,60)
-            renderText(screen, "Player Movement = "+str(playerMovement), 15,75)
-            renderText(screen, "Air Timer: "+str(player.airTimer), 15, 90)
-            renderText(screen, "Y Axis Momentum: "+ str(player.momentumY), 15, 105)
+            renderText(screen, "Player Velocity = "+str(playerVelocity), 15,75)
 
             # Draw player outline border
             pygame.draw.rect(screen, WHITE, player.boundingRect,width=1)
@@ -354,8 +358,13 @@ def mainGameLoop():
                 rightbutton=pygame.draw.rect(screen, BLACK, ((DISPLAY_W+75)-DISPLAY_W,DISPLAY_H-35, 30,30),width=2,border_radius=4)
             renderText(screen, str(user_RIGHTKEY).upper(), (DISPLAY_W+86)-DISPLAY_W, DISPLAY_H-26)
 
+
+        
+        
         # Run limitor to lock in set frame rate (loop will only iterate whatever FPS is set to)
         clockTick()
+
+        
 
         delta_t = time.time() - last_time
         delta_t *= FPS
@@ -366,6 +375,7 @@ def mainGameLoop():
             averageFPS = takeaverage
             FPSLOOPCOUNT = 0
             takeaverage = 0
+
         FPSLOOPCOUNT+=1
 
         # Update to next frame

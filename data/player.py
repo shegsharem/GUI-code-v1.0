@@ -43,9 +43,6 @@ class Player(pygame.sprite.Sprite):
         self.pressingkeyx = False
         self.pressingkeyy = False
 
-        self.airTimer = 0
-
-        self.momentumY = 0
 
         pygame.sprite.Sprite.__init__(self)
         self.images = []
@@ -72,8 +69,10 @@ class Player(pygame.sprite.Sprite):
 
     def update(self):
         self.boundingRect = self.boundingRects[self.index]
-        self.rect.x = self.boundingRect.x
-        self.rect.y = self.boundingRect.y
+
+        #self.rect.x = self.boundingRect.x
+        #self.rect.y = self.boundingRect.y
+        
         self.boundingRect.center = (self.rect.x+DISPLAY_W/24, self.rect.y+((DISPLAY_W/24)+6))
 
         #if the index is larger than the total images
@@ -96,111 +95,54 @@ class Player(pygame.sprite.Sprite):
             collide = pygame.rect.Rect.colliderect(playerBoundingRect, tile.rect)
             if collide:
                 hit_list.append(tile)
-                print(tile)
         return hit_list
+
+    def checkCollision(self, mapTiles):
+        collisionTypes = {'top': False, 'bottom': False, 'right': False, 'left': False}
+
+        collisionList = Player.collisionTest(self, self.boundingRect, mapTiles)
+
+        for tile in collisionList:
+            print("Tile= ",tile.rect)
+            print("Rect= ", self.boundingRect)
+
+            if self.boundingRect.top - tile.rect.top <= self.boundingRect.height:
+                collisionTypes['bottom'] = True
+
+            if self.boundingRect.bottom >=  self.boundingRect.bottom - tile.rect.bottom:
+                collisionTypes['top'] = True
+
+            #if tile.rect.left != self.boundingRect.right - tile.rect.left:
+            #    collisionTypes['right'] = True
+#
+#
+            #if tile.rect.right != self.boundingRect.left - tile.rect.right:
+            #    collisionTypes['left'] = True
+            #
+            #
+            #if tile.rect.top <= self.boundingRect.bottom:
+            #    collisionTypes['bottom'] = True
+        #
+#
+            #if tile.rect.bottom >= self.boundingRect.top:
+            #    collisionTypes['top'] = True
+#
+            
+        
+            
+
+        return collisionTypes
+
+
 
     def move(self, movement, mapTiles):
         top = -int(self.image.get_rect()[3]*0.25)
         bottom = DISPLAY_H-(DISPLAY_H/4 + int(self.images[1].get_rect()[3])*0.76)
 
-        collisionTypes = {'top': False, 'bottom': False, 'right': False, 'left': False}
-         
-        self.boundingRect.x += movement[0]
-        self.boundingRect.y += movement[1]
-        
-        hit_list = Player.collisionTest(self, self.boundingRect, mapTiles)
-        for tile in hit_list:
-            if movement[0] > 0:
-                #self.boundingRect.center = (self.rect.x+DISPLAY_W/24, self.rect.y+((DISPLAY_W/24)+6))
-                self.boundingRect.right = tile.rect.left
-                collisionTypes['right'] = True
-            if movement[0] < 0:
-                #self.boundingRect.center = (self.rect.x+DISPLAY_W/24, self.rect.y+((DISPLAY_W/24)+6))
-                self.boundingRect.left = tile.rect.left
-                collisionTypes['left'] = True
-        
-
-        hit_list = Player.collisionTest(self, self.boundingRect, mapTiles)
-        for tile in hit_list:
-            if movement[1] >= 0:
-                #self.boundingRect.center = (self.rect.x+DISPLAY_W/24, self.rect.y+((DISPLAY_W/24)+6))
-                self.boundingRect.bottom = tile.rect.top
-                collisionTypes['bottom'] = True
-            if movement[1] <= 0:
-                #self.boundingRect.center = (self.rect.x+DISPLAY_W/24, self.rect.y+((DISPLAY_W/24)+6))
-                self.boundingRect.top = tile.rect.bottom
-                collisionTypes['top'] = True
-
-
-        #if self.pos.x <= (DISPLAY_W/2)-(DISPLAY_W/8):
-        #    #self.pos.x += 5
-        #    if self.cameraX != -3:
-        #        self.cameraX = -3
-        #
-        #if self.pos.x <= (DISPLAY_W/2)-(DISPLAY_W/8):
-        #    if self.cameraX != 3:
-        #        self.cameraX = 3
-        
-        
-        
-        return self.rect, collisionTypes
-
-        # Friction
-        if self.cameraX != 0 and not self.pressingkeyx:
-            self.cameraX = 0
-            #if self.cameraX > 0:
-            #    self.cameraX -= 0.2
-            #if self.cameraX < 0:
-            #    self.cameraX += 0.2
-            #if -0.2 < self.cameraX < 0.2:
-            #    self.cameraX = 0
-        
-        if self.cameraY != 0 and not self.pressingkeyy:
-            self.cameraY = 0
-            #if self.cameraY > 0:
-            #    self.cameraY -= 0.2
-            #if self.cameraY < 0:
-            #    self.cameraY += 0.2
-            #if -0.2 < self.cameraY < 0.2:
-            #    self.cameraY = 0
-
-
-        if self.pos.y < top:
-            self.pos.y = top
     
-    def moveLeft(self):
-        self.movingLeft = True
-        if self.pos.x < (DISPLAY_W/2)-(DISPLAY_W/8):
-            #self.pos.x += 5
-            if self.cameraX != -3:
-                self.cameraX = -3
-        else:
-            self.pos.x -= 3
-            self.cameraX = 0
+        self.rect.x = movement[0]
+        self.rect.y = movement[1]
+
         
-
-    def moveRight(self):
-        self.movingRight = True
-        if self.pos.x <= (DISPLAY_W/2)-(DISPLAY_W/8):
-            if self.cameraX != 3:
-                self.cameraX = 3
-        else:
-            self.pos.x += 3
-            self.cameraX = 0
         
-
-    def jump(self):
-        if self.cameraY != 10 and self.pos.y > DISPLAY_H/4:
-            self.pos.y -= 10
-        if self.pos.y <= DISPLAY_H/4:
-            self.cameraY = 10
-
-    def gravity(self):
-        self.vel.y = self.vel.y + ACCELERATION
-        self.pos.y = self.pos.y + self.vel.y
-
-    
-    def moveDown(self):
-        if self.cameraY != 20 and self.pos.y < DISPLAY_H:
-            self.cameraY = -10
-
+        return self.rect #collisionTypes
