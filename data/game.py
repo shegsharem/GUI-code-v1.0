@@ -127,7 +127,7 @@ def mainGameLoop():
     screenRect = screen.get_rect()
     # ----------------------------------------------
     level_map = [
-    'XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX',
+    '',
     '',
     '',
     '',
@@ -205,6 +205,7 @@ def mainGameLoop():
             if event.type == pygame.QUIT:
                 pygame.quit()
 
+        
             if event.type == pygame.KEYUP:
                 # If key is released
                 if event.key == pygame.key.key_code(str(user_ESCAPEKEY)):
@@ -244,6 +245,10 @@ def mainGameLoop():
                     player.pressingkeyy = True
                     PRESSED_UPKEY = True
 
+        player.rect, collisions = player.move(playerMovement, levelmap.mapTerrain.sprites)
+
+        # Gravity
+        playerMovement[1] += player.momentumY
 
         if PRESSED_RIGHTKEY and not collisions['right']:
             if player.index < 6:
@@ -264,8 +269,8 @@ def mainGameLoop():
                 player.index = 2
             #if collisions['bottom']:
             playerMovement[0] -= 1
-            if playerMovement[0] < -5:
-                playerMovement[0] = -5
+            if playerMovement[0] < -1:
+                playerMovement[0] = -1
                        
         if PRESSED_UPKEY:
             if player.airTimer < 2:
@@ -280,29 +285,31 @@ def mainGameLoop():
         if not PRESSED_UPKEY and not PRESSED_DOWNKEY:
             player.pressingkeyy = False
 
-        # Gravity
-        playerMovement[1] += player.momentumY
-        player.momentumY += 0.5
-        if player.momentumY > 2:
-            player.momentumY = 2
-
-        player.rect, collisions = player.move(playerMovement, levelmap.mapTerrain.sprites)
         
-        if collisions['top']:
-            player.momentumY = 0
-            player.airTimer += 0.5
-            playerMovement = [0,0]
+        
 
         if collisions['bottom']:
             player.momentumY = 0
             player.airTimer = 0
             playerMovement[1] = 0
+        
+        if not collisions['bottom']:
+            player.momentumY += 0.5
+            if player.momentumY > 2:
+                player.momentumY = 2
 
         if collisions['right']:
             playerMovement[0] = 0
         
         if collisions['left']:
             playerMovement[0] = 0
+
+        if collisions['top']:
+            player.momentumY = 0
+            player.airTimer += 0.5
+            playerMovement[0] = 0
+            playerMovement[1] = 0
+
         
         if not collisions['bottom'] or not collisions['top']:
             player.airTimer += 0.1
@@ -368,3 +375,4 @@ def mainGameLoop():
 if __name__ == '__main__':
     mainGameLoop()
     
+

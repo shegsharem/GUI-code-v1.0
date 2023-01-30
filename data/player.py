@@ -106,19 +106,19 @@ class Player(pygame.sprite.Sprite):
         collisionTypes = {'top': False, 'bottom': False, 'right': False, 'left': False}
          
         self.boundingRect.x += movement[0]
+        self.boundingRect.y += movement[1]
         
         hit_list = Player.collisionTest(self, self.boundingRect, mapTiles)
         for tile in hit_list:
-            if movement[0] >= 0:
+            if movement[0] > 0:
                 #self.boundingRect.center = (self.rect.x+DISPLAY_W/24, self.rect.y+((DISPLAY_W/24)+6))
                 self.boundingRect.right = tile.rect.left
                 collisionTypes['right'] = True
-            elif movement[0] <= 0:
+            if movement[0] < 0:
                 #self.boundingRect.center = (self.rect.x+DISPLAY_W/24, self.rect.y+((DISPLAY_W/24)+6))
-                self.boundingRect.left = tile.rect.right
+                self.boundingRect.left = tile.rect.left
                 collisionTypes['left'] = True
         
-        self.boundingRect.y += movement[1]
 
         hit_list = Player.collisionTest(self, self.boundingRect, mapTiles)
         for tile in hit_list:
@@ -126,7 +126,7 @@ class Player(pygame.sprite.Sprite):
                 #self.boundingRect.center = (self.rect.x+DISPLAY_W/24, self.rect.y+((DISPLAY_W/24)+6))
                 self.boundingRect.bottom = tile.rect.top
                 collisionTypes['bottom'] = True
-            elif movement[1] <= 0:
+            if movement[1] <= 0:
                 #self.boundingRect.center = (self.rect.x+DISPLAY_W/24, self.rect.y+((DISPLAY_W/24)+6))
                 self.boundingRect.top = tile.rect.bottom
                 collisionTypes['top'] = True
