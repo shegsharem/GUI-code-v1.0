@@ -20,8 +20,8 @@ class Level:
 
         for row_index,row in enumerate(self.levelMap):
             for col_index,cell in enumerate(row):
-                x = col_index * DISPLAY_W/50
-                y = row_index * DISPLAY_W/50
+                x = int(col_index * DISPLAY_W/50)
+                y = int(row_index * DISPLAY_H/50)
 
                 if cell == "X":
                     self.terrain = Dirt('dirt', (x,y), DISPLAY_W/30)

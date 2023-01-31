@@ -140,18 +140,39 @@ def mainGameLoop():
     '',
     '',
     '',
-    '',  
+    '',
+    '',
+    '',
+    '',
+    '',
+    'XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX',
+    '',
+    '',
+    '',
+    '', 
+    '',
+    '',
+    '',
+    '',
+    '', 
+    '',
+    '',
+    '',
+    '',
+    '', 
     '',
     '',
     '',
     '                       XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX',
+    '',
     '                    XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX',
+    '',
     '         XXXXXXXXXXXXXXXXX',
     '',
     '',
     '',
     '',                                                       
-    ' YYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYY                                                                    '
+    '                                                                    '
     ]
 
     # Sprite Initiation
@@ -263,8 +284,8 @@ def mainGameLoop():
         # -----------------------------------------------
 
         # Process Input -------------------------------------
-        if PRESSED_UPKEY:
-            playerVelocity[1] = -13
+        if PRESSED_UPKEY and collisions['bottom']:
+            playerVelocity[1] = -15
 
             if player.index < 6:
                 player.index += 1
@@ -306,7 +327,9 @@ def mainGameLoop():
             pass
 
         if not collisions['bottom']:
-            playerVelocity[1] = 10
+            playerVelocity[1] = playerVelocity[1] + 1
+            
+
         
         if collisions['bottom']:
             if playerVelocity[1] > 0:
@@ -320,7 +343,7 @@ def mainGameLoop():
             
 
         if not player.pressingkeyx:
-            playerVelocity[0] =0
+            playerVelocity[0] = playerVelocity[0]*0.7
         
         
 
