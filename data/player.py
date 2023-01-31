@@ -69,6 +69,7 @@ class Player(pygame.sprite.Sprite):
 
     def update(self):
         self.boundingRect = self.boundingRects[self.index]
+        self.image = self.images[self.index]
 
         #self.rect.x = self.boundingRect.x
         #self.rect.y = self.boundingRect.y
@@ -127,10 +128,6 @@ class Player(pygame.sprite.Sprite):
             #if tile.rect.bottom >= self.boundingRect.top:
             #    collisionTypes['top'] = True
 #
-            
-        
-            
-
         return collisionTypes
 
 
