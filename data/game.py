@@ -51,7 +51,7 @@ FPSLOOPCOUNT = 0
 last_time = time.time()
 averageFPS = ''
 
-DEBUGMODE = True
+DEBUGMODE = False
 
 def checkFullscreen(): 
     if FULLSCREEN == 1:
@@ -189,6 +189,8 @@ def mainGameLoop():
 
     playerVelocity = [0,0]
 
+    jumpCount = 0
+
     # Hide mouse
     pygame.mouse.set_visible(False)
 
@@ -284,8 +286,9 @@ def mainGameLoop():
         # -----------------------------------------------
 
         # Process Input -------------------------------------
-        if PRESSED_UPKEY and collisions['bottom']:
+        if PRESSED_UPKEY and jumpCount < 3:
             playerVelocity[1] = -15
+            jumpCount = jumpCount + 1
 
             if player.index < 6:
                 player.index += 1
@@ -294,13 +297,12 @@ def mainGameLoop():
             
         
         if not PRESSED_UPKEY:
-            if player.index > 2:
+            if player.index > 3:
                 player.index -= 1
-            if player.index == 2:
-                player.index = 2
+            if player.index == 3:
+                player.index = 3
         
             
-
         if PRESSED_DOWNKEY:
             pass
 
@@ -330,8 +332,8 @@ def mainGameLoop():
             playerVelocity[1] = playerVelocity[1] + 1
             
 
-        
         if collisions['bottom']:
+            jumpCount = 0
             if playerVelocity[1] > 0:
                 playerVelocity[1] = 0
             
