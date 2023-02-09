@@ -1,4 +1,4 @@
-mport settings
+import settings
 import start
 
 start.run()

@@ -107,7 +107,7 @@ class Player(pygame.sprite.Sprite):
             print("Tile= ",tile.rect)
             print("Rect= ", self.boundingRect)
 
-            if self.boundingRect.top - tile.rect.top <= self.boundingRect.height:
+            if self.boundingRect.bottom - tile.rect.bottom <= self.boundingRect.height:
                 collisionTypes['bottom'] = True
 
             if self.boundingRect.bottom >=  self.boundingRect.bottom - tile.rect.bottom:

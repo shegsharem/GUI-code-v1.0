@@ -51,7 +51,7 @@ FPSLOOPCOUNT = 0
 last_time = time.time()
 averageFPS = ''
 
-DEBUGMODE = False
+DEBUGMODE = True
 
 def checkFullscreen(): 
     if FULLSCREEN == 1:
@@ -345,7 +345,9 @@ def mainGameLoop():
             
 
         if not player.pressingkeyx:
-            playerVelocity[0] = playerVelocity[0]*0.7
+            playerVelocity[0] = playerVelocity[0]*0.5
+            if playerVelocity[0] < 0.00001:
+                playerVelocity[0] = 0
         
         
 
